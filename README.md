@@ -1,6 +1,14 @@
 # Chat-Stat
 A twitch emote metric tracking app
 
+## MVP
+- as a user I want to be able to navigate to a web page and filter by twitch 
+channel and emote, and see how often that emote was used in the channels chat, 
+within a 1 sec, 5 sec, 30 sec, 1 min, 5min, 1 hour interval. 
+- requirements
+    - all infra deployed to aws
+    - connect to ~25 channels, possibly hard coded
+
 ## Todo
 [x] connect bot
 [] webserver endpoints
@@ -41,3 +49,14 @@ https://api.7tv.app/v2/emotes/global
 curl -X GET 'https://api.twitch.tv/helix/chat/emotes/global' \
 -H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
 -H 'Client-Id: uo6dggojyb8d6soh92zknwmi5ej1q2'
+
+## Webhooks
+webhooks for when a streamer goes on and offline, this could trigger a lambda?
+https://dev.twitch.tv/docs/eventsub/eventsub-reference
+- stream offline condition 
+- stream online condition
+
+## helix endpoint
+curl -X GET 'https://api.twitch.tv/v5/videos/1681900380/comments?content_offset_seconds=1' \
+-A "Accept: application/vnd.twitchtv.v5+json; charset=UTF-8" \
+-H 'Client-Id: kimne78kx3ncx6brgo4mv6wki5h1ko'\
