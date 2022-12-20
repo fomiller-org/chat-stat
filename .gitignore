@@ -19,3 +19,8 @@
 
 # redis
 **/dump.rdb
+
+# tools
+TwitchDownloaderCLI
+chat.json
+chat.txt
