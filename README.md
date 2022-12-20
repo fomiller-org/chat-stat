@@ -20,3 +20,24 @@ A twitch emote metric tracking app
 [] create clip, A, B, versions. 15sec, 30 sec
 [] chat-stat cli
 
+## 7tv emote endpoints
+https://api.7tv.app/v2/emotes/global
+
+## bttv emote endpoints
+limit 100
+
+- top
+    https://api.betterttv.net/3/emotes/shared/top?offset=0&limit=100
+- trending
+    https://api.betterttv.net/3/emotes/shared/trending?offset=0&limit=100
+- global
+    https://api.betterttv.net/3/cached/emotes/global
+- shared
+    https://api.betterttv.net/3/cached/emotes/shared
+
+https://api.7tv.app/v2/emotes/global
+
+## Twitch emotes
+curl -X GET 'https://api.twitch.tv/helix/chat/emotes/global' \
+-H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
+-H 'Client-Id: uo6dggojyb8d6soh92zknwmi5ej1q2'
