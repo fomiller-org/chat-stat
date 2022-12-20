@@ -15,4 +15,7 @@
 # vendor/
 
 # env vars
-.env
+**/.env
+
+# redis
+**/dump.rdb
