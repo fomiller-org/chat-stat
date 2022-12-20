@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"log"
 	"fmt"
+	"strings"
 
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/go-redis/redis/v9"
+	"github.com/google/uuid"
 )
 
 var ctx = context.Background()
@@ -20,25 +21,27 @@ func main() {
 	})
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		log.Println(message.Message)
-		err := rdb.Publish(ctx, message.Channel, message.Message).Err()
-		if err != nil {
-			panic(err)
+		for _, emote := range message.Emotes {
+			id, _ := uuid.NewRandom()
+			err := rdb.Publish(ctx, fmt.Sprintf("%v_%v", message.Channel, strings.ToLower(emote.Name)), fmt.Sprintf("%v %v %v - %v", message.Time.String(), emote.Name, emote.Count, id)).Err()
+			if err != nil {
+				panic(err)
+			}
 		}
 	})
 
-	client.Join("moonmoon")
+	client.Join("swolenesss")
 	go connectClient(client)
 	// There is no error because go-redis automatically reconnects on error.
-	pubsub := rdb.Subscribe(ctx, "mychannel1")
+	pubsub := rdb.Subscribe(ctx, "swolenesss_kappa")
 	// Close the subscription when we are done.
 	defer pubsub.Close()
 	ch := pubsub.Channel()
 
 	for msg := range ch {
-		fmt.Println(msg.Channel, msg.Payload)
+		fmt.Println(msg.Payload)
 	}
-	
+
 }
 
 func connectClient(client *twitch.Client) {
