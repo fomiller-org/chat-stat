@@ -12,6 +12,10 @@ import (
 
 var ctx = context.Background()
 
+type StreamMessage struct {
+	Message string
+}
+
 func main() {
 	client := twitch.NewAnonymousClient() // for an anonymous user (no write capabilities)
 	rdb := redis.NewClient(&redis.Options{
@@ -23,7 +27,26 @@ func main() {
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		for _, emote := range message.Emotes {
 			id, _ := uuid.NewRandom()
-			err := rdb.Publish(ctx, fmt.Sprintf("%v_%v", message.Channel, strings.ToLower(emote.Name)), fmt.Sprintf("%v %v %v - %v", message.Time.String(), emote.Name, emote.Count, id)).Err()
+			streamChannelName := fmt.Sprintf("%v_%v", message.Channel, strings.ToLower(emote.Name))
+
+			// add emote to stream without consumer
+			err := rdb.XAdd(ctx, &redis.XAddArgs{
+				Stream: streamChannelName,
+				MaxLen: 5,
+				Approx: false,
+				ID:     "",
+				Values: []interface{}{"message", fmt.Sprintf("%v %v %v - %v", message.Time.String(), emote.Name, emote.Count, id)},
+			}).Err()
+			if err != nil {
+				panic(err)
+			}
+
+			// examples of how to use XLEN
+			// fmt.Printf("the length is : %v\n", rdb.XLen(ctx, "swolenesss_kappa").Val())
+			// fmt.Printf("the length is : %v\n", rdb.XLen(ctx, "swolenesss_pogchamp").Val())
+
+			// publish message to channel that has a subscriber attached will automatically be consumed
+			err = rdb.Publish(ctx, streamChannelName, fmt.Sprintf("%v %v %v - %v", message.Time.String(), emote.Name, emote.Count, id)).Err()
 			if err != nil {
 				panic(err)
 			}
