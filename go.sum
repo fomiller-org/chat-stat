@@ -1,5 +1,7 @@
 github.com/RedisTimeSeries/redistimeseries-go v1.4.4 h1:kvVnHdU96E4XwVTwb/R/90o+AdNqTyWSYQHgj6yf0W0=
 github.com/RedisTimeSeries/redistimeseries-go v1.4.4/go.mod h1:qbwAboI+9BGBAWLLLJO2XwoLwkUpcPJ6GRRBEWJ10as=
+github.com/dankeroni/jsonapi v0.0.0-20160914195301-7aa17e21f323 h1:1QXbR5XxivdKNhvqGvYboHlFGPFEuF38oW8LMmtsz6Y=
+github.com/dankeroni/jsonapi v0.0.0-20160914195301-7aa17e21f323/go.mod h1:erSjIHOb3O9IOadpkJt+GFxLcqcZXqWWZUWyhmAufKM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -10,8 +12,8 @@ github.com/gomodule/redigo v1.8.2/go.mod h1:P9dn9mFrCBvWhGE1wpxx6fgq7BAeLBk+UUUz
 github.com/google/go-cmp v0.5.1/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
-github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/pajlada/gobttv v1.0.0 h1:wkQrEeBM0liLKSWhEC11BbT1mAr+LW4+50KzEhMB5Gk=
+github.com/pajlada/gobttv v1.0.0/go.mod h1:J2A6ZSOOw6Qn5vsNXRBtShJH4HBsH9h4sgA+Q5XWk7Q=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
