@@ -9,7 +9,7 @@ import (
 )
 
 var ctx = context.Background()
-var stream = "moonmoon"
+var stream = "sodapoppin"
 
 type StreamMessage struct {
 	Message string
@@ -17,15 +17,10 @@ type StreamMessage struct {
 
 func main() {
 	client := twitch.NewAnonymousClient() // for an anonymous user (no write capabilities)
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr:     "localhost:6379",
-	// 	Password: "", // no password set
-	// 	DB:       0,  // use default DB
-	// })
-
 	rts := redisTS.NewClient("localhost:6379", "", nil)
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		fmt.Printf("%v\n\n", message.Raw)
 		for _, emote := range message.Emotes {
 			extension := "twitch"
 			options := redisTS.DefaultCreateOptions
@@ -36,18 +31,10 @@ func main() {
 			}
 			options.Labels = labels
 
-			fmt.Println(labels)
-
 			key := fmt.Sprintf("%v/%v/%v", message.Channel, extension, emote.Name)
 
 			rts.CreateKeyWithOptions(key, options)
-
 			rts.AddWithOptions(key, message.Time.UnixMilli(), 1, options)
-
-			// examples of how to use XLEN
-			// fmt.Printf("the length is : %v\n", rdb.XLen(ctx, "swolenesss_kappa").Val())
-			// fmt.Printf("the length is : %v\n", rdb.XLen(ctx, "swolenesss_pogchamp").Val())
-
 		}
 	})
 
