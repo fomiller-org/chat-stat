@@ -3,48 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	redisTS "github.com/RedisTimeSeries/redistimeseries-go"
-	"github.com/gempir/go-twitch-irc/v3"
+	"github.com/fomiller/chat-stat/internal/bot"
 )
 
+var RTSDB = redisTS.NewClient("localhost:6379", "", nil)
 var ctx = context.Background()
-var stream = "sodapoppin"
-
-type StreamMessage struct {
-	Message string
-}
+var exit = make(chan int)
 
 func main() {
-	client := twitch.NewAnonymousClient() // for an anonymous user (no write capabilities)
-	rts := redisTS.NewClient("localhost:6379", "", nil)
-
-	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		fmt.Printf("%v\n\n", message.Raw)
-		for _, emote := range message.Emotes {
-			extension := "twitch"
-			options := redisTS.DefaultCreateOptions
-			labels := map[string]string{
-				"emote":     emote.Name,
-				"stream":    message.Channel,
-				"extension": "twitch",
-			}
-			options.Labels = labels
-
-			key := fmt.Sprintf("%v/%v/%v", message.Channel, extension, emote.Name)
-
-			rts.CreateKeyWithOptions(key, options)
-			rts.AddWithOptions(key, message.Time.UnixMilli(), 1, options)
-		}
-	})
-
-	client.Join(stream)
-	connectClient(client)
-}
-
-func connectClient(client *twitch.Client) {
-	err := client.Connect()
+	file, err := os.Open("channels.txt")
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
+
+	bot.ConnectBots(file, bot.Bots)
+
+	<-exit
+	fmt.Println("Shutting down.")
 }

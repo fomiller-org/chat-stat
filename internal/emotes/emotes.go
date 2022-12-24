@@ -1,9 +1,15 @@
-package emotes
+package emote
 
 import (
 	"net/http"
 	"time"
 )
+
+type Emote interface {
+	GetName() string
+	GetID() string
+	GetExtension() string
+}
 
 type Channel struct {
 	ID   string

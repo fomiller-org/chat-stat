@@ -1,13 +1,27 @@
-package emotes
+package emote
 
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 type STVEmote struct {
-	Name string `json:"name"`
-	ID   string `json:"id"`
+	Name      string `json:"name"`
+	ID        string `json:"id"`
+	Extension string
+}
+
+func (e STVEmote) GetName() string {
+	return e.Name
+}
+
+func (e STVEmote) GetID() string {
+	return e.ID
+}
+
+func (e STVEmote) GetExtension() string {
+	return e.Extension
 }
 
 type STVResponse []STVEmote
@@ -25,6 +39,9 @@ func (c Client) GetSTVUserEmotes(channel string) (STVResponse, error) {
 	decoder.Decode(&emotes)
 	if err != nil {
 		return nil, err
+	}
+	for i := range emotes {
+		emotes[i].Extension = "7tv"
 	}
 
 	return emotes, nil
@@ -45,6 +62,37 @@ func (c Client) GetSTVGlobalEmotes() (STVResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	for i := range emotes {
+		emotes[i].Extension = "7tv"
+	}
 
 	return emotes, nil
+}
+
+func (c Client) GetSTVEmotes(user string, channel bool, global bool) []Emote {
+	var emotes = []Emote{}
+
+	if channel {
+		res, err := c.GetSTVUserEmotes(user)
+		if err != nil {
+			log.Println(err)
+		}
+		for _, e := range res {
+			emotes = append(emotes, e)
+		}
+	}
+
+	if global {
+		res, err := c.GetSTVGlobalEmotes()
+		if err != nil {
+			log.Println(err)
+		}
+
+		for _, e := range res {
+			emotes = append(emotes, e)
+		}
+	}
+	fmt.Println("7tv", emotes)
+
+	return emotes
 }
