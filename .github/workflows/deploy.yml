@@ -45,25 +45,25 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd us-east-1/dev
+        cd infra/us-east-1/dev
         terragrunt run-all validate
         
     - name: Terragrunt Init
       continue-on-error: false
       run: |
-        cd us-east-1/dev
+        cd infra/us-east-1/dev
         terragrunt run-all init
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd us-east-1/dev
+        cd infra/us-east-1/dev
         terragrunt run-all plan
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd us-east-1/dev
+        cd infra/us-east-1/dev
         terragrunt run-all apply --terragrunt-non-interactive
         
     # use if you need to debug workflow
