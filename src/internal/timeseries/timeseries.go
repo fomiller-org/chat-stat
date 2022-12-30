@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	redisTS "github.com/RedisTimeSeries/redistimeseries-go"
-	"github.com/fomiller/chat-stat/internal/db"
+	"github.com/fomiller/chat-stat/src/internal/db"
 )
 
 func CreateTimeSeries(emote string, channel string, extension string, timestamp int64) {

@@ -24,3 +24,6 @@
 TwitchDownloaderCLI
 chat.json
 chat.txt
+
+# terraform / terragrunt
+**/.terragrunt-cache
