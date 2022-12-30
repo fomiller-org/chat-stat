@@ -1,0 +1,75 @@
+# .github/workflows/deploy.yml
+
+name: 'Terragrunt Deploy'
+on:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+      - '*'
+        
+jobs:
+  terragrunt:
+    name: 'Terragrunt'
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_username: ${{secrets.USERNAME}}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+      AWS_PROFILE: saml
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_OUTPUT: json
+
+    steps:
+    - name: AWS    
+      run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEV }} --profile saml
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }} --profile saml
+
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Install the latest version of Terragrunt CLI and configure the Terragrunt CLI configuration file with a Terragrunt Cloud user API toke
+    - name: Install Terraform
+      uses: hashicorp/setup-Terraform@v1
+      with:
+        terraform_version: latest
+          
+    - name: Install Terragrunt v0.36.1
+      run: |
+        sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.36.1/terragrunt_linux_amd64"
+        sudo chmod +x /bin/terragrunt
+
+    # Initialize a new or existing Terragrunt working directory by creating initial files,  loading any remote state, downloading modules, etc.
+    - name: Terragrunt Validate
+      continue-on-error: false
+      run: |
+        cd us-east-1/dev
+        terragrunt run-all validate
+        
+    - name: Terragrunt Init
+      continue-on-error: false
+      run: |
+        cd us-east-1/dev
+        terragrunt run-all init
+        
+    - name: Terragrunt Plan
+      continue-on-error: false
+      run: |
+        cd us-east-1/dev
+        terragrunt run-all plan
+        
+    - name: Terragrunt Apply
+      continue-on-error: false
+      run: |
+        cd us-east-1/dev
+        terragrunt run-all apply --terragrunt-non-interactive
+        
+    # use if you need to debug workflow
+    # - name: DEBUG
+    #   uses: lhotari/action-upterm@v1
+    #   with:
+    #       limit-access-to-actor: true
+          # limit-access-to-users: Fomiller
+
