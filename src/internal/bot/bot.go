@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	emote "github.com/fomiller/chat-stat/internal/emotes"
-	"github.com/fomiller/chat-stat/internal/timeseries"
+	emote "github.com/fomiller/chat-stat/src/internal/emotes"
+	"github.com/fomiller/chat-stat/src/internal/timeseries"
 	twitch "github.com/gempir/go-twitch-irc/v3"
 	"github.com/joho/godotenv"
 	helix "github.com/nicklaw5/helix/v2"
