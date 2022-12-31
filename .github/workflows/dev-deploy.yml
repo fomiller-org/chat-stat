@@ -23,6 +23,7 @@ jobs:
       AWS_PROFILE: saml
       AWS_DEFAULT_REGION: us-east-1
       AWS_DEFAULT_OUTPUT: json
+      INFRA_DIR: infra/us-east-1/dev
 
     steps:
     - name: AWS    
@@ -67,25 +68,19 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd infra/us-east-1/dev
+        cd INFRA_DIR
         terragrunt run-all validate
-        
-    - name: Terragrunt Init
-      continue-on-error: false
-      run: |
-        cd infra/us-east-1/dev
-        terragrunt run-all init
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd infra/us-east-1/dev
+        cd INFRA_DIR
         terragrunt run-all plan
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd infra/us-east-1/dev
+        cd INFRA_DIR
         terragrunt run-all apply --terragrunt-non-interactive
         
 

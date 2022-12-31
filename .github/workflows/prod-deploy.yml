@@ -22,7 +22,8 @@ jobs:
       AWS_PROFILE: saml
       AWS_DEFAULT_REGION: us-east-1
       AWS_DEFAULT_OUTPUT: json
-
+      INFRA_DIR: infra/us-east-1/prod
+        
     steps:
     - name: AWS    
       run: |
@@ -48,25 +49,19 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd infra/us-east-1/prod
+        cd INFRA_DIR
         terragrunt run-all validate
-        
-    - name: Terragrunt Init
-      continue-on-error: false
-      run: |
-        cd infra/us-east-1/prod
-        terragrunt run-all init
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd infra/us-east-1/prod
+        cd INFRA_DIR
         terragrunt run-all plan
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd infra/us-east-1/prod
+        cd INFRA_DIR
         terragrunt run-all apply --terragrunt-non-interactive
         
     # use if you need to debug workflow
