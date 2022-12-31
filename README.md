@@ -8,6 +8,8 @@ within a 1 sec, 5 sec, 30 sec, 1 min, 5min, 1 hour interval.
 - requirements
     - all infra deployed to aws
     - connect to ~25 channels, possibly hard coded
+## Architecture
+![aws-architecture](./chat-stat-diagram.png)
 
 ## Todo
 [x] connect bot
