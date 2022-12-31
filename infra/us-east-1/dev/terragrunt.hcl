@@ -39,7 +39,7 @@ remote_state {
 inputs = merge(
   local.region_vars.locals,
   {
-    app_prefix = "fomiller"
+    app_prefix = "fomiller-chat-stat"
     extra_tags = {
     }
   }

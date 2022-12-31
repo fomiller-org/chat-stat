@@ -8,22 +8,12 @@ locals {
 
 terraform {
 
-  source = "../../../modules/aws//lambda"
-}
-
-dependency "elasticache"{
-    config_path = "../elasticache/"
-    skip_outputs = true
+  source = "../../../modules/aws//elasticache"
 }
 
 include "root" {
   path = find_in_parent_folders()
 }
 
-inputs = {
-    lambda_name = "hello-world"
-    lambda_role = "LambdaHelloWorld"    
-    filename = "./lambda_function.zip" 
-    handler = "lambda-go"
-}
+inputs = {}
 
