@@ -5,6 +5,7 @@ name: 'Terragrunt Deploy'
 on:
   push:
     paths:
+      - '.github/**'
       - 'src/**'
       - 'infra/**'
     branches:
