@@ -9,6 +9,7 @@ on:
       - 'infra/**'
     branches:
       - '*'
+      - 'feature/*'
       - '!main'
       - '!master'
         
