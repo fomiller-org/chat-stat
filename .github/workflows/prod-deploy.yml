@@ -5,6 +5,7 @@ name: 'Terragrunt Deploy'
 on:
   push:
     paths:
+      - '.github/**'
       - 'src/**'
       - 'infra/**'
     branches:
@@ -49,19 +50,19 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd INFRA_DIR
+        cd ${{ env.INFRA_DIR }}
         terragrunt run-all validate
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd INFRA_DIR
+        cd ${{ env.INFRA_DIR }}
         terragrunt run-all plan
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd INFRA_DIR
+        cd ${{ env.INFRA_DIR }}
         terragrunt run-all apply --terragrunt-non-interactive
         
     # use if you need to debug workflow
