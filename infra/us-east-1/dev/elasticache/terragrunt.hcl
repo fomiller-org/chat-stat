@@ -7,8 +7,11 @@ locals {
 }
 
 terraform {
-
   source = "../../../modules/aws//elasticache"
+}
+
+dependencies = {
+    paths = ["../vpc"]
 }
 
 include "root" {
