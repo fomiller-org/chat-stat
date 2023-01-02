@@ -33,6 +33,6 @@ resource "aws_route_table" "chat_stat_rt" {
 
 resource "aws_route_table_association" "chat_stat" {
     count = length(var.public_subnet_cidrs) 
-    subnet-id = element(aws_subnet.public_subnet_cidrs[*].id, count.index)
+    subnet_id = element(aws_subnet.public_subnet_cidrs[*].id, count.index)
     route_table_id = aws_route_table.chat_stat_rt.id
 }
