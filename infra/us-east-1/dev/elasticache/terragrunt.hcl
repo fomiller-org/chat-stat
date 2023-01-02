@@ -10,7 +10,7 @@ terraform {
   source = "../../../modules/aws//elasticache"
 }
 
-dependencies = {
+dependencies {
     paths = ["../vpc"]
 }
 

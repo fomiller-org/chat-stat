@@ -10,7 +10,7 @@ terraform {
   source = "../../../modules/aws//lambda"
 }
 
-dependencies = {
+dependencies {
     paths = ["../vpc"]
 }
 
