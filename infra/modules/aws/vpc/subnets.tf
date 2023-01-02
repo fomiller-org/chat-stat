@@ -21,7 +21,7 @@ resource "aws_subnet" "private_subnets" {
 resource "aws_route_table" "chat_stat_rt" {
     vpc_id = aws_vpc.chat_stat_main.id
     
-    route = {
+    route {
         cidr_block = "0.0.0.0/0"
         gateway_id = aws_internet_gateway.chat_stat.id
     }
@@ -29,4 +29,10 @@ resource "aws_route_table" "chat_stat_rt" {
     tags = {
         Name = "Chat Stat route table"
     }
+}
+
+resource "aws_route_table_association" "chat_stat" {
+    count = length(var.public_subnet_cidrs) 
+    subnet-id = element(aws_subnet.public_subnet_cidrs[*].id, count.index)
+    route_table_id = aws_route_table.chat_stat_rt.id
 }
