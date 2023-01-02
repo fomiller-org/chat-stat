@@ -23,7 +23,7 @@ resource "aws_route_table" "chat_stat_rt" {
     
     route = {
         cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.cha_stat_id
+        gateway_id = aws_internet_gateway.chat_stat.id
     }
     
     tags = {
