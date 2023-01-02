@@ -17,3 +17,16 @@ resource "aws_subnet" "private_subnets" {
         Name = "Private Subnet ${count.index + 1}"
     }
 }
+
+resource "aws_route_table" "chat_stat_rt" {
+    vpc_id = aws_vpc.chat_stat_main.id
+    
+    route = {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.cha_stat_id
+    }
+    
+    tags = {
+        Name = "Chat Stat route table"
+    }
+}
