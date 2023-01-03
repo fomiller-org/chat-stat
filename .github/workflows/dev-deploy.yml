@@ -39,8 +39,17 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       AWS_DEFAULT_OUTPUT: json
       INFRA_DIR: infra/us-east-1/dev
+      TG_VERSION: v0.36.1
+      TF_VERSION: latest
+        
+    strategy:
+      fail-fast: true
+      matrix:
+        src: ['lambda/hello/main.go']
+        output: [lambda/bin/lambda_hello.exe]
 
     steps:
+    # setup auth with aws
     - name: AWS    
       run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEV }} --profile saml
@@ -50,36 +59,28 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    # Install the latest version of Terragrunt CLI and configure the Terragrunt CLI configuration file with a Terragrunt Cloud user API toke
+    # build go binaries
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
 
     - name: Build
-      run: go build -o infra/us-east-1/dev/lambda/bin/lambda_hello.exe src/cmd/lambda/hello/main.go
+      run: go build -o infra/us-east-1/dev/${{matrix.output}} src/cmd/${{matrix.src}}
 
     # - name: Test
     #   run: go test -v ./...
 
-    # use if you need to debug workflow
-    # - name: DEBUG
-    #   uses: lhotari/action-upterm@v1
-    #   with:
-    #       limit-access-to-actor: true
-    #       limit-access-to-users: Fomiller
-        
     - name: Install Terraform
       uses: hashicorp/setup-Terraform@v1
       with:
-        terraform_version: latest
+        terraform_version: ${{ TF_VERSION }}
           
-    - name: Install Terragrunt v0.36.1
+    - name: Install Terragrunt ${{ TG_VERSION }}
       run: |
-        sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.36.1/terragrunt_linux_amd64"
+        sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/${{ TG_VERSION }}/terragrunt_linux_amd64"
         sudo chmod +x /bin/terragrunt
 
-    # Initialize a new or existing Terragrunt working directory by creating initial files,  loading any remote state, downloading modules, etc.
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
@@ -95,4 +96,9 @@ jobs:
       run: |
         terragrunt run-all apply --terragrunt-working-dir ${{env.INFRA_DIR}} --terragrunt-non-interactive
         
-
+    # use if you need to debug workflow
+    # - name: DEBUG
+    #   uses: lhotari/action-upterm@v1
+    #   with:
+    #       limit-access-to-actor: true
+    #       limit-access-to-users: Fomiller
