@@ -46,8 +46,11 @@ jobs:
       strategy:
         fail-fast: true
         matrix:
-          src: ['lambda/hello/main.go']
-          output: [lambda/bin/lambda_hello.exe]
+          include:
+            - src: lambda/hello/main.go
+              output: lambda/bin/lambda_hello.exe
+            - src: lambda/twitch/webhookCallback/main.go
+              output: lambda/bin/lambda_webhook.exe
             
       steps:
       - name: Checkout
