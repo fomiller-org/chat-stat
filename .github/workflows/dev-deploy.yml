@@ -64,14 +64,14 @@ jobs:
         go-version: 1.19
 
     - name: Build Executables
-      run: go build -o infra/us-east-1/dev/${{matrix.output}} src/cmd/${{matrix.src}}
+      run: go build -o ${{ env.INFRA_DIR }}/${{matrix.output}} src/cmd/${{matrix.src}}
 
     - name: Upload Artifacts
       id: cache
       uses: actions/upload-artifact@v3
       with:
         name: lambdas
-        path: infra/us-east-1/dev/lambda/bin/
+        path: ${{ env.INFRA_DIR }}/lambda/bin/
           
     # - name: Test
     #   run: go test -v ./...
@@ -91,6 +91,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: lambdas
+        path: ${{env.INFRA_DIR}}/lambda/bin/
 
     # use if you need to debug workflow
     - name: DEBUG
