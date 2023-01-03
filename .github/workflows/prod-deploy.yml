@@ -58,9 +58,16 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Build
+      - name: Build Executables
         run: go build -o infra/us-east-1/dev/${{matrix.output}} src/cmd/${{matrix.src}}
 
+      - name: Upload Artifacts
+        id: cache
+        uses: actions/upload-artifacts@v3
+        with:
+          name: lambdas
+          path: infra/us-east-1/dev/lambda/bin/
+       
       # - name: Test
       #   run: go test -v ./...
     
@@ -72,6 +79,14 @@ jobs:
       runs-on: ubuntu-latest
 
       steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download Artifacts
+        uses: actions/download-artifacts@v3
+        with:
+          name: lambdas
+        
       - name: AWS    
         run: |
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_PROD }} --profile saml
