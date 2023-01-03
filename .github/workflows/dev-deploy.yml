@@ -1,6 +1,6 @@
 # .github/workflows/dev-deploy.yml
 
-name: 'Terragrunt Deploy'
+name: 'Terragrunt Deploy DEV'
   
 on:
   push:
@@ -15,8 +15,21 @@ on:
       - '!master'
         
 jobs:
-  terragrunt:
-    name: 'Terragrunt'
+  pre-check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          cancel_others: 'true'
+          concurrent_skipping: 'same_content_newer'
+          
+  deploy-aws-infra:
+    needs: pre-check
+    if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
+    name: 'Deploy AWS Infra DEV'
     runs-on: ubuntu-latest
     env:
       TF_VAR_username: ${{secrets.USERNAME}}
@@ -70,19 +83,16 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all validate
+        terragrunt run-all validate --terragrunt-working-dir ${{env.INFRA_DIR}}
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all plan
+        terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all apply --terragrunt-non-interactive
+        terragrunt run-all apply --terragrunt-working-dir ${{env.INFRA_DIR}} --terragrunt-non-interactive
         
 

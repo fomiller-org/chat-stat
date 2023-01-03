@@ -1,6 +1,6 @@
 # .github/workflows/prod-deploy.yml
 
-name: 'Terragrunt Deploy'
+name: 'Terragrunt Deploy PROD'
   
 on:
   push:
@@ -13,17 +13,30 @@ on:
       - 'master'
         
 jobs:
-  terragrunt:
-    name: 'Terragrunt'
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_username: ${{secrets.USERNAME}}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-      AWS_PROFILE: saml
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_DEFAULT_OUTPUT: json
-      INFRA_DIR: infra/us-east-1/prod
+    pre-check:
+      runs-on: ubuntu-latest
+      outputs:
+        should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      steps:
+        - id: skip_check
+          uses: fkirc/skip-duplicate-actions@v5
+          with:
+            cancel_others: 'true'
+            concurrent_skipping: 'same_content_newer'
+              
+    deploy-aws-infra:
+      needs: pre-check
+      if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
+      name: 'Deploy AWS Infra PROD'
+      runs-on: ubuntu-latest
+      env:
+        TF_VAR_username: ${{secrets.USERNAME}}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        AWS_PROFILE: saml
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_DEFAULT_OUTPUT: json
+        INFRA_DIR: infra/us-east-1/prod
         
     steps:
     - name: AWS    
@@ -50,20 +63,18 @@ jobs:
     - name: Terragrunt Validate
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all validate
+        terragrunt run-all validate --terragrunt-working-dir ${{env.INFRA_DIR}}
         
     - name: Terragrunt Plan
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all plan
+        terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
         
     - name: Terragrunt Apply
       continue-on-error: false
       run: |
-        cd ${{ env.INFRA_DIR }}
-        terragrunt run-all apply --terragrunt-non-interactive
+        terragrunt run-all apply --terragrunt-working-dir ${{env.INFRA_DIR}} --terragrunt-non-interactive
+ 
         
     # use if you need to debug workflow
     # - name: DEBUG
