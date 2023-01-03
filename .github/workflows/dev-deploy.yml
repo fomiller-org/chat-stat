@@ -73,12 +73,6 @@ jobs:
     name: 'Deploy AWS Infra DEV'
     runs-on: ubuntu-latest
         
-    strategy:
-      fail-fast: true
-      matrix:
-        src: ['lambda/hello/main.go']
-        output: [lambda/bin/lambda_hello.exe]
-
     steps:
     - name: AWS    
       run: |
