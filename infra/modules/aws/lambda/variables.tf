@@ -1,8 +1,4 @@
 ## default
-variable "app_prefix" {
-  description = "naming prefix for aws resources"
-  type        = string
-}
 
 ## lambda
 variable "lambda_role" {

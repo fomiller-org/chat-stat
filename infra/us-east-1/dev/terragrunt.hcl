@@ -29,6 +29,17 @@ provider "aws" {
 EOF
 }
 
+generate "common" {
+  path      = "common.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+variable "app_prefix" {
+  description = "naming prefix for aws resources"
+  type        = string
+}
+EOF
+}
+
 remote_state {
   backend = "s3"
   config = {

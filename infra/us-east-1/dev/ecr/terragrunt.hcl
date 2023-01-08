@@ -7,15 +7,13 @@ locals {
 }
 
 terraform {
-  source = "../../../modules/aws//lambda"
+  source = "../../../modules/aws//ecr"
 }
 
 dependencies {
     paths = [
     "../vpc",
     "../kms",
-    "../secrets",
-    "../ecr",
     ]
 }
 
@@ -23,10 +21,5 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-inputs = {
-    lambda_name = "hello-world"
-    lambda_role = "LambdaHelloWorld"    
-    filename = "./lambda_function.zip" 
-    handler = "lambda-go"
-}
+inputs = {}
 
