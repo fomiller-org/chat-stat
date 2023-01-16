@@ -29,3 +29,5 @@ chat.txt
 # terraform / terragrunt
 **/.terragrunt-cache
 **/.terraform
+**/provider.tf
+**/backend.tf
