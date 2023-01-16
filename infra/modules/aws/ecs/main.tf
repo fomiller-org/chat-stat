@@ -10,12 +10,12 @@ resource "aws_ecs_service" "chat_stat" {
   launch_type     = "EC2"
 
   network_configuration {
-    security_groups = [data.aws_security_group.chat_stat_ecs_task_sg.id]
-    subnets         = data.aws_subnet_ids.private_subnets[*].id
+    security_groups = [var.security_group_ecs_task]
+    subnets         = var.private_subnets
   }
 
   load_balancer {
-    target_group_arn = data.aws_lb_target_group.chat_stat.id
+    target_group_arn = var.target_group
     container_name   = "${var.app_prefix}-api"
     container_port   = 3000
   }
@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "chat_stat" {
   container_definitions = <<DEFINITION
 [
   {
-    "image": "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/fomiller-chat-stat-api:latest",
+    "image": "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/${var.ecr_repo_api}",
     "cpu": 1024,
     "memory": 2048,
     "name": "fomiller-chat-stat-api",

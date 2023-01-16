@@ -28,3 +28,4 @@ chat.txt
 
 # terraform / terragrunt
 **/.terragrunt-cache
+**/.terraform
