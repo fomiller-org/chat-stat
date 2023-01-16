@@ -107,10 +107,11 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEV }} --profile saml
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }} --profile saml
 
-    - name: Install Terraform
+    - name: Install Terraform ${{ env.TF_VERSION }}
       uses: hashicorp/setup-Terraform@v1
       with:
         terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
           
     - name: Install Terragrunt ${{ env.TG_VERSION }}
       run: |

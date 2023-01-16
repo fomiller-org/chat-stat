@@ -1,5 +1,5 @@
 locals {
-  region_vars       = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
   aws_region  = local.region_vars.locals.aws_region
   environment = "dev"
 }

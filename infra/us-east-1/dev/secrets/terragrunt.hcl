@@ -12,8 +12,9 @@ terraform {
 
 dependency "kms" {
     config_path = "../kms/"
+    mock_outputs_merge_strategy_with_state = "shallow"
     mock_outputs = {
-        chat_stat_master_kms_key_arn = "arn:kms:region:acct-num:mock-kms-arn"
+        chat_stat_master_kms_key_arn = "arn:kms:us-east-1:0123456789012:MOCK-kms-arn"
     }
 }
 

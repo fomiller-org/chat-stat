@@ -100,6 +100,7 @@ jobs:
         uses: hashicorp/setup-Terraform@v1
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
             
       - name: Install Terragrunt ${{ env.TG_VERSION }}
         run: |
