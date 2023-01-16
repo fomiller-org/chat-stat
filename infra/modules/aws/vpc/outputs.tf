@@ -3,7 +3,7 @@ output "load_balancer_ip" {
 }
 
 output "target_group" {
-  value = aws_lb_target_group.chat_stat
+  value = aws_lb_target_group.chat_stat.id
 }
 
 output "private_subnets" {
