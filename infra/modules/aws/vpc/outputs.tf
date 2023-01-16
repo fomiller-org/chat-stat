@@ -15,5 +15,5 @@ output "public_subnets" {
 }
 
 output "security_group_ecs_task" {
-  value = aws_security_group.chat_stat_ecs_task.arn
+  value = aws_security_group.chat_stat_ecs_task.id
 }
