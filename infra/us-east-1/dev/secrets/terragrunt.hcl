@@ -10,16 +10,19 @@ terraform {
   source = "../../../modules/aws//secrets"
 }
 
-dependencies {
-    paths = [
-    "../kms",
-    ]
+dependency "kms" {
+    config_path = "../kms/"
+    mock_outputs = {
+        chat_stat_master_kms_key_arn = "arn:kms:region:acct-num:mock-kms-arn"
+    }
 }
 
 include "root" {
   path = find_in_parent_folders()
 }
 
-inputs = {}
+inputs = {
+   chat_stat_master_kms_key_arn = dependency.kms.outputs.chat_stat_master_kms_key_arn  
+}
 
 

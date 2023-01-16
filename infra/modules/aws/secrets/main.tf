@@ -1,6 +1,6 @@
 resource "aws_secretsmanager_secret" "terraform_creds" {
   name       = "fomiller-terraform-dev-creds"
-  kms_key_id = data.aws_kms_key.chat_stat_master.arn
+  kms_key_id = var.chat_stat_master_kms_key_arn
 }
 
 resource "aws_secretsmanager_secret_version" "terraform_creds" {
