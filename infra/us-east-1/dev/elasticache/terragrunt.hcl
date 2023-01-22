@@ -11,7 +11,11 @@ terraform {
 }
 
 dependencies {
-    paths = ["../vpc"]
+    paths = [
+    "../vpc",
+    "../kms",
+    "../ecr",
+    ]
 }
 
 include "root" {

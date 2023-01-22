@@ -20,7 +20,7 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_DEFAULT_OUTPUT: json
   INFRA_DIR: infra/us-east-1/prod
-  TG_VERSION: v0.36.1
+  TG_VERSION: v0.42.8
   TF_VERSION: latest
         
     
@@ -100,6 +100,7 @@ jobs:
         uses: hashicorp/setup-Terraform@v1
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
             
       - name: Install Terragrunt ${{ env.TG_VERSION }}
         run: |
@@ -111,10 +112,10 @@ jobs:
         run: |
           terragrunt run-all validate --terragrunt-working-dir ${{env.INFRA_DIR}}
           
-      - name: Terragrunt Plan
-        continue-on-error: false
-        run: |
-          terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
+      # - name: Terragrunt Plan
+      #   continue-on-error: false
+      #   run: |
+      #     terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
           
       - name: Terragrunt Apply
         continue-on-error: false

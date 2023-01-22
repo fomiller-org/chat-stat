@@ -1,5 +1,5 @@
 locals {
-  region_vars       = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
   aws_region  = local.region_vars.locals.aws_region
   environment = "dev"
 }
@@ -25,6 +25,17 @@ provider "aws" {
           email = "forrestmillerj@gmail.com"
       }
   }
+}
+EOF
+}
+
+generate "common" {
+  path      = "common.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+variable "app_prefix" {
+  description = "naming prefix for aws resources"
+  type        = string
 }
 EOF
 }
