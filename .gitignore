@@ -31,3 +31,4 @@ chat.txt
 **/.terraform
 **/provider.tf
 **/backend.tf
+infra/us-east-1/**/common.tf
