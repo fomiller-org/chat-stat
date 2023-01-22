@@ -1,9 +1,5 @@
-locals {
-  resource_name = var.app_prefix
-}
-
 resource "aws_ecr_repository" "api" {
-  name                 = local.resource_name
+  name                 = "${var.app_prefix}-api"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
