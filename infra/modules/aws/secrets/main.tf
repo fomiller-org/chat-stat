@@ -6,8 +6,8 @@ resource "aws_secretsmanager_secret" "terraform_creds" {
 resource "aws_secretsmanager_secret_version" "terraform_creds" {
   secret_id = aws_secretsmanager_secret.terraform_creds.id
   secret_string = jsonencode(tomap({
-    "user" = var.terraform_user,
-    "pass" = var.terraform_pass
+    "access_key_id"     = var.terraform_user,
+    "secret_access_key" = var.terraform_pass
     }
   ))
 }
