@@ -1,5 +1,5 @@
 locals {
-  resource_name = "${var.app_prefix}-api"
+  resource_name = var.app_prefix
 }
 
 resource "aws_ecr_repository" "api" {
