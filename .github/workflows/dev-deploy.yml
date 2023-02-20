@@ -20,6 +20,8 @@ env:
   TF_VAR_terraform_pass: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }} 
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
+  AWS_DEPLOYER_ROLE: ${{ secrets.DEPLOYER_ROLE }}
   AWS_PROFILE: saml
   AWS_DEFAULT_REGION: us-east-1
   AWS_DEFAULT_OUTPUT: json
@@ -101,11 +103,16 @@ jobs:
     #   with:
     #       limit-access-to-actor: true
     #       limit-access-to-users: Fomiller
-            
-    - name: AWS    
-      run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEV }} --profile saml
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }} --profile saml
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT_ID}}:role/${{env.AWS_DEPLOYER_ROLE}}
+        aws-region: ${{env.AWS_DEFAULT_REGION}}
+          
+    # - name: AWS    
+    #   run: |
+    #       aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID_DEV }} --profile saml
+    #       aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }} --profile saml
 
     - name: Install Terraform ${{ env.TF_VERSION }}
       uses: hashicorp/setup-Terraform@v1
