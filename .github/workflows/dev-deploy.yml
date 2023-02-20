@@ -22,7 +22,6 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
   AWS_DEPLOYER_ROLE: ${{ secrets.DEPLOYER_ROLE }}
-  # AWS_PROFILE: default
   AWS_DEFAULT_REGION: us-east-1
   AWS_DEFAULT_OUTPUT: json
   INFRA_DIR: infra/us-east-1/dev
@@ -103,6 +102,7 @@ jobs:
     #   with:
     #       limit-access-to-actor: true
     #       limit-access-to-users: Fomiller
+          
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -128,22 +128,10 @@ jobs:
         sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/${{ env.TG_VERSION }}/terragrunt_linux_amd64"
         sudo chmod +x /bin/terragrunt
 
-    # - name: Terragrunt Validate
-    #   continue-on-error: false
-    #   run: |
-    #     terragrunt run-all validate --terragrunt-working-dir ${{env.INFRA_DIR}}
-        
-    # - name: Terragrunt Plan
-    #   continue-on-error: false
-    #   run: |
-    #     terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
-     
-    # use if you need to debug workflow
-    - name: DEBUG
-      uses: lhotari/action-upterm@v1
-      with:
-          limit-access-to-actor: true
-          limit-access-to-users: Fomiller
+    - name: Terragrunt Validate
+      continue-on-error: false
+      run: |
+        terragrunt run-all validate --terragrunt-working-dir ${{env.INFRA_DIR}}
         
     - name: Terragrunt Apply
       continue-on-error: false
