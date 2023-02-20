@@ -110,6 +110,7 @@ jobs:
         aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
         role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT_ID}}:role/${{env.AWS_DEPLOYER_ROLE}}
         aws-region: ${{env.AWS_DEFAULT_REGION}}
+        role-session-name: gh-actions
           
     # - name: AWS    
     #   run: |
