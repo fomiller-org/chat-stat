@@ -14,11 +14,17 @@ variable "public_subnets" {
 }
 
 variable "security_group_ecs_task" {
-  description = "security group for chat stat"
+  description = "security group for chat stat ecs tasks"
   type        = string
 }
 
 variable "ecr_repo_api" {
-  description = "ecr repo for chat stat api"
+  description = "ecr repo name for chat stat api"
+  type        = string
+}
+
+variable "ecr_tag" {
+  description = "ecr repo tag"
+  default     = "latest"
   type        = string
 }

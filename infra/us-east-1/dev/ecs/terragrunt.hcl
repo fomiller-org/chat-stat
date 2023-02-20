@@ -23,17 +23,27 @@ dependency "vpc" {
     /* mock_outputs_allowed_terraform_commands = ["validate"] */
     mock_outputs_merge_strategy_with_state = "shallow"
     mock_outputs = {
-        target_group = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/MOCK/0000000000000"
-        private_subnets = ["00000000000-private-MOCK","00000000000-private-MOCK","00000000000-private-MOCK","00000000000-private-MOCK"]
-        public_subnets = ["00000000000-public-MOCK","00000000000-public-MOCK","00000000000-public-MOCK","00000000000-public-MOCK"]
-        security_group_ecs_task = "arn:sg:us-east-1:123456789012:MOCK-security_group"
+        target_group = "arn:aws:elasticloadbalancing:us-east-1:${local.account_id}:targetgroup/MOCK/0000000000000"
+        private_subnets = [
+            "00000000000-private-MOCK",
+            "00000000000-private-MOCK",
+            "00000000000-private-MOCK",
+            "00000000000-private-MOCK"
+        ]
+        public_subnets = [
+            "00000000000-public-MOCK",
+            "00000000000-public-MOCK",
+            "00000000000-public-MOCK",
+            "00000000000-public-MOCK"
+        ]
+        security_group_ecs_task = "arn:sg:us-east-1:${local.account_id}:MOCK-security_group"
     }
 }
 
 dependency "ecr" {
     config_path = "../ecr/"
     mock_outputs = {
-        ecr_repo_api = "MOCK-ecr-repo-api:mock"
+        ecr_repo_api = "MOCK-ecr-repo-api-name"
     }
 }
 
