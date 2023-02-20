@@ -137,6 +137,13 @@ jobs:
     #   continue-on-error: false
     #   run: |
     #     terragrunt run-all plan --terragrunt-working-dir ${{env.INFRA_DIR}}
+     
+    # use if you need to debug workflow
+    - name: DEBUG
+      uses: lhotari/action-upterm@v1
+      with:
+          limit-access-to-actor: true
+          limit-access-to-users: Fomiller
         
     - name: Terragrunt Apply
       continue-on-error: false
