@@ -106,6 +106,8 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
+        aws-access-key-id: ${{env.AWS_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
         role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT_ID}}:role/${{env.AWS_DEPLOYER_ROLE}}
         aws-region: ${{env.AWS_DEFAULT_REGION}}
           
