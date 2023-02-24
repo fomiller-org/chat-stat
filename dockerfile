@@ -11,4 +11,4 @@ WORKDIR /app
 RUN go mod tidy
 RUN go build -o api ./src/cmd/app/main.go
 
-CMD ["/app/api"]
+# CMD ["/app/api"]
