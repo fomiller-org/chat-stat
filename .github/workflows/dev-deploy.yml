@@ -44,7 +44,7 @@ jobs:
           concurrent_skipping: 'same_content_newer'
             
 
-  build:
+  Build-Lambdas:
     needs: pre-check
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
     #   run: go test -v ./...
         
           
-  deploy-aws-infra:
+  Deploy-aws-infra:
     needs: build
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
     name: 'Deploy AWS Infra DEV'
@@ -134,7 +134,7 @@ jobs:
       run: |
         terragrunt run-all apply --terragrunt-working-dir ${{env.INFRA_DIR}} --terragrunt-non-interactive
         
-  build-deploy-ecr-images:
+  Build-deploy-ecr-images:
     needs: deploy-aws-infra
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
     name: 'Build/Deploy ECR images'

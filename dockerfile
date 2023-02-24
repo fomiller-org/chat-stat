@@ -1,14 +1,12 @@
 FROM golang:latest
 
-RUN mkdir /app
-
-ADD ./src/ /app/
-ADD ./go.mod /app/
-ADD ./go.sum /app/
-
 WORKDIR /app
 
-RUN go mod tidy
+COPY ./go.mod ./
+COPY ./go.sum ./
+COPY ./src/ ./src/
+
+RUN go mod download
 RUN go build -o api ./src/cmd/app/main.go
 
 # CMD ["/app/api"]
