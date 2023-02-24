@@ -168,7 +168,7 @@ jobs:
         push: true
         tags: |
           ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
-          ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{github.sha}}
+          ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{github.ref}}
           
     # - name: Build, tag, and push image to Amazon ECR
     #   env:
