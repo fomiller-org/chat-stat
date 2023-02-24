@@ -82,7 +82,7 @@ jobs:
         
           
   Deploy-aws-infra:
-    needs: build
+    needs: Build-Lambdas
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
     name: 'Deploy AWS Infra DEV'
     runs-on: ubuntu-latest
@@ -135,7 +135,7 @@ jobs:
         terragrunt run-all apply --terragrunt-working-dir ${{env.INFRA_DIR}} --terragrunt-non-interactive
         
   Build-deploy-ecr-images:
-    needs: deploy-aws-infra
+    needs: Deploy-aws-infra
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
     name: 'Build/Deploy ECR images'
     runs-on: ubuntu-latest
