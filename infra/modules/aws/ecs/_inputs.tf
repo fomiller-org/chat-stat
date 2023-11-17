@@ -22,9 +22,3 @@ variable "ecr_repo_api" {
   description = "ecr repo name for chat stat api"
   type        = string
 }
-
-variable "ecr_tag" {
-  description = "ecr repo tag"
-  default     = "latest"
-  type        = string
-}

@@ -1,5 +1,3 @@
-## default
-
 ## vpc
 variable "public_subnet_cidrs" {
   type        = list(string)

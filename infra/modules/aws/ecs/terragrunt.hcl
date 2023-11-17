@@ -1,25 +1,15 @@
-locals {
-  account_vars      = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  environment_vars = read_terragrunt_config(find_in_parent_folders("environment.hcl"))
-
-  environment = local.environment_vars.locals.environment
-  account_id  = local.account_vars.locals.account_id
-}
-
-terraform {
-  source = "../../../modules/aws//ecs"
+include "root" {
+  path = find_in_parent_folders()
 }
 
 dependencies {
     paths = [
-    "../vpc",
-    "../kms",
-    "../ecr",
+        "../ecr",
     ]
 }
 
 dependency "vpc" {
-    config_path = "../vpc/"
+    config_path = "../vpc"
     /* mock_outputs_allowed_terraform_commands = ["validate"] */
     mock_outputs_merge_strategy_with_state = "shallow"
     mock_outputs = {
@@ -41,14 +31,10 @@ dependency "vpc" {
 }
 
 dependency "ecr" {
-    config_path = "../ecr/"
+    config_path = "../ecr"
     mock_outputs = {
         ecr_repo_api = "MOCK-ecr-repo-api-name"
     }
-}
-
-include "root" {
-  path = find_in_parent_folders()
 }
 
 inputs = {

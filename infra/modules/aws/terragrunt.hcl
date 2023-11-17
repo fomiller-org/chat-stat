@@ -1,8 +1,8 @@
-locals {
-  region_vars       = read_terragrunt_config(find_in_parent_folders("region.hcl"))
-  aws_region  = local.region_vars.locals.aws_region
-  environment = "prod"
-}
+# locals {
+#   region_vars       = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+#   aws_region  = local.region_vars.locals.aws_region
+#   environment = "${get_env("TF_VAR_env", "dev")}"
+# }
 
 generate provider {
   path      = "provider.gen.tf"
@@ -31,7 +31,7 @@ variable "environment" {
 }
 variable "app_prefix" {
     type = string
-    default = "cs"
+    default = "fomiller-chat-stat"
 }
 EOF
 }
@@ -51,19 +51,10 @@ remote_state {
   }
 }
 
-inputs = merge(
-  local.region_vars.locals,
-  {
-    app_prefix = "fomiller"
-    extra_tags = {
-    }
-  }
-)
-
 terraform {
   # Force Terraform to keep trying to acquire a lock for
   # up to 20 minutes if someone else already has the lock
-  extra_arguments "common" {
+  extra_arguments "var_files" {
     commands = [
       "init",
       "apply",
@@ -75,9 +66,9 @@ terraform {
       "untaint",
       "destroy"
     ]
-    env_vars = {
-      TF_VAR_var_from_environment = "value"
-    }
+    # env_vars = {
+    #   TF_VAR_var_from_environment = "value"
+    # }
     required_var_files = [
       "${get_parent_terragrunt_dir()}/common.tfvars",
       "${get_terragrunt_dir()}/env-config/common.tfvars",
