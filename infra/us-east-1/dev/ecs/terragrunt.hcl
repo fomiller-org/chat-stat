@@ -12,9 +12,9 @@ terraform {
 
 dependencies {
     paths = [
-    "../vpc",
-    "../kms",
-    "../ecr",
+        "../vpc",
+        "../kms",
+        "../ecr",
     ]
 }
 
@@ -23,7 +23,7 @@ dependency "vpc" {
     /* mock_outputs_allowed_terraform_commands = ["validate"] */
     mock_outputs_merge_strategy_with_state = "shallow"
     mock_outputs = {
-        target_group = "arn:aws:elasticloadbalancing:us-east-1:${local.account_id}:targetgroup/MOCK/0000000000000"
+        target_group = "arn:aws:elasticloadbalancing:us-east-1:${get_env("TF_VAR_account_id")}:targetgroup/MOCK/0000000000000"
         private_subnets = [
             "00000000000-private-MOCK",
             "00000000000-private-MOCK",
@@ -36,7 +36,8 @@ dependency "vpc" {
             "00000000000-public-MOCK",
             "00000000000-public-MOCK"
         ]
-        security_group_ecs_task = "arn:sg:us-east-1:${local.account_id}:MOCK-security_group"
+        security_group_ecs_task = "arn:sg:us-east-1:${get_env("TF_VAR_account_id")}:MOCK-security_group"
+
     }
 }
 
