@@ -62,3 +62,9 @@ https://dev.twitch.tv/docs/eventsub/eventsub-reference
 curl -X GET 'https://api.twitch.tv/v5/videos/1681900380/comments?content_offset_seconds=1' \
 -A "Accept: application/vnd.twitchtv.v5+json; charset=UTF-8" \
 -H 'Client-Id: kimne78kx3ncx6brgo4mv6wki5h1ko'\
+
+# Running locally
+- start redis service
+`brew service start redis`
+- test redis database is Running
+`redis-cli `

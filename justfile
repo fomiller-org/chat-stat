@@ -1,5 +1,24 @@
 infraDir := "infra/us-east-1/"
 
+port-forward:
+   kubectl -n chat-stat port-forward deployment/redis 6379:6379 
+
+kube-apply:
+   kubectl apply -f k8s/deployment.yml
+
+kube-delete:
+   kubectl delete -f k8s/deployment.yml
+   
+build-mini:
+    minikube image build -t chat-stat:local .
+
+build-docker:
+    eval $(minikube -p minikube docker-env)
+    docker build -t chat-stat:local .
+
+run:
+    docker run -e REDIS_HOST="docker.for.mac.localhost" chat-stat:local
+
 login env:
     assume-role login -p {{env}}Terraform
 

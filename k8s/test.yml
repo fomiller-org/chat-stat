@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-kinggothalion
+  namespace: chat-stat
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-kinggothalion
+      channel: kinggothalion
+  template:
+    metadata:
+      labels:
+        app: chat-stat-kinggothalion
+        channel: kinggothalion
+        my-label: test
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: kinggothalion

@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chat-stat
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: chat-stat
+spec:
+  replicas: 1 # You can adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis/redis-stack-server:latest
+          ports:
+            - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: chat-stat
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-sodapoppin
+  namespace: chat-stat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-sodapoppin
+      channel: sodapoppin
+  template:
+    metadata:
+      labels:
+        app: chat-stat-sodapoppin
+        channel: sodapoppin
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: sodapoppin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-moonmoon
+  namespace: chat-stat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-moonmoon
+      channel: moonmoon
+  template:
+    metadata:
+      labels:
+        app: chat-stat-moonmoon
+        channel: moonmoon
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: moonmoon
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-lirik
+  namespace: chat-stat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-lirik
+      channel: lirik
+  template:
+    metadata:
+      labels:
+        app: chat-stat-lirik
+        channel: lirik
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: lirik
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-kinggothalion
+  namespace: chat-stat
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-kinggothalion
+      channel: kinggothalion
+  template:
+    metadata:
+      labels:
+        app: chat-stat-kinggothalion
+        channel: kinggothalion
+        my-label: test
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: kinggothalion
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-stat-wirtual
+  namespace: chat-stat
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-stat-wirtual
+      channel: wirtual
+  template:
+    metadata:
+      labels:
+        app: chat-stat-wirtual
+        channel: wirtual
+        my-label: test
+    spec:
+      containers:
+      - name: chat-stat
+        image: chat-stat:local  # Use the local image tag
+        env:
+          - name: REDIS_HOST
+            value:  redis-service.chat-stat.svc.cluster.local
+          - name: TWITCH_CHANNEL
+            value: wirtual

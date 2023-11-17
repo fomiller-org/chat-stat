@@ -1,9 +1,8 @@
 package bot
 
 import (
-	"bufio"
 	"context"
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -24,7 +23,6 @@ var (
 )
 
 func init() {
-	// load env file
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file. ERR: %s", err)
@@ -53,7 +51,9 @@ func init() {
 	}
 }
 
-var Bots = &BotList{Bots: map[string]*Bot{}}
+var TwitchBot = &Bot{}
+
+// var Bots = &BotList{Bots: map[string]*Bot{}}
 
 type BotList struct {
 	Bots map[string]*Bot
@@ -66,7 +66,7 @@ type Bot struct {
 	Client *twitch.Client
 }
 
-func NewBot(channel string) Bot {
+func NewBot(channel string) *Bot {
 	resp, err := helixClient.GetUsers(&helix.UsersParams{
 		Logins: []string{channel},
 	})
@@ -74,29 +74,35 @@ func NewBot(channel string) Bot {
 		panic(err)
 	}
 
-	channelID := resp.Data.Users[0].Login
+	fmt.Printf("TWITCH USER RESP: %v\n", resp.Data)
+	fmt.Printf("TWITCH USER RESP USER: %v\n", resp.Data.Users[0])
+	fmt.Printf("TWITCH USER RESP USER ID: %v\n", resp.Data.Users[0].ID)
+	fmt.Printf("TWITCH USER RESP USER Login: %v\n", resp.Data.Users[0].Login)
+	fmt.Printf("TWITCH USER RESP USER Display Name: %v\n", resp.Data.Users[0].DisplayName)
+	channelID := resp.Data.Users[0].ID
 	client := twitch.NewAnonymousClient() // for an anonymous user (no write capabilities)
 	client.OnPrivateMessage(PrivateMessage)
 	client.Join(channel)
-	return Bot{Client: client, Name: channel, ID: channelID, Emotes: make(map[string]emote.Emote)}
+	return &Bot{Client: client, Name: channel, ID: channelID, Emotes: make(map[string]emote.Emote)}
 }
 
-func ConnectBots(f *os.File, botList *BotList) {
-	scanner := bufio.NewScanner(f)
-	scanner.Split(bufio.ScanLines)
+//
+// func ConnectBots(f *os.File, botList *BotList) {
+// 	scanner := bufio.NewScanner(f)
+// 	scanner.Split(bufio.ScanLines)
+//
+// 	for scanner.Scan() {
+// 		channel := scanner.Text()
+//
+// 		bot := NewBot(channel)
+// 		go bot.PopulateEmotes()
+// 		go bot.ConnectClient()
+//
+// 		// botList.Bots[bot.Name] = &bot
+// 	}
+// }
 
-	for scanner.Scan() {
-		channel := scanner.Text()
-
-		bot := NewBot(channel)
-		go bot.PopulateEmotes()
-		go bot.connectClient()
-
-		botList.Bots[bot.Name] = &bot
-	}
-}
-
-func (b Bot) connectClient() {
+func (b Bot) ConnectClient() {
 	err := b.Client.Connect()
 	if err != nil {
 		panic(err)
@@ -113,12 +119,7 @@ func PrivateMessage(message twitch.PrivateMessage) {
 	}
 
 	for _, word := range messageContent {
-		bot, err := Bots.GetBot(message.Channel)
-		if err != nil {
-			panic(err)
-		}
-
-		val, ok := bot.Emotes[word]
+		val, ok := TwitchBot.Emotes[word]
 		if ok {
 			timeseries.CreateTimeSeries(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
 		}
@@ -127,6 +128,7 @@ func PrivateMessage(message twitch.PrivateMessage) {
 }
 
 func (b *Bot) PopulateEmotes() {
+	fmt.Println("Populating Emotes")
 	client := emote.NewClient()
 
 	ffzResp := client.GetFFZEmotes(b.Name, true, true)
@@ -134,25 +136,25 @@ func (b *Bot) PopulateEmotes() {
 		b.Emotes[e.GetName()] = e
 	}
 
-	bttvResp := client.GetBTTVEmotes(b.ID, true, true)
+	bttvResp := client.GetBTTVEmotes(b.Name, true, true)
 	for _, e := range bttvResp {
 		b.Emotes[e.GetName()] = e
 	}
 
-	stvResp := client.GetSTVEmotes(b.Name, true, true)
-	for _, e := range stvResp {
+	sevenTVResp := client.Get7TVEmotes(b.ID, true, false)
+	for _, e := range sevenTVResp {
 		b.Emotes[e.GetName()] = e
 	}
 }
 
-func (b Bot) GetTotalEmotes() int {
-	return len(b.Emotes)
-}
+// func (b Bot) GetTotalEmotes() int {
+// 	return len(b.Emotes)
+// }
 
-func (b BotList) GetBot(name string) (*Bot, error) {
-	bot := b.Bots[name]
-	if bot == nil {
-		return nil, errors.New("could not find bot.")
-	}
-	return bot, nil
-}
+// func GetBot() (*Bot, error) {
+// 	bot := TwitchBot
+// 	if bot == nil {
+// 		return nil, errors.New("could not find bot.")
+// 	}
+// 	return bot, nil
+// }

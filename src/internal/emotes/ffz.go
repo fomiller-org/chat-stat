@@ -55,7 +55,7 @@ func (c Client) GetFFZUserEmotes(channel string) (FFZResponse, error) {
 			emotes.Sets[i].Emotes[ii].Extension = "ffz"
 		}
 	}
-	fmt.Println("test", emotes)
+	// fmt.Println("test", emotes)
 
 	return emotes, nil
 }

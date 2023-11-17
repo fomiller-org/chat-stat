@@ -14,13 +14,10 @@ var ctx = context.Background()
 var exit = make(chan int)
 
 func main() {
-	file, err := os.Open("channels.txt")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	bot.ConnectBots(file, bot.Bots)
+	channel := os.Getenv("TWITCH_CHANNEL")
+	bot.TwitchBot = bot.NewBot(channel)
+	bot.TwitchBot.PopulateEmotes()
+	go bot.TwitchBot.ConnectClient()
 
 	<-exit
 	fmt.Println("Shutting down.")
