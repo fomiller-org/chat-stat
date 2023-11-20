@@ -88,7 +88,6 @@ jobs:
     name: 'Deploy AWS Infra DEV'
     runs-on: ubuntu-latest
     env:
-      TF_VAR_username: ${{secrets.USERNAME}}
       TF_VAR_terraform_user: ${{ secrets.AWS_ACCESS_KEY_ID }}
       TF_VAR_terraform_pass: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
         
@@ -114,7 +113,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{ secrets.AWS_DEPLOYER_ROLE }}
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOYER_ROLE }}
         aws-region: ${{env.AWS_DEFAULT_REGION}}
         role-duration-seconds: 1200
 
@@ -160,7 +159,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{ secrets.AWS_DEPLOYER_ROLE }}
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOYER_ROLE }}
         aws-region: ${{env.AWS_DEFAULT_REGION}}
         role-duration-seconds: 1200
 
