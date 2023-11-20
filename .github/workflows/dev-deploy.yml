@@ -25,7 +25,7 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_DEFAULT_OUTPUT: json
   ECR_REPO_PREFIX: 'fomiller-chat-stat'
-  INFRA_DIR: infra/us-east-1/dev
+  INFRA_DIR: infra/modules/aws
   TG_VERSION: v0.42.8
   TF_VERSION: latest
         
