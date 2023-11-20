@@ -1,17 +1,9 @@
-# locals {
-#   region_vars       = read_terragrunt_config(find_in_parent_folders("region.hcl"))
-#   aws_region  = local.region_vars.locals.aws_region
-#   environment = "${get_env("TF_VAR_env", "dev")}"
-# }
-
 generate provider {
   path      = "provider.gen.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "aws" {
-  version = "~>5.0"
   region = "us-east-1"
-  profile = "default"
   default_tags {
     tags = {
       email = "forrestmillerj@gmail.com"
@@ -22,13 +14,30 @@ provider "aws" {
 EOF
 }
 
+generate versions {
+  path      = "versions.gen.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+terraform {
+  required_version = ">=1.3.0"
+  required_providers {
+      aws = {
+          source = "hashicorp/aws"
+          version = ">=5.0.0"
+      }
+  }
+}
+EOF
+}
+
 generate variables {
-  path      = "variable.gen.tf"
+  path      = "variables.gen.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 variable "environment" {
     type = string
 }
+
 variable "app_prefix" {
     type = string
     default = "fomiller-chat-stat"
@@ -40,13 +49,14 @@ remote_state {
   backend = "s3"
   config = {
     encrypt        = true
-    bucket         = "fomiller-terraform-state-${local.environment}"
+    disable_bucket_update= true
+    bucket         = "fomiller-terraform-state-${get_env("TF_VAR_env", "dev")}"
     key            = "chat-stat/${path_relative_to_include()}/terraform.tfstate"
-    region         = local.aws_region
+    region         = "${get_env("TF_VAR_region", "us-east-1")}"
     dynamodb_table = "fomiller-terraform-state-lock"
   }
   generate = {
-    path      = "backend.tf"
+    path      = "backend.gen.tf"
     if_exists = "overwrite_terragrunt"
   }
 }
@@ -56,15 +66,15 @@ terraform {
   # up to 20 minutes if someone else already has the lock
   extra_arguments "var_files" {
     commands = [
-      "init",
       "apply",
-      "refresh",
-      "import",
-      "validate",
       "plan",
-      "taint",
-      "untaint",
-      "destroy"
+      "import",
+      "push",
+      "refresh",
+      "output",
+      "init",
+      "destroy",
+      "validate-inputs",
     ]
     # env_vars = {
     #   TF_VAR_var_from_environment = "value"
@@ -72,6 +82,7 @@ terraform {
     required_var_files = [
       "${get_parent_terragrunt_dir()}/common.tfvars",
       "${get_terragrunt_dir()}/env-config/common.tfvars",
+      "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_region", "us-east-1")}/common.tfvars",
       "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_region", "us-east-1")}/${get_env("TF_VAR_env", "dev")}.tfvars",
     ]
   }

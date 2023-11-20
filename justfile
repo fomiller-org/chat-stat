@@ -1,4 +1,6 @@
-infraDir := "infra/us-east-1/"
+set export 
+
+infraDir := "infra/modules/aws"
 
 port-forward:
    kubectl -n chat-stat port-forward deployment/redis 6379:6379 
@@ -22,20 +24,43 @@ run:
 login env:
     assume-role login -p {{env}}Terraform
 
-plan env dir:
-    terragrunt plan --terragrunt-working-dir {{infraDir}}{{env}}/{{dir}}
+login-test:
+   export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+       $(aws sts assume-role \
+       --role-arn arn:aws:iam::695434033664:role/AWSTERRAFORM \
+       --role-session-name local \
+       --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+       --output text))
 
-plan-all env:
-    terragrunt run-all plan --terragrunt-working-dir {{infraDir}}{{env}}
+init dir:
+    terragrunt init --terragrunt-working-dir {{infraDir}}/{{dir}}
     
-init env dir:
-    terragrunt init --terragrunt-working-dir {{infraDir}}{{env}}/{{dir}}
+init-all:
+    terragrunt run-all init --terragrunt-working-dir {{infraDir}}
+
+validate dir:
+    terragrunt validate --terragrunt-working-dir {{infraDir}}/{{dir}}
+
+validate-all:
+    terragrunt validate --terragrunt-working-dir {{infraDir}}
     
-init-all env:
-    terragrunt run-all init --terragrunt-working-dir {{infraDir}}{{env}}
+plan dir:
+    terragrunt plan --terragrunt-working-dir {{infraDir}}/{{dir}}
+
+plan-all:
+    terragrunt run-all plan --terragrunt-working-dir {{infraDir}}
+    
+apply dir:
+    terragrunt apply --terragrunt-working-dir {{infraDir}}/{{dir}}
+    
+apply-all:
+    terragrunt run-all apply --terragrunt-working-dir {{infraDir}}
+
+destroy dir:
+    terragrunt destroy --terragrunt-working-dir {{infraDir}}/{{dir}}
+    
+destroy-all:
+    terragrunt run-all destroy --terragrunt-working-dir {{infraDir}}
 
 fmt:
     terraform fmt --recursive
-
-validate env:
-    terragrunt run-all validate --terragrunt-working-dir {{infraDir}}{{env}}
