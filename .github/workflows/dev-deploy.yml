@@ -90,6 +90,7 @@ jobs:
     env:
       TF_VAR_terraform_user: ${{ secrets.AWS_ACCESS_KEY_ID }}
       TF_VAR_terraform_pass: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+      account_id: ${{ secrets.AWS_ACCOUNT_ID }} 
         
     steps:
     - name: Checkout
