@@ -176,15 +176,12 @@ jobs:
       env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           
-    - name: show files
-      run: ls -la
-      
     # use if you need to debug workflow
-    - name: DEBUG
-      uses: lhotari/action-upterm@v1
-      with:
-          limit-access-to-actor: true
-          limit-access-to-users: Fomiller
+    # - name: DEBUG
+    #   uses: lhotari/action-upterm@v1
+    #   with:
+    #       limit-access-to-actor: true
+    #       limit-access-to-users: Fomiller
           
     - name: Build and push
       uses: docker/build-push-action@v4
