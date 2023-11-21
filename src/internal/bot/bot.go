@@ -10,7 +10,6 @@ import (
 	emote "github.com/fomiller/chat-stat/src/internal/emotes"
 	"github.com/fomiller/chat-stat/src/internal/timeseries"
 	twitch "github.com/gempir/go-twitch-irc/v3"
-	"github.com/joho/godotenv"
 	helix "github.com/nicklaw5/helix/v2"
 	"golang.org/x/oauth2/clientcredentials"
 	twitchAuth "golang.org/x/oauth2/twitch"
@@ -23,13 +22,8 @@ var (
 )
 
 func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file. ERR: %s", err)
-	}
-
-	ClientID = os.Getenv("CLIENT_ID")         // password for bot account to write chat messages, need to create this programatically
-	ClientSecret = os.Getenv("CLIENT_SECRET") // does not seem to matter
+	ClientID = os.Getenv("TWITCH_CLIENT_ID")         // password for bot account to write chat messages, need to create this programatically
+	ClientSecret = os.Getenv("TWITCH_CLIENT_SECRET") // does not seem to matter
 
 	oauth2Config := &clientcredentials.Config{
 		ClientID:     ClientID,

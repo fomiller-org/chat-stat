@@ -6,7 +6,6 @@ require (
 	github.com/RedisTimeSeries/redistimeseries-go v1.4.4
 	github.com/aws/aws-lambda-go v1.36.1
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
-	github.com/joho/godotenv v1.4.0
 	github.com/nicklaw5/helix/v2 v2.13.0
 	github.com/seventv/common v0.0.0-20230729093701-30b85f9e2678
 	golang.org/x/oauth2 v0.3.0
