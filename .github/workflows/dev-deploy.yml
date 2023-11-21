@@ -91,9 +91,9 @@ jobs:
     env:
       TF_VAR_terraform_user: ${{ secrets.AWS_ACCESS_KEY_ID }}
       TF_VAR_terraform_pass: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-      TF_VAR_account_id: ${{ secrets.AWS_ACCOUNT_ID }} 
-      TF_VAR_region: us-east-1
-      TF_VAR_env: dev
+      TF_VAR_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }} 
+      TF_VAR_REGION: us-east-1
+      TF_VAR_ENV: dev
         
     steps:
     - name: Checkout
@@ -179,6 +179,9 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
+        secrets: |
+           "CLIENT_ID=${{ secrets.TWITCH_CLIENT_ID }}"
+           "CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}"
         tags: |
           ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
           ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{steps.vars.outputs.sha_short}}
