@@ -17,7 +17,20 @@ on:
     #         output: lambda/bin/lambda_webhook.exe
    
 jobs:
+  Pre-check:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          cancel_others: 'true'
+          concurrent_skipping: 'same_content_newer'
+
   Build-lambdas-hello:
+    needs: Pre-check
     uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
     with:
       lambda_src: lambda/hello/main.go
@@ -25,6 +38,7 @@ jobs:
       infra-dir: infra/modules/aws
         
   Build-lambda-twitch:
+    needs: Pre-check
     uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
     with:
       lambda_src: lambda/twitch/webhookCallback/main.go
@@ -32,6 +46,7 @@ jobs:
       infra-dir: infra/modules/aws
         
   Deploy-infra:
+    needs: [Build-lambda-twitch, Build-lambdas-hello]
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
       environment: dev
