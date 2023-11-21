@@ -69,8 +69,9 @@ apply dir:
 apply-all:
     doppler run \
     --name-transformer tf-var  \
-    -- terragrunt run-all \
-    apply --terragrunt-working-dir {{infraDir}}
+    -- terragrunt run-all apply \
+    --terragrunt-working-dir {{infraDir}} \
+    --terragrunt-non-interactive
 
 destroy dir:
     doppler run \
@@ -83,6 +84,7 @@ destroy-all:
     --name-transformer tf-var  \
     -- terragrunt run-all \
     destroy --terragrunt-working-dir {{infraDir}}
+    
 
 fmt:
     doppler run \
