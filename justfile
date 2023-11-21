@@ -30,43 +30,56 @@ run:
 login env:
     assume-role login -p {{env}}Terraform
 
-login-test:
-   export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
-       $(aws sts assume-role \
-       --role-arn arn:aws:iam::695434033664:role/AWSTERRAFORM \
-       --role-session-name local \
-       --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
-       --output text))
-
 init dir:
-    terragrunt init --terragrunt-working-dir {{infraDir}}/{{dir}}
+    terragrunt init \
+    --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 init-all:
-    terragrunt run-all init --terragrunt-working-dir {{infraDir}}
+    terragrunt run-all init \
+    --terragrunt-working-dir {{ \
+    infraDir}}
 
 validate dir:
-    terragrunt validate --terragrunt-working-dir {{infraDir}}/{{dir}}
+    doppler run -- \
+    terragrunt validate \
+    --terragrunt-working-dir {{infraDir}}/{{dir}}
 
 validate-all:
-    terragrunt validate --terragrunt-working-dir {{infraDir}}
+    doppler run -- \
+    terragrunt validate \
+    --terragrunt-working-dir {{infraDir}}
     
 plan dir:
-    terragrunt plan --terragrunt-working-dir {{infraDir}}/{{dir}}
+    doppler run -- \
+    terragrunt plan \
+    --terragrunt-working-dir {{infraDir}}/{{dir}}
 
 plan-all:
-    terragrunt run-all plan --terragrunt-working-dir {{infraDir}}
+    doppler run -- \
+    terragrunt run-all \
+    plan --terragrunt-working-dir {{infraDir}}
     
 apply dir:
-    terragrunt apply --terragrunt-working-dir {{infraDir}}/{{dir}}
+    doppler run -- \
+    terragrunt apply \
+    --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 apply-all:
-    terragrunt run-all apply --terragrunt-working-dir {{infraDir}}
+    doppler run -- \
+    terragrunt run-all \
+    apply --terragrunt-working-dir {{infraDir}}
 
 destroy dir:
-    terragrunt destroy --terragrunt-working-dir {{infraDir}}/{{dir}}
+    doppler run -- \
+    terragrunt destroy \
+    --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 destroy-all:
-    terragrunt run-all destroy --terragrunt-working-dir {{infraDir}}
+    doppler run -- \
+    terragrunt run-all \
+    destroy --terragrunt-working-dir {{infraDir}}
 
 fmt:
-    terraform fmt --recursive
+    doppler run -- \
+    terraform fmt \
+    --recursive

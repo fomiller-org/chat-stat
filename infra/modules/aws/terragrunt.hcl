@@ -50,9 +50,9 @@ remote_state {
   config = {
     encrypt        = true
     disable_bucket_update= true
-    bucket         = "fomiller-terraform-state-${get_env("TF_VAR_ENV", "dev")}"
+    bucket         = "fomiller-terraform-state-${get_env("TF_VAR_environment", "dev")}"
     key            = "chat-stat/${path_relative_to_include()}/terraform.tfstate"
-    region         = "${get_env("TF_VAR_REGION", "us-east-1")}"
+    region         = "${get_env("TF_VAR_region", "us-east-1")}"
     dynamodb_table = "fomiller-terraform-state-lock"
   }
   generate = {
@@ -82,8 +82,8 @@ terraform {
     required_var_files = [
       "${get_parent_terragrunt_dir()}/common.tfvars",
       "${get_terragrunt_dir()}/env-config/common.tfvars",
-      "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_REGION", "us-east-1")}/common.tfvars",
-      "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_REGION", "us-east-1")}/${get_env("TF_VAR_ENV", "dev")}.tfvars",
+      "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_region", "us-east-1")}/common.tfvars",
+      "${get_terragrunt_dir()}/env-config/${get_env("TF_VAR_region", "us-east-1")}/${get_env("TF_VAR_environment", "dev")}.tfvars",
     ]
   }
 }
