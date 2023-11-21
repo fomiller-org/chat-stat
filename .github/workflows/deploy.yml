@@ -17,6 +17,7 @@ jobs:
     with:
       environment: dev
       infra-dir: infra/modules/aws
+      doppler-project: chat-stat
     secrets: inherit
         
 
