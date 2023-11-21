@@ -9,7 +9,7 @@ on:
       - 'src/**'
       - 'infra/**'
     branches:
-      - '*'
+      # - '*'
       - 'feature/*'
       - '!main'
       - '!master'

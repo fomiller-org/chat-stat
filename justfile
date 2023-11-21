@@ -12,17 +12,11 @@ kube-delete:
    kubectl delete -f k8s/deployment.yml
    
 build-mini:
-    minikube image build -t chat-stat:local .
+    doppler run minikube image build -t chat-stat:local .
 
 build-docker:
     eval $(minikube -p minikube docker-env)
-    docker build -t chat-stat:local .
-
-build-docker-test:
-    docker build \
-    --build-arg="TWITCH_CLIENT_ID=$TWITCH_CLIENT_ID" \
-    --build-arg="TWITCH_CLIENT_SECRET=$TWITCH_CLIENT_SECRET" \
-    -t chat-stat:local .
+    doppler run docker build -t chat-stat:local .
 
 run:
     docker run -e REDIS_HOST="docker.for.mac.localhost" chat-stat:local

@@ -1,0 +1,19 @@
+# .github/workflows/deploy.yml
+
+name: 'Terragrunt Deploy'
+  
+on:
+  push:
+    paths:
+      - '.github/**'
+      - 'modules/**'
+      - 'infra/**'
+    branches:
+      - 'ci/*'
+        
+jobs:
+  deploy-infra:
+    uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
+    secrets: inherit
+        
+
