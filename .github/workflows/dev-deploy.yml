@@ -177,6 +177,11 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           
     # use if you need to debug workflow
+    #   uses: lhotari/action-upterm@v1
+    # - name: DEBUG
+    #   with:
+    #       limit-access-to-actor: true
+    #       limit-access-to-users: Fomiller
           
     - name: Build and push
       uses: docker/build-push-action@v4
