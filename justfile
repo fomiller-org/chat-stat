@@ -25,55 +25,67 @@ login env:
     assume-role login -p {{env}}Terraform
 
 init dir:
-    terragrunt init \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt init \
     --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 init-all:
-    terragrunt run-all init \
-    --terragrunt-working-dir {{ \
-    infraDir}}
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt run-all init \
+    --terragrunt-working-dir {{infraDir}}
 
 validate dir:
-    doppler run -- \
-    terragrunt validate \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt validate \
     --terragrunt-working-dir {{infraDir}}/{{dir}}
 
 validate-all:
-    doppler run -- \
-    terragrunt validate \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt validate \
     --terragrunt-working-dir {{infraDir}}
     
 plan dir:
-    doppler run -- \
-    terragrunt plan \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt plan \
     --terragrunt-working-dir {{infraDir}}/{{dir}}
 
 plan-all:
-    doppler run -- \
-    terragrunt run-all \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt run-all \
     plan --terragrunt-working-dir {{infraDir}}
     
 apply dir:
-    doppler run -- \
-    terragrunt apply \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt apply \
     --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 apply-all:
-    doppler run -- \
-    terragrunt run-all \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt run-all \
     apply --terragrunt-working-dir {{infraDir}}
 
 destroy dir:
-    doppler run -- \
-    terragrunt destroy \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt destroy \
     --terragrunt-working-dir {{infraDir}}/{{dir}}
     
 destroy-all:
-    doppler run -- \
-    terragrunt run-all \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt run-all \
     destroy --terragrunt-working-dir {{infraDir}}
 
 fmt:
-    doppler run -- \
-    terraform fmt \
+    doppler run \
+    --name-transformer tf-var  \
+    -- terraform fmt \
     --recursive
