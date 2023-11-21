@@ -1,7 +1,7 @@
-variable "terraform_pass" {
+variable "terraform_deployer_pass" {
   type = string
 }
 
-variable "terraform_user" {
+variable "terraform_deployer_user" {
   type = string
 }
