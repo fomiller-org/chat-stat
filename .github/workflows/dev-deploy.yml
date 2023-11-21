@@ -105,13 +105,6 @@ jobs:
         name: lambdas
         path: ${{env.INFRA_DIR}}/lambda/bin/
 
-    # use if you need to debug workflow
-    # - name: DEBUG
-    #   uses: lhotari/action-upterm@v1
-    #   with:
-    #       limit-access-to-actor: true
-    #       limit-access-to-users: Fomiller
-          
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -183,6 +176,13 @@ jobs:
       env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         
+    # use if you need to debug workflow
+    - name: DEBUG
+      uses: lhotari/action-upterm@v1
+      with:
+          limit-access-to-actor: true
+          limit-access-to-users: Fomiller
+          
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
