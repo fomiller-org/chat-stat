@@ -11,14 +11,33 @@ on:
       - 'justfile'
     branches:
       - 'ci/*'
-        
+    #       - src: lambda/hello/main.go
+    #         output: lambda/bin/lambda_hello.exe
+    #       - src: lambda/twitch/webhookCallback/main.go
+    #         output: lambda/bin/lambda_webhook.exe
+   
 jobs:
-  deploy-infra:
+  Build-lambdas-hello:
+    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    with:
+      lambda_src: lambda/hello/main.go
+      lambda_output:  lambda/bin/lambda_hello.exe
+      infra-dir: infra/modules/aws
+        
+  Build-lambda-twitch:
+    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    with:
+      lambda_src: lambda/twitch/webhookCallback/main.go
+      lambda_output:  lambda/bin/lambda_webhook.exe
+      infra-dir: infra/modules/aws
+        
+  Deploy-infra:
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
       environment: dev
       infra-dir: infra/modules/aws
       doppler-project: chat-stat
+      download-artifacts: true
     secrets: inherit
         
 
