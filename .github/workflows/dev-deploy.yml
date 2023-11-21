@@ -175,7 +175,10 @@ jobs:
       run: doppler -p chat-stat -c dev secrets download --no-file --format env > .env
       env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        
+          
+    - name: show files
+      run: ls -la
+      
     # use if you need to debug workflow
     - name: DEBUG
       uses: lhotari/action-upterm@v1
