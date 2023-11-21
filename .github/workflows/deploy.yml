@@ -96,7 +96,7 @@ jobs:
             
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      uses: aws-actions/amazon-ecr-login@v1
             
     - name: Create Unique image tag
       id: vars
@@ -114,8 +114,8 @@ jobs:
           TWITCH_CLIENT_ID=${{secrets.TWITCH_CLIENT_ID}}
           TWITCH_CLIENT_SECRETS=${{secrets.TWITCH_CLIENT_SECRETS}}
         tags: |
-          $REGISTRY/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
-          $REGISTRY/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:$SHA
+          ${{env.REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
+          ${{env.REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{env.SHA}}
           
     # use if you need to debug workflow
     # - name: DEBUG
