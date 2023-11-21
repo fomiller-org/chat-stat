@@ -42,6 +42,10 @@ variable "app_prefix" {
     type = string
     default = "fomiller-chat-stat"
 }
+variable "asset_name" {
+    type = string
+    default = "fomiller-chat-stat"
+}
 EOF
 }
 
