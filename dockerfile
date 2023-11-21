@@ -2,7 +2,7 @@ FROM golang:latest
 
 WORKDIR /app
 
-COPY .env ./
+COPY ./.env ./
 COPY ./channels.txt ./
 COPY ./src/ ./src/
 COPY ./go.mod ./
