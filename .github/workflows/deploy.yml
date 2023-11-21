@@ -16,6 +16,7 @@ jobs:
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
       environment: dev
+      infra-dir: infra/modules/aws
     secrets: inherit
         
 
