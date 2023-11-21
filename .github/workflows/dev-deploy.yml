@@ -179,7 +179,7 @@ jobs:
       uses: dopplerhq/cli-action@v2
       
     - name: Download doppler secrets to .env file
-      run: doppler secrets download --no-file --format env > .env
+      run: doppler -p chat-stat -c dev secrets download --no-file --format env > .env
       env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         
