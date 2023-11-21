@@ -105,7 +105,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       env:
-        REGISTRY: ${{steps.login-ecr.outputs.registry}}
+        ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
         SHA: ${{steps.vars.outputs.sha_short}}
       with:
         context: .
@@ -114,8 +114,8 @@ jobs:
           TWITCH_CLIENT_ID=${{secrets.TWITCH_CLIENT_ID}}
           TWITCH_CLIENT_SECRETS=${{secrets.TWITCH_CLIENT_SECRETS}}
         tags: |
-          ${{env.REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
-          ${{env.REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{env.SHA}}
+          ${{env.ECR_REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
+          ${{env.ECR_REGISTRY}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{env.SHA}}
           
     # use if you need to debug workflow
     # - name: DEBUG
