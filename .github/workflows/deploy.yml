@@ -14,6 +14,8 @@ on:
 jobs:
   deploy-infra:
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
+    with:
+      environment: dev
     secrets: inherit
         
 
