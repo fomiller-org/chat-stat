@@ -15,6 +15,7 @@ on:
       - '!master'
 
 env:
+  ENVIRONMENT: dev
   ECR_REPO_PREFIX: 'fomiller-chat-stat'
   INFRA_DIR: infra/modules/aws
   TG_VERSION: v0.42.8
@@ -73,17 +74,17 @@ jobs:
         
           
   Deploy-aws-infra:
-    environment: dev
+    name: 'Deploy AWS Infra DEV'
     needs: Build-Lambdas
     if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
-    name: 'Deploy AWS Infra DEV'
     runs-on: ubuntu-latest
+    environment: dev
     env:
       TF_VAR_terraform_user: ${{ secrets.AWS_ACCESS_KEY_ID }}
       TF_VAR_terraform_pass: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
       TF_VAR_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }} 
       TF_VAR_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      TF_VAR_ENV: ${{ secrets.ENVIRONMENT }}
+      TF_VAR_ENV: ${{ env.ENVIRONMENT }}
         
     steps:
     - name: Checkout
