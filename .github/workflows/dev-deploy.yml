@@ -175,13 +175,18 @@ jobs:
       id: vars
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT 
         
+    - name: Download doppler
+      uses: dopplerhq/cli-action@v2
+      
+    - name: Download doppler secrets to .env file
+      run: doppler secrets download --no-file --format env > .env
+      env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         push: true
-        secrets: |
-           "CLIENT_ID=${{ secrets.TWITCH_CLIENT_ID }}"
-           "CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}"
         tags: |
           ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:latest
           ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPO_PREFIX}}-${{matrix.Repo}}:${{steps.vars.outputs.sha_short}}
