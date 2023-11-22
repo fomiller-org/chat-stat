@@ -1,9 +1,8 @@
-module "lambda_hello_world" {
-  source           = "git::https://github.com/Fomiller/tf-module-lambda.git"
-  lambda_name      = "${var.app_prefix}-${var.lambda_name}"
-  lambda_role      = data.aws_iam_role.hello_world.arn
-  filename         = "${path.module}/lambda_function.zip"
+resource "aws_lambda_function" "hello_world" {
+  function_name    = "${var.app_prefix}-${var.lambda_name}"
+  role             = data.aws_iam_role.hello_world.arn
   handler          = "lambda_hello"
+  filename         = "${path.module}/lambda_function.zip"
   source_code_hash = data.archive_file.zip.output_base64sha256
   runtime          = "provided.al2"
   architectures    = ["arm64"]
