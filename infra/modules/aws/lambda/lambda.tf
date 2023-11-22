@@ -13,3 +13,8 @@ resource "aws_lambda_function" "hello_world" {
 data "aws_iam_role" "hello_world" {
   name = var.lambda_role
 }
+
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+  retention_in_days = 7
+}
