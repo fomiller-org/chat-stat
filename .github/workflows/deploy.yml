@@ -35,16 +35,15 @@ jobs:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
             
-      - name: Set env to prod
-        if: ${{ github.ref == 'refs/heads/main' || 'refs/heads/master' }}
+      - name: Set environment for branch
         run: |
-          echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-            
-      - name: Set env to dev
-        if: ${{ github.ref == 'refs/heads/!main' || 'refs/heads/!master' }}
-        run: |
-          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
-          
+          if [[ $GITHUB_REF == 'refs/heads/master' ]] || [[$GITHUB_REF == refs/heads/main]]
+          then
+            echo "ENVIRONMENT=prod" > $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=dev" > $GITHUB_ENV
+          fi 
+ 
       - name: Skip Deploy?
         if: env.ENVIRONMENT == 'dev'
         run: echo "Only pushing to 'master' causes automatic deployment"
