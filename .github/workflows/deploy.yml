@@ -9,20 +9,6 @@ on:
       - 'modules/**'
       - 'infra/**'
       - 'justfile'
-    branches:
-      - 'ci/*'
-    #       - src: lambda/hello/main.go
-    #         output: lambda/bin/lambda_hello.exe
-    #       - src: lambda/twitch/webhookCallback/main.go
-    #
-    #       
-    #         output: lambda/bin/lambda_webhook.exe
-        
-env:
-  ECR_REPO_PREFIX: 'fomiller-chat-stat'
-  # INFRA_DIR: infra/modules/aws
-  # TG_VERSION: v0.42.8
-  # TF_VERSION: latest
    
 jobs:
   Pre-check:
@@ -75,8 +61,7 @@ jobs:
       repo: api
       repo-prefix: "fomiller-chat-stat"
     secrets: inherit
-    # if: ${{ (github.event.pull_request.merged == true || github.event_name == 'push') && needs.pre-check.outputs.should_skip != 'true' }}
-          
+     
     # use if you need to debug workflow
     # - name: DEBUG
     #   uses: lhotari/action-upterm@v1
