@@ -26,7 +26,7 @@ jobs:
   Build-lambdas-hello:
     name: 'Build Go lambda'
     needs: Pre-check
-    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
       lambda_src: lambda/hello/main.go
       lambda_output:  lambda/bin/lambda_hello.exe
@@ -35,7 +35,7 @@ jobs:
   Build-lambda-twitch:
     name: 'Build Go lambda'
     needs: Pre-check
-    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
       lambda_src: lambda/twitch/webhookCallback/main.go
       lambda_output:  lambda/bin/lambda_webhook.exe
@@ -44,7 +44,7 @@ jobs:
   Deploy-infra:
     name: 'Deploy Infra'
     needs: [Build-lambda-twitch, Build-lambdas-hello]
-    uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
+    uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
       infra-dir: infra/modules/aws
@@ -55,7 +55,7 @@ jobs:
   Build-deploy-ecr-images:
     name: 'Build/Deploy ECR images'
     needs: Deploy-infra
-    uses: fomiller-org/gh-actions/.github/workflows/ecr.yaml@generic
+    uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
       repo: api
