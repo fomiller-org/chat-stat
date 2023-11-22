@@ -5,7 +5,7 @@ module "lambda_hello_world" {
   filename         = "${path.module}/lambda_function.zip"
   handler          = "lambda_hello.exe"
   source_code_hash = data.archive_file.zip.output_base64sha256
-  runtime          = "go1.x"
+  runtime          = "provided.al2"
   memory_size      = 128
   timeout          = 10
 }
