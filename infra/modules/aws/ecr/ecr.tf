@@ -1,18 +1,9 @@
-resource "aws_ecr_repository" "api" {
-  name                 = "${var.app_prefix}-api"
+resource "aws_ecr_repository" "chat_stat" {
+  for_each             = toset(local.ecr_repos)
+  name                 = "${var.app_prefix}-${each.key}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
     scan_on_push = true
   }
 }
-
-resource "aws_ecr_repository" "bot" {
-  name                 = "${var.app_prefix}-bot"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
