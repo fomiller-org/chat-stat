@@ -6,6 +6,7 @@ module "lambda_hello_world" {
   handler          = "lambda_hello"
   source_code_hash = data.archive_file.zip.output_base64sha256
   runtime          = "provided.al2"
+  architetures     = ["arm64"]
   memory_size      = 128
   timeout          = 10
 }
