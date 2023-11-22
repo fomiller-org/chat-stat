@@ -34,7 +34,22 @@ jobs:
         with:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
-
+            
+      - name: Set env to prod
+        if: ${{ github.ref == 'refs/heads/main' || 'refs/heads/master' }}
+        run: |
+          echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+            
+      - name: Set env to dev
+        if: ${{ github.ref == 'refs/heads/!main' || 'refs/heads/!master' }}
+        run: |
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          
+      # - name: Set env to production
+      #   if: endsWith(github.ref, '/master')
+      #   run: |
+      #    echo "ENVIRONMENT=production" >> $GITHUB_ENV
+         
   Build-lambdas-hello:
     name: 'Build Go lambda'
     needs: Pre-check
@@ -58,7 +73,7 @@ jobs:
     needs: [Build-lambda-twitch, Build-lambdas-hello]
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
-      environment: dev
+      environment: ${{ env.ENVIRONMNET }}
       infra-dir: infra/modules/aws
       doppler-project: chat-stat
       download-artifacts: true
@@ -69,7 +84,7 @@ jobs:
     needs: Deploy-infra
     uses: fomiller-org/gh-actions/.github/workflows/ecr.yaml@generic
     with:
-      environment: dev
+      environment: ${{ env.ENVIRONMNET }}
       repo: api
       repo-prefix: "fomiller-chat-stat"
     secrets: inherit
