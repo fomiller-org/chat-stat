@@ -43,7 +43,7 @@ jobs:
         
   Deploy-infra:
     name: 'Deploy Infra'
-    needs: [Build-lambda-twitch, Build-lambdas-hello]
+    needs: [Build-lambdas-hello]
     uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
