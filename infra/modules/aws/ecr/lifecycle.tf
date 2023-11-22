@@ -1,6 +1,7 @@
-resource "aws_lifecycle_policy" "chat_stat" {
-  for_each = [aws_ecr_repository.api.name, aws_ecr_repository.bot.name]
-  policy   = <<EOF
+resource "aws_ecr_lifecycle_policy" "chat_stat" {
+  for_each   = aws_ecr_repository.chat_stat
+  repository = each.value.name
+  policy     = <<EOF
 {
     "rules": [
         {
@@ -8,7 +9,7 @@ resource "aws_lifecycle_policy" "chat_stat" {
             "description": "Keep only one latest image, expire all others",
             "selection": {
                 "tagStatus": "tagged",
-                "tagPrefixList": ["latest"]
+                "tagPrefixList": ["latest"],
                 "countType": "imageCountMoreThan",
                 "countNumber": 1
             },
@@ -31,7 +32,7 @@ resource "aws_lifecycle_policy" "chat_stat" {
         },
         {
             "rulePriority": 3,
-            "description": "Keep only 3 tag images that are not 'latest', expire all others",
+            "description": "Keep only 3 tag images that are not latest, expire all others",
             "selection": {
                 "tagStatus": "any",
                 "countType": "imageCountMoreThan",
