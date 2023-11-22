@@ -46,7 +46,7 @@ jobs:
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
           
       - name: Skip Deploy?
-        if: env.ENVIRONMENT != 'dev'
+        if: env.ENVIRONMENT == 'dev'
         run: echo "Only pushing to 'master' causes automatic deployment"
           
       # - name: Set env to production
