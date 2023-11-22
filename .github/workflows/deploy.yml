@@ -37,15 +37,16 @@ jobs:
             
       - name: Set environment for branch
         run: |
-          if [[ $GITHUB_REF == 'refs/heads/master' ]] || [[$GITHUB_REF == refs/heads/main]]
-          then
+          if [ ${{ github.ref }} == 'refs/heads/main' ] || [ ${{ github.ref }} == 'refs/heads/master' ] ; then
+            echo "is MAIN branch"
             echo "ENVIRONMENT=prod" > $GITHUB_ENV
           else
+            echo "is DEV branch"
             echo "ENVIRONMENT=dev" > $GITHUB_ENV
-          fi 
+          fi
  
       - name: Skip Deploy?
-        if: env.ENVIRONMENT == 'dev'
+        if: env.ENVIRONMENT != 'prod'
         run: echo "Only pushing to 'master' causes automatic deployment"
           
       # - name: Set env to production
