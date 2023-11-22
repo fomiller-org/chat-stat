@@ -1,0 +1,71 @@
+# .github/workflows/deploy.yml
+
+name: 'Terragrunt Deploy'
+  
+on:
+  push:
+    paths:
+      - '.github/**'
+      - 'modules/**'
+      - 'infra/**'
+      - 'justfile'
+   
+jobs:
+  Pre-check:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          cancel_others: 'true'
+          concurrent_skipping: 'same_content_newer'
+            
+  Build-lambdas-hello:
+    name: 'Build Go lambda'
+    needs: Pre-check
+    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    with:
+      lambda_src: lambda/hello/main.go
+      lambda_output:  lambda/bin/lambda_hello.exe
+      infra-dir: infra/modules/aws
+        
+  Build-lambda-twitch:
+    name: 'Build Go lambda'
+    needs: Pre-check
+    uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
+    with:
+      lambda_src: lambda/twitch/webhookCallback/main.go
+      lambda_output:  lambda/bin/lambda_webhook.exe
+      infra-dir: infra/modules/aws
+        
+  Deploy-infra:
+    name: 'Deploy Infra'
+    needs: [Build-lambda-twitch, Build-lambdas-hello]
+    uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      infra-dir: infra/modules/aws
+      doppler-project: chat-stat
+      download-artifacts: true
+    secrets: inherit
+        
+  Build-deploy-ecr-images:
+    name: 'Build/Deploy ECR images'
+    needs: Deploy-infra
+    uses: fomiller-org/gh-actions/.github/workflows/ecr.yaml@generic
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      repo: api
+      repo-prefix: "fomiller-chat-stat"
+    secrets: inherit
+     
+    # use if you need to debug workflow
+    # - name: DEBUG
+    #   uses: lhotari/action-upterm@v1
+    #   with:
+    #       limit-access-to-actor: true
+    #       limit-access-to-users: Fomiller
+

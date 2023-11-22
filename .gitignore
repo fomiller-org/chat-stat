@@ -29,8 +29,9 @@ chat.txt
 # terraform / terragrunt
 **/.terragrunt-cache
 **/.terraform
-**/provider.tf
-**/backend.tf
+**/*.gen.tf
+infra/modules/aws/lambda/bin/*
+infra/modules/aws/lambda/*.zip
 infra/us-east-1/**/common.tf
 
 # aws
