@@ -58,7 +58,7 @@ jobs:
     needs: [Build-lambda-twitch, Build-lambdas-hello]
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
-      environment: ${{ (github.ref == 'refs/heads/main' || 'refs/heads/master') && 'prod' || 'dev' }}
+      environment: ${{ contains('refs/heads/main', 'refs/heads/master', github.ref) && 'prod' || 'dev' }}
       infra-dir: infra/modules/aws
       doppler-project: chat-stat
       download-artifacts: true
@@ -69,7 +69,7 @@ jobs:
     needs: Deploy-infra
     uses: fomiller-org/gh-actions/.github/workflows/ecr.yaml@generic
     with:
-      environment: ${{ (github.ref == 'refs/heads/main' || 'refs/heads/master') && 'prod' || 'dev' }}
+      environment: ${{ contains('refs/heads/main', 'refs/heads/master', github.ref) && 'prod' || 'dev' }}
       repo: api
       repo-prefix: "fomiller-chat-stat"
     secrets: inherit
