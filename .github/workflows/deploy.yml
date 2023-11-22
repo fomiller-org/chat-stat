@@ -9,12 +9,6 @@ on:
       - 'modules/**'
       - 'infra/**'
       - 'justfile'
-    branches:
-      - 'ci/*'
-    #       - src: lambda/hello/main.go
-    #         output: lambda/bin/lambda_hello.exe
-    #       - src: lambda/twitch/webhookCallback/main.go
-    #         output: lambda/bin/lambda_webhook.exe
    
 jobs:
   Pre-check:
@@ -28,8 +22,9 @@ jobs:
         with:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
-
+            
   Build-lambdas-hello:
+    name: 'Build Go lambda'
     needs: Pre-check
     uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
     with:
@@ -38,6 +33,7 @@ jobs:
       infra-dir: infra/modules/aws
         
   Build-lambda-twitch:
+    name: 'Build Go lambda'
     needs: Pre-check
     uses: fomiller-org/gh-actions/.github/workflows/go-lambda.yaml@generic
     with:
@@ -46,13 +42,30 @@ jobs:
       infra-dir: infra/modules/aws
         
   Deploy-infra:
+    name: 'Deploy Infra'
     needs: [Build-lambda-twitch, Build-lambdas-hello]
     uses: fomiller-org/gh-actions/.github/workflows/terragrunt.yaml@generic
     with:
-      environment: dev
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
       infra-dir: infra/modules/aws
       doppler-project: chat-stat
       download-artifacts: true
     secrets: inherit
         
+  Build-deploy-ecr-images:
+    name: 'Build/Deploy ECR images'
+    needs: Deploy-infra
+    uses: fomiller-org/gh-actions/.github/workflows/ecr.yaml@generic
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      repo: api
+      repo-prefix: "fomiller-chat-stat"
+    secrets: inherit
+     
+    # use if you need to debug workflow
+    # - name: DEBUG
+    #   uses: lhotari/action-upterm@v1
+    #   with:
+    #       limit-access-to-actor: true
+    #       limit-access-to-users: Fomiller
 
