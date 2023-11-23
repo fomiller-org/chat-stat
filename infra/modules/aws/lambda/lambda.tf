@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "hello_world" {
-  function_name    = "${var.app_prefix}-${var.lambda_name}"
+  function_name    = "${var.namespace}-${var.app_prefix}-${var.lambda_name}"
   role             = data.aws_iam_role.hello_world.arn
   handler          = "lambda_hello"
   filename         = "${path.module}/lambda_function.zip"

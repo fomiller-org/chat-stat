@@ -5,7 +5,7 @@ resource "aws_lb" "chat_stat" {
 }
 
 resource "aws_lb_target_group" "chat_stat" {
-  name        = "${var.app_prefix}-target-group"
+  name        = "${var.namespace}-${var.app_prefix}-target-group"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.chat_stat_main.id

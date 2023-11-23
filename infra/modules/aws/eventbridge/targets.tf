@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_event_target" "cs_api_ecr_target" {
-  target_id = "${var.app_prefix}-api-ecs"
+  target_id = "${var.namespace}-${var.app_prefix}-api-ecs"
   arn       = var.cs_ecs_cluster_arn
   rule      = aws_cloudwatch_event_rule.cs_api_ecr_rule.name
   role_arn  = data.aws_iam_role.eventbridge_ecs_role.arn

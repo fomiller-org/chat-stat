@@ -1,5 +1,5 @@
 resource "aws_security_group" "chat_stat_lb" {
-  name   = "${var.app_prefix}-alb-security-group"
+  name   = "${var.namespace}-${var.app_prefix}-alb-security-group"
   vpc_id = aws_vpc.chat_stat_main.id
 
   ingress {
@@ -19,7 +19,7 @@ resource "aws_security_group" "chat_stat_lb" {
 
 
 resource "aws_security_group" "chat_stat_ecs_task" {
-  name   = "${var.app_prefix}-task-security-group"
+  name   = "${var.namespace}-${var.app_prefix}-task-security-group"
   vpc_id = aws_vpc.chat_stat_main.id
 
   # only allow inbound traffic from port 3000 to port 3000

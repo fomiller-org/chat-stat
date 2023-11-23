@@ -1,3 +1,3 @@
 resource "aws_ecs_cluster" "chat_stat" {
-  name = "${var.app_prefix}-cluster"
+  name = "${var.namespace}-${var.app_prefix}-cluster"
 }

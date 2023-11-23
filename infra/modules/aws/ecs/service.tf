@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "chat_stat_api" {
-  name            = "${var.app_prefix}-api-service"
+  name            = "${var.namespace}-${var.app_prefix}-api-service"
   cluster         = aws_ecs_cluster.chat_stat.id
   task_definition = aws_ecs_task_definition.chat_stat_api.arn
   desired_count   = 1
@@ -12,7 +12,7 @@ resource "aws_ecs_service" "chat_stat_api" {
 
   load_balancer {
     target_group_arn = var.target_group
-    container_name   = "${var.app_prefix}-api"
+    container_name   = "${var.namespace}-${var.app_prefix}-api"
     container_port   = 3000
   }
 }
