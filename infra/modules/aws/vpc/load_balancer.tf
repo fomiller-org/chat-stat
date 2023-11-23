@@ -1,5 +1,5 @@
 resource "aws_lb" "chat_stat" {
-  name            = "${var.app_prefix}-lb"
+  name            = "${var.namespace}-${var.app_prefix}-lb"
   subnets         = aws_subnet.public_subnets[*].id
   security_groups = [aws_security_group.chat_stat_lb.id]
 }
