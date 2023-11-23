@@ -28,18 +28,18 @@ jobs:
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
-      lambda_src: lambda/hello/main.go
-      lambda_output:  lambda/bin/lambda_hello
-      infra-dir: infra/modules/aws
+      lambda_src: src/cmd/lambda/hello/main.go
+      lambda_output:  infra/modules/aws/lambda/bin/lambda_hello
+      artifacts_dir: infra/modules/aws/lambda/bin
         
   # Build-lambda-twitch:
   #   name: 'Build Go lambda'
   #   needs: Pre-check
   #   uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
   #   with:
-  #     lambda_src: lambda/twitch/webhookCallback/main.go
-  #     lambda_output:  lambda/bin/lambda_webhook
-  #     infra-dir: infra/modules/aws
+  #     lambda_src: src/cmd/lambda/twitch/webhookCallback/main.go
+  #     lambda_output:  infra/modules/aws/lambda/bin/lambda_webhook
+  #     artifacts_dir: infra/modules/aws/lambda/bin
         
   Deploy-infra:
     name: 'Deploy Infra'
@@ -50,6 +50,7 @@ jobs:
       infra-dir: infra/modules/aws
       doppler-project: chat-stat
       download-artifacts: true
+      artifacts_dir: infra/modules/aws/lambda/bin
     secrets: inherit
         
   Build-deploy-ecr-images:
