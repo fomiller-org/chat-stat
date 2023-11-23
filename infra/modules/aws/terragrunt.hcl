@@ -1,3 +1,7 @@
+locals {
+    namespace = "fomiller"
+    project_name = "chat-stat"
+}
 generate provider {
   path      = "provider.gen.tf"
   if_exists = "overwrite_terragrunt"
@@ -40,11 +44,16 @@ variable "environment" {
 
 variable "app_prefix" {
     type = string
-    default = "fomiller-chat-stat"
+    default = "${local.project_name}"
 }
+
 variable "asset_name" {
     type = string
-    default = "fomiller-chat-stat"
+}
+
+variable "namespace" {
+    type = string
+    default = "${local.namespace}"
 }
 EOF
 }
@@ -54,10 +63,10 @@ remote_state {
   config = {
     encrypt        = true
     disable_bucket_update= true
-    bucket         = "fomiller-terraform-state-${get_env("TF_VAR_environment", "dev")}"
-    key            = "chat-stat/${path_relative_to_include()}/terraform.tfstate"
+    bucket         = "${local.namespace}-terraform-state-${get_env("TF_VAR_environment", "dev")}"
+    key            = "${local.project_name}/${path_relative_to_include()}/terraform.tfstate"
     region         = "${get_env("TF_VAR_region", "us-east-1")}"
-    dynamodb_table = "fomiller-terraform-state-lock"
+    dynamodb_table = "${local.namespace}-terraform-state-lock"
   }
   generate = {
     path      = "backend.gen.tf"

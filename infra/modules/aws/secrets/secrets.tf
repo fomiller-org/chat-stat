@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "deployer_creds" {
-  name       = "fomiller-${var.environment}-terraform-deployer-creds"
+  name       = "${var.namespace}-${var.environment}-terraform-deployer-creds"
   kms_key_id = var.chat_stat_master_kms_key_arn
 }
 

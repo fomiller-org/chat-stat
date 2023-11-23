@@ -9,7 +9,7 @@ resource "aws_cloudwatch_event_rule" "cs_api_ecr_rule" {
   "detail": {
     "action-type": ["PUSH"],
     "result": ["SUCCESS"],
-    "repository-name": ["695434033664.dkr.ecr.us-east-1.amazonaws.com/fomiller-chat-stat-api"]
+    "repository-name": ["695434033664.dkr.ecr.us-east-1.amazonaws.com/${var.namespace}-${var.app_prefix}-api"]
   }
 }
 EOF
@@ -26,7 +26,7 @@ EOF
 #   "detail": {
 #     "action-type": ["PUSH"],
 #     "result": ["SUCCESS"],
-#     "repository-name": ["695434033664.dkr.ecr.us-east-1.amazonaws.com/fomiller-chat-stat-bot"]
+#     "repository-name": ["695434033664.dkr.ecr.us-east-1.amazonaws.com/${var.namespace}-${var.app_prefix}-bot"]
 #   }
 # }
 # EOF
