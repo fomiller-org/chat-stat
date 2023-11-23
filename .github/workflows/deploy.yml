@@ -29,21 +29,21 @@ jobs:
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
       lambda_src: lambda/hello/main.go
-      lambda_output:  lambda/bin/lambda_hello.exe
+      lambda_output:  lambda/bin/lambda_hello
       infra-dir: infra/modules/aws
         
-  Build-lambda-twitch:
-    name: 'Build Go lambda'
-    needs: Pre-check
-    uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
-    with:
-      lambda_src: lambda/twitch/webhookCallback/main.go
-      lambda_output:  lambda/bin/lambda_webhook.exe
-      infra-dir: infra/modules/aws
+  # Build-lambda-twitch:
+  #   name: 'Build Go lambda'
+  #   needs: Pre-check
+  #   uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
+  #   with:
+  #     lambda_src: lambda/twitch/webhookCallback/main.go
+  #     lambda_output:  lambda/bin/lambda_webhook
+  #     infra-dir: infra/modules/aws
         
   Deploy-infra:
     name: 'Deploy Infra'
-    needs: [Build-lambda-twitch, Build-lambdas-hello]
+    needs: [Build-lambdas-hello]
     uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
