@@ -1,6 +1,5 @@
 dependencies {
     paths = [
-        "../vpc",
         "../kms",
         "../secrets",
         "../ecr",
