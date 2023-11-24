@@ -1,25 +1,25 @@
 variable "lambda_role" {
   description = "lambda role arn"
   type        = string
-  default = "LambdaHelloWorld"    
+  default     = "LambdaHelloWorld"
 }
 
 variable "lambda_name" {
   description = "name of lambda function"
   type        = string
-  default = "hello-world"
+  default     = "hello-world"
 }
 
 variable "handler" {
   description = "handler for lambda"
   type        = string
-  default = "lambda-go"
+  default     = "lambda-go"
 }
 
 variable "filename" {
   description = "filename of lambda function"
   type        = string
-  default = "./lambda_function.zip" 
+  default     = "./lambda_function.zip"
 }
 
 variable "timeout" {
