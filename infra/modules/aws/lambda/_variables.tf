@@ -1,7 +1,7 @@
 variable "lambda_role" {
   description = "lambda role arn"
   type        = string
-  default     = "LambdaHelloWorld"
+  default     = "FomillerLambdaHelloWorld"
 }
 
 variable "lambda_name" {
