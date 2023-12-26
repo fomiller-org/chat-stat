@@ -1,2 +1,2 @@
-variable "kms_key_arn_master" { type = string }
+variable "kms_key_arn_chat_stat_master" { type = string }
 
