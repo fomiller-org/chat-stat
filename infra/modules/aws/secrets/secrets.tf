@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "twitch_creds" {
-  name       = "${var.environment}/${var.namespace}/twitch-client-secret"
+  name       = "${var.environment}/${var.namespace}/${var.app_prefix}/twitch-credentials"
   kms_key_id = var.kms_key_arn_master
 }
 
