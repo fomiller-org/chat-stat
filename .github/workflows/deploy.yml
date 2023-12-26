@@ -9,6 +9,7 @@ on:
       - 'modules/**'
       - 'infra/**'
       - 'justfile'
+      - 'dockerfile'
    
 jobs:
   Pre-check:
