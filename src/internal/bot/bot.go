@@ -126,17 +126,19 @@ func (b *Bot) PopulateEmotes() {
 	client := emote.NewClient()
 
 	ffzResp := client.GetFFZEmotes(b.Name, true, true)
+	fmt.Println("FFZ Resp: ", ffzResp)
 	for _, e := range ffzResp {
 		b.Emotes[e.GetName()] = e
 	}
 
-	bttvResp := client.GetBTTVEmotes(b.Name, true, true)
-	fmt.Println("BTTV Resp: %v", bttvResp)
+	bttvResp := client.GetBTTVEmotes(b.ID, true, true)
+	fmt.Println("BTTV Resp: ", bttvResp)
 	for _, e := range bttvResp {
 		b.Emotes[e.GetName()] = e
 	}
 
 	sevenTVResp := client.Get7TVEmotes(b.ID, true, false)
+	fmt.Println("7TV Resp: ", sevenTVResp)
 	for _, e := range sevenTVResp {
 		b.Emotes[e.GetName()] = e
 	}
