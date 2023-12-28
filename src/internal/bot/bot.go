@@ -142,6 +142,7 @@ func (b *Bot) PopulateEmotes() {
 	for _, e := range sevenTVResp {
 		b.Emotes[e.GetName()] = e
 	}
+	fmt.Println("ALL EMOTES: ", b.Emotes)
 }
 
 // func (b Bot) GetTotalEmotes() int {
