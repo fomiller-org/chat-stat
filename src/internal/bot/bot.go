@@ -131,6 +131,7 @@ func (b *Bot) PopulateEmotes() {
 	}
 
 	bttvResp := client.GetBTTVEmotes(b.Name, true, true)
+	fmt.Println("BTTV Resp: %v", bttvResp)
 	for _, e := range bttvResp {
 		b.Emotes[e.GetName()] = e
 	}
