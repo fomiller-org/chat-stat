@@ -7,13 +7,13 @@ import (
 	redisTS "github.com/RedisTimeSeries/redistimeseries-go"
 )
 
-var Pass = "Uf9VfK2z5ozDTPYrpoVYZmjWOUOrRnFb"
+var Pass = "password123!"
 var Host = fmt.Sprintf("%v:%v", getEnvWithFallback("REDIS_HOST", "localhost"), "6379")
 
 var TimeSeries = redisTS.NewClient(
 	Host,
 	"chat-stat",
-	nil,
+	&Pass,
 )
 
 func getEnvWithFallback(key, fallback string) string {
