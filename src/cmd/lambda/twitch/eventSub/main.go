@@ -26,8 +26,8 @@ func main() {
 }
 
 func HandleRequest(ctx context.Context, event DynamoDBEvent) {
-	println("hello event sub")
-	println("Event:", event)
+	fmt.Println("hello event sub")
+	fmt.Printf("Event: %v\n", event)
 
 	for _, record := range event.Records {
 		recordData, err := json.Marshal(record.Change.NewImage)
