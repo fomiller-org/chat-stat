@@ -5,19 +5,12 @@ data "aws_iam_policy_document" "lambda_event_sub" {
     actions = [
       "dynamodb:GetRecords",
       "dynamodb:GetShardIterator",
-      "dynamodb:DescribeStream"
+      "dynamodb:DescribeStream",
+      "lambda:ListStreams"
     ]
     resources = [
       "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.namespace}-${var.app_prefix}/stream/*"
     ]
-  }
-  statement {
-    sid    = "LambdaEventListStreams"
-    effect = "Allow"
-    actions = [
-      "lambda:ListStreams"
-    ]
-    resources = ["*"]
   }
 }
 
