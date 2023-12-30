@@ -17,7 +17,7 @@ type DynamoDBEvent struct {
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
 	StreamID string `json:"StreamID"`
-	Online   string `json:"Online"`
+	Online   bool   `json:"Online"`
 	// Add other fields as needed
 }
 
@@ -26,7 +26,6 @@ func main() {
 }
 
 func HandleRequest(ctx context.Context, event DynamoDBEvent) {
-	fmt.Println("hello event sub")
 	fmt.Printf("Event: %v\n", event)
 
 	for _, record := range event.Records {
@@ -43,7 +42,7 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 
 		// Process the DynamoDB item
 		// Example: Print the item's ID and Name
-		println("StreamID:", myItem.StreamID)
-		println("Online status:", myItem.Online)
+		fmt.Println("StreamID:", myItem.StreamID)
+		fmt.Println("Online status:", myItem.Online)
 	}
 }
