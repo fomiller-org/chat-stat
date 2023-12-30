@@ -26,7 +26,7 @@ jobs:
           concurrent_skipping: 'same_content_newer'
             
   Build-lambdas-hello:
-    name: 'Build Go lambdas'
+    name: 'Build Go lambda Hello World'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
@@ -35,7 +35,7 @@ jobs:
       artifacts_dir: infra/modules/aws/lambda/bin
         
   Build-lambda-twitch-eventSub:
-    name: 'Build Go lambdas'
+    name: 'Build Go lambda EventSub'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
