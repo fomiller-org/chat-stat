@@ -17,7 +17,7 @@ data "aws_iam_role" "hello_world" {
 
 resource "aws_lambda_function" "event_sub" {
   function_name    = "${var.namespace}-${var.app_prefix}-event-sub"
-  role             = var.iam_role_name_lambda_event_sub
+  role             = var.iam_role_arn_lambda_event_sub
   handler          = "bootstrap"
   filename         = "${path.module}/lambda_function.zip"
   source_code_hash = data.archive_file.event_sub.output_base64sha256

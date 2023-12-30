@@ -20,11 +20,11 @@ dependency "dynamodb" {
 dependency "roles" {
     config_path = "../iam/roles"
     mock_outputs = {
-        iam_role_name_lambda_event_sub = "MOCK-FomillerLambdaEventSub"
+        iam_role_arn_lambda_event_sub = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaEventSub"
     }
 }
 
 inputs = {
     dynamodb_table_stream_arn_chat_stat = dependency.dynamodb.outputs.dynamodb_table_stream_arn_chat_stat
-    iam_role_name_lambda_event_sub = dependency.roles.outputs.iam_role_name_lambda_event_sub
+    iam_role_arn_lambda_event_sub = dependency.roles.outputs.iam_role_arn_lambda_event_sub
 }
