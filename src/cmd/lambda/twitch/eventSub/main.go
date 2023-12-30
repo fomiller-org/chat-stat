@@ -16,8 +16,8 @@ type DynamoDBEvent struct {
 // DynamoDBItem represents the structure of a DynamoDB item
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
-	ID   string `json:"ID"`
-	Name string `json:"Name"`
+	StreamID string `json:"StreamID"`
+	Online   string `json:"Online"`
 	// Add other fields as needed
 }
 
@@ -43,7 +43,7 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 
 		// Process the DynamoDB item
 		// Example: Print the item's ID and Name
-		println("ID:", myItem.ID)
-		println("Name:", myItem.Name)
+		println("StreamID:", myItem.StreamID)
+		println("Online status:", myItem.Online)
 	}
 }
