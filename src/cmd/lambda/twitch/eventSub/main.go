@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodbstreams/types"
 )
 
 type DynamoDBEvent struct {
@@ -16,8 +17,8 @@ type DynamoDBEvent struct {
 // DynamoDBItem represents the structure of a DynamoDB item
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
-	StreamID string `json:"StreamID"`
-	Online   bool   `json:"Online"`
+	StreamID types.AttributeValueMemberS    `json:"StreamID"`
+	Online   types.AttributeValueMemberBOOL `json:"Online"`
 	// Add other fields as needed
 }
 
@@ -31,13 +32,13 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 	for _, record := range event.Records {
 		recordData, err := json.Marshal(record.Change.NewImage)
 		if err != nil {
-			panic(fmt.Sprintf("Error Marshaling recordData: %s", err))
+			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		// Unmarshal DynamoDB record data
 		var myItem DynamoDBItem
 		err = json.Unmarshal(recordData, &myItem)
 		if err != nil {
-			panic(fmt.Sprintf("Error UnMarshaling DynamoDBItem: %s", err))
+			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}
 
 		// Process the DynamoDB item
