@@ -11,8 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
-type DynamoDBEvent struct {
-	Records []events.DynamoDBEventRecord `json:"Records"`
+type DynamoDBStreamEvent struct {
+	Records []events.DynamoDBStreamRecord `json:"Records"`
 }
 
 // DynamoDBItem represents the structure of a DynamoDB item
@@ -27,11 +27,11 @@ func main() {
 	lambda.Start(HandleRequest)
 }
 
-func HandleRequest(ctx context.Context, event DynamoDBEvent) {
+func HandleRequest(ctx context.Context, event DynamoDBStreamEvent) {
 	fmt.Printf("Event: %v\n", event)
 	for _, record := range event.Records {
 		fmt.Printf("Record: %v\n", record)
-		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
+		recordData, err := attributevalue.MarshalMap(record.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
