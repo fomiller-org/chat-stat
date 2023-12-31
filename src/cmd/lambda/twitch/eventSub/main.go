@@ -18,8 +18,8 @@ type DynamoDBEvent struct {
 // DynamoDBItem represents the structure of a DynamoDB item
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
-	StreamID string `json:"StreamID"`
-	Online   bool   `json:"Online"`
+	StreamID string `json:"StreamID" dynamodbav:"StreamID"`
+	Online   bool   `json:"Online" dynamodbav:"Online"`
 	// Add other fields as needed
 }
 
