@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.13 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.7 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
