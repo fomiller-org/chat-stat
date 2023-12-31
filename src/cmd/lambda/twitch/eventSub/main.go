@@ -18,8 +18,8 @@ type DynamoDBEvent struct {
 // DynamoDBItem represents the structure of a DynamoDB item
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
-	StreamID string `json:"StreamID" dynamodbav:"StreamID"`
-	Online   bool   `json:"Online" dynamodbav:"Online"`
+	StreamID string `dynamodbav:"StreamID" json:"StreamID"`
+	Online   bool   `dynamodbav:"Online" json:"Online"`
 	// Add other fields as needed
 }
 
@@ -28,7 +28,9 @@ func main() {
 }
 
 func HandleRequest(ctx context.Context, event DynamoDBEvent) {
+	fmt.Printf("Event: %v\n", event)
 	for _, record := range event.Records {
+		fmt.Printf("Record: %v\n", record)
 		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
