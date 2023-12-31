@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	ddbstreams "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
+	// "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
 type DynamoDBEvent struct {
@@ -19,7 +19,7 @@ type DynamoDBEvent struct {
 type DynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
 	StreamID string `dynamodbav:"StreamID" json:"StreamID"`
-	Online   bool   `dynamodbav:"Online" json:"Online"`
+	// Online   bool   `dynamodbav:"Online" json:"Online"`
 	// Add other fields as needed
 }
 
@@ -36,14 +36,9 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		fmt.Printf("Record Data: %v\n", recordData)
-
-		data, err := ddbstreams.FromDynamoDBMap(recordData)
-		if err != nil {
-			fmt.Printf("Error converting types: %s", err)
-		}
 		// // Unmarshal DynamoDB record data
 		var myItem DynamoDBItem
-		err = ddbstreams.UnmarshalMap(data, &myItem)
+		err = attributevalue.UnmarshalMap(recordData, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}
@@ -52,6 +47,6 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 		// Process the DynamoDB item
 		// Example: Print the item's ID and Name
 		fmt.Println("StreamID:", myItem.StreamID)
-		fmt.Println("Online status:", myItem.Online)
+		// fmt.Println("Online status:", myItem.Online)
 	}
 }
