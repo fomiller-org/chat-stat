@@ -11,6 +11,8 @@ on:
       - 'src/**'
       - 'justfile'
       - 'dockerfile'
+      - 'go.mod'
+      - 'go.sum'
    
 jobs:
   Pre-check:
