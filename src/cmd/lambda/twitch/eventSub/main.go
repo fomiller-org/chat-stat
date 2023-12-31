@@ -34,16 +34,18 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
+		fmt.Printf("Record Data: %v\n", event)
 		// Unmarshal DynamoDB record data
 		var myItem DynamoDBItem
 		err = json.Unmarshal(recordData, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}
+		fmt.Printf("Item: %v\n", event)
 
 		// Process the DynamoDB item
 		// Example: Print the item's ID and Name
-		fmt.Println("StreamID:", myItem.StreamID)
-		fmt.Println("Online status:", myItem.Online)
+		fmt.Println("StreamID:", myItem.StreamID.Value)
+		fmt.Println("Online status:", myItem.Online.Value)
 	}
 }
