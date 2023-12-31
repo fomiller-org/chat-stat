@@ -7,12 +7,12 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 
-	// "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	// "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
-type DynamoDBStreamEvent struct {
-	Records []events.DynamoDBStreamRecord `json:"Records"`
+type DynamoDBEvent struct {
+	Records []events.DynamoDBEventRecord `json:"Records"`
 }
 
 // DynamoDBItem represents the structure of a DynamoDB item
@@ -27,11 +27,11 @@ func main() {
 	lambda.Start(HandleRequest)
 }
 
-func HandleRequest(ctx context.Context, event DynamoDBStreamEvent) {
+func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 	fmt.Printf("Event: %v\n", event)
 	for _, record := range event.Records {
 		fmt.Printf("Record: %v\n", record)
-		recordData, err := attributevalue.MarshalMap(record.NewImage)
+		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
