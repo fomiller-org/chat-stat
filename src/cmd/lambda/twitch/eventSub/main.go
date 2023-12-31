@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	// "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
+	ddbstreams "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
 type DynamoDBEvent struct {
@@ -36,9 +36,14 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		fmt.Printf("Record Data: %v\n", recordData)
+
+		data, err := ddbstreams.FromDynamoDBMap(recordData)
+		if err != nil {
+			fmt.Printf("Error converting types: %s", err)
+		}
 		// // Unmarshal DynamoDB record data
 		var myItem DynamoDBItem
-		err = attributevalue.UnmarshalMap(recordData, &myItem)
+		err = ddbstreams.UnmarshalMap(data, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}
