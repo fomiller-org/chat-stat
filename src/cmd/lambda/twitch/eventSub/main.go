@@ -31,12 +31,16 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 	fmt.Printf("Event: %v\n", event)
 	for _, record := range event.Records {
 		fmt.Printf("Record: %v\n", record)
+		fmt.Printf("Record Change: %v\n", record.Change)
+		fmt.Printf("Record Change NewImage: %v\n", record.Change.NewImage)
+		fmt.Printf("StreamID: %v\n", record.Change.NewImage["StreamID"])
+
 		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		fmt.Printf("Record Data: %v\n", recordData)
-		// // Unmarshal DynamoDB record data
+
 		var myItem DynamoDBItem
 		err = attributevalue.UnmarshalMap(recordData, &myItem)
 		if err != nil {
