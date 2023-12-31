@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/RedisTimeSeries/redistimeseries-go v1.4.4
 	github.com/aws/aws-lambda-go v1.43.0
+	github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13
 	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.18.6
 	github.com/gempir/go-twitch-irc/v3 v3.3.0
 	github.com/gin-gonic/gin v1.9.1
@@ -14,6 +15,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.7 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
