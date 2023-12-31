@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/RedisTimeSeries/redistimeseries-go v1.4.4
 	github.com/aws/aws-lambda-go v1.43.0
-	github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.13
 	github.com/gempir/go-twitch-irc/v3 v3.3.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/nicklaw5/helix/v2 v2.25.2
