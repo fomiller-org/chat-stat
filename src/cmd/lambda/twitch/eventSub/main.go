@@ -6,7 +6,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+
+	// "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
@@ -28,14 +29,14 @@ func main() {
 
 func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 	for _, record := range event.Records {
-		// recordData, err := attributevalue.UnmarshalMap(record.Change.NewImage, )
-		// if err != nil {
-		// 	fmt.Printf("Error Marshaling recordData: %s", err)
-		// }
-		// fmt.Printf("Record Data: %v\n", recordData)
+		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
+		if err != nil {
+			fmt.Printf("Error Marshaling recordData: %s", err)
+		}
+		fmt.Printf("Record Data: %v\n", recordData)
 		// // Unmarshal DynamoDB record data
 		var myItem DynamoDBItem
-		err := attributevalue.UnmarshalMap(record.Change.NewImage, &myItem)
+		err = attributevalue.UnmarshalMap(recordData, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}

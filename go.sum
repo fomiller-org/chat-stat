@@ -3,9 +3,6 @@ github.com/RedisTimeSeries/redistimeseries-go v1.4.4/go.mod h1:qbwAboI+9BGBAWLLL
 github.com/aws/aws-lambda-go v1.43.0 h1:Tdu7SnMB5bD+CbdnSq1Dg4sM68vEuGIDcQFZ+IjUfx0=
 github.com/aws/aws-lambda-go v1.43.0/go.mod h1:dpMpZgvWx5vuQJfBt0zqBha60q7Dd7RfgJv23DymV8A=
 github.com/aws/aws-sdk-go-v2 v1.24.0 h1:890+mqQ+hTpNuw0gGP6/4akolQkSToDJgHfQE7AwGuk=
-github.com/aws/aws-sdk-go-v2 v1.24.0/go.mod h1:LNh45Br1YAkEKaAqvmE1m8FUx6a5b/V0oAKV7of29b4=
-github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.13 h1:aZUpIEl5qsNtvoJvDNt5qDIDup5EiO/HSNryKehdrqw=
-github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.13/go.mod h1:ho51xHs+0MIm/wNQu5JjtsdvaKYGH8o+U+YJCiJCRXM=
 github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13 h1:0G55IzUKkf2EVWQU4kUOqA96FHhDFNWNcpUVbDaPwfc=
 github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13/go.mod h1:idHknndU7aUagXONWT1h9bq1STk5zhPTDdmzZrOgIfs=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.7 h1:X60rMbnylU1xmmhv4+/N78t+lKOCC4ELst5eR25dyqg=
