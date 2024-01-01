@@ -46,7 +46,7 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
-		fmt.Printf("Record Data: %v\n", recordData)
+		fmt.Printf("Record Data: %v\n", string(recordData))
 
 		var myItem DynamoDBItem
 		err = json.Unmarshal(recordData, &myItem)
