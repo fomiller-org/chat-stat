@@ -41,7 +41,7 @@ jobs:
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
-      lambda_src: src/cmd/lambda/twitch/eventSub/main.go
+      lambda_src: src/cmd/lambda/twitch/eventSub/...
       lambda_output:  infra/modules/aws/lambda/bin/twitch/eventSub/bootstrap
       artifacts_dir: infra/modules/aws/lambda/bin
         
