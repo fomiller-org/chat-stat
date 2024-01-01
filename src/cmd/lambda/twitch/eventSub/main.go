@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	// "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
 )
 
@@ -35,14 +34,14 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 		fmt.Printf("Record Change NewImage: %v\n", record.Change.NewImage)
 		fmt.Printf("StreamID: %v\n", record.Change.NewImage["StreamID"])
 
-		recordData, err := attributevalue.Marshal(record.Change.NewImage)
+		recordData, err := json.Marshal(record.Change.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		fmt.Printf("Record Data: %v\n", recordData)
 
 		var myItem DynamoDBItem
-		err = attributevalue.Unmarshal(recordData, &myItem)
+		err = json.Unmarshal(recordData, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling DynamoDBItem: %s", err)
 		}
