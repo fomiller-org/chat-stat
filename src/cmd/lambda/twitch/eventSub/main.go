@@ -39,21 +39,13 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 		// }
 		// fmt.Printf("Item: %v\n", myItem2)
 		//
-		recordData, err := attributevalue.MarshalMap(record.Dynamodb.NewImage)
+		recordData, err := attributevalue.Marshal(record.Dynamodb.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
 		fmt.Printf("Record Data: %v\n", recordData)
-
-		var myItem1 map[string]interface{}
-		err = attributevalue.UnmarshalMap(recordData, &myItem1)
-		if err != nil {
-			fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
-		}
-		fmt.Printf("Item1: %v\n", myItem1)
-
 		var myItem MyDBItem
-		err = attributevalue.UnmarshalMap(recordData, &myItem)
+		err = attributevalue.Unmarshal(recordData, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
 		}
