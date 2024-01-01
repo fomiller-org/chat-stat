@@ -49,7 +49,7 @@ func HandleRequest(ctx context.Context, event events.DynamoDBEvent) {
 
 		// Process the DynamoDB item
 		// Example: Print the item's ID and Name
-		fmt.Println("StreamID:", myItem)
-		fmt.Println("Online status:", myItem)
+		fmt.Println("StreamID:", myItem.StreamID)
+		fmt.Println("Online status:", myItem.Online)
 	}
 }
