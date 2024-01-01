@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
-	// "github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodbstreams/types"
 )
 
 type DynamoDBEvent struct {
-	Records []events.DynamoDBEventRecord `json:"Records"`
+	Records []types.Record `json:"Records"`
 }
 
 // MyDBItem represents the structure of a DynamoDB item
@@ -30,17 +29,17 @@ func HandleRequest(ctx context.Context, event DynamoDBEvent) {
 	fmt.Printf("Event: %v\n", event)
 	for _, record := range event.Records {
 		fmt.Printf("Record: %v\n", record)
-		fmt.Printf("Record Change: %v\n", record.Change)
-		fmt.Printf("Record Change NewImage: %v\n", record.Change.NewImage)
-		fmt.Printf("StreamID: %v\n", record.Change.NewImage["StreamID"])
+		fmt.Printf("Record Dynamodb: %v\n", record.Dynamodb.NewImage)
+		fmt.Printf("Record Dynamodb NewImage: %v\n", record.Dynamodb.NewImage)
+		fmt.Printf("StreamID: %v\n", record.Dynamodb.NewImage["StreamID"])
 		// var myItem2 MyDBItem
-		// err := attributevalue.Unmarshal(record.Change.NewImage, &myItem2)
+		// err := attributevalue.Unmarshal(record.Dynamodb.NewImage, &myItem2)
 		// if err != nil {
 		// 	fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
 		// }
 		// fmt.Printf("Item: %v\n", myItem2)
 		//
-		recordData, err := attributevalue.MarshalMap(record.Change.NewImage)
+		recordData, err := attributevalue.MarshalMap(record.Dynamodb.NewImage)
 		if err != nil {
 			fmt.Printf("Error Marshaling recordData: %s", err)
 		}
