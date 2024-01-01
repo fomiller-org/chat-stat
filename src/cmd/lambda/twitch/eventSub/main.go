@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodbstreams/types"
 )
 
 type DynamoDBEvent struct {
-	Records []types.Record `json:"Records"`
+	Records []events.DynamoDBStreamRecord `json:"Records"`
 }
 
 // MyDBItem represents the structure of a DynamoDB item
