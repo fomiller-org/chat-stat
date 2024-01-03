@@ -2,7 +2,7 @@
     "Records": [
         {
             "eventID": "f07f8ca4b0b26cb9c4e5e77e42f274ee",
-            "eventName": "MODIFY",
+            "eventName": "REMOVE",
             "eventVersion": "1.1",
             "eventSource": "aws:dynamodb",
             "awsRegion": "us-east-1",
