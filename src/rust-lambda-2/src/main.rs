@@ -103,18 +103,10 @@ fn handle_modify(record: &EventRecord) -> Result<(), Error> {
 }
 
 fn handle_remove(record: &EventRecord) -> Result<(), Error> {
-    println!("HELLO");
-    let new_image = record.change.new_image.clone();
-    println!("NewImage: {:?}", new_image);
     let old_image = record.change.old_image.clone();
     println!("OldImage: {:?}", old_image);
-    let new_item: MyModel = serde_dynamo::from_item(new_image)?;
-    println!("NewItem: {:?}", new_item);
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
     println!("OldItem: {:?}", old_item);
-
-    println!("NEW StreamID: {:?}", new_item.stream_id);
-    println!("NEW Online Status: {:?}", new_item.online);
 
     println!("OLD StreamID: {:?}", old_item.stream_id);
     println!("OLD Online Status: {:?}", old_item.online);

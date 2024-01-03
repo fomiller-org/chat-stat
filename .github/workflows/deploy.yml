@@ -27,8 +27,8 @@ jobs:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
             
-  Build-lambdas-hello:
-    name: 'Build Go lambda Hello World'
+  Build-lambda-hello:
+    name: 'Build lambda Hello World'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
     with:
@@ -45,8 +45,8 @@ jobs:
   #     lambda_output:  infra/modules/aws/lambda/bin/twitch/eventSub/bootstrap
   #     artifacts_dir: infra/modules/aws/lambda/bin
         
-  Build-lambda-twitch-eventSub:
-    name: 'Build Rust lambda EventSub'
+  Build-lambda-eventSub:
+    name: 'Build lambda EventSub'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
