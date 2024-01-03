@@ -27,9 +27,10 @@ chat.json
 chat.txt
 
 # terraform / terragrunt
-**/.terragrunt-cache
-**/.terraform
+*.terraform
+*/**/.terragrunt-cache/
 **/*.gen.tf
+**/.terraform.lock.hcl
 infra/modules/aws/lambda/bin/*
 infra/modules/aws/lambda/*.zip
 infra/us-east-1/**/common.tf

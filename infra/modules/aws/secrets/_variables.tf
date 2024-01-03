@@ -1,7 +1,7 @@
-variable "terraform_deployer_pass" {
+variable "twitch_client_id" {
   type = string
 }
 
-variable "terraform_deployer_user" {
+variable "twitch_client_secret" {
   type = string
 }
