@@ -40,7 +40,13 @@ struct MyModel {
     #[serde(rename = "StreamID")]
     stream_id: String,
     #[serde(rename = "Online")]
-    online: bool,
+    online: Option<bool>,
+}
+
+impl MyModel {
+    fn get_online(self) -> bool {
+        self.online.unwrap_or_default()
+    }
 }
 
 async fn function_handler(event: LambdaEvent<Event>) -> Result<(), Error> {
@@ -83,7 +89,7 @@ fn handle_insert(record: &EventRecord) -> Result<(), Error> {
     let new_item: MyModel = serde_dynamo::from_item(new_image)?;
 
     println!("NEW StreamID: {:?}", new_item.stream_id);
-    println!("NEW Online Status: {:?}", new_item.online);
+    println!("NEW Online Status: {:?}", new_item.get_online());
 
     Ok(())
 }
@@ -95,10 +101,10 @@ fn handle_modify(record: &EventRecord) -> Result<(), Error> {
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
 
     println!("NEW StreamID: {:?}", new_item.stream_id);
-    println!("NEW Online Status: {:?}", new_item.online);
+    println!("NEW Online Status: {:?}", new_item.get_online());
 
     println!("OLD StreamID: {:?}", old_item.stream_id);
-    println!("OLD Online Status: {:?}", old_item.online);
+    println!("OLD Online Status: {:?}", old_item.get_online());
     Ok(())
 }
 
@@ -109,6 +115,6 @@ fn handle_remove(record: &EventRecord) -> Result<(), Error> {
     println!("OldItem: {:?}", old_item);
 
     println!("OLD StreamID: {:?}", old_item.stream_id);
-    println!("OLD Online Status: {:?}", old_item.online);
+    println!("OLD Online Status: {:?}", old_item.get_online());
     Ok(())
 }
