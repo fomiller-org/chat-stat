@@ -23,11 +23,15 @@ func main() {
 
 func HandleRequest(ctx context.Context, event events.DynamoDBEvent) {
 	fmt.Printf("Event: %v\n", event)
-	for _, record := range event.Records {
+	records, err := FromDynamoDBEvent(event)
+	if err != nil {
+		fmt.Printf("Error Converting DynamoDBEvent: %s", err)
+	}
+	for _, record := range records {
 		fmt.Printf("Record: %v\n", record)
-		fmt.Printf("Record Change: %v\n", record.Change.NewImage)
-		fmt.Printf("Record Change NewImage: %v\n", record.Change.NewImage)
-		fmt.Printf("StreamID: %v\n", record.Change.NewImage["StreamID"])
+		fmt.Printf("Record Change: %v\n", record.Dynamodb.NewImage)
+		fmt.Printf("Record Change NewImage: %v\n", record.Dynamodb.NewImage)
+		fmt.Printf("StreamID: %v\n", record.Dynamodb.NewImage["StreamID"])
 		// var myItem2 MyDBItem
 		// err := attributevalue.Unmarshal(record.Change.NewImage, &myItem2)
 		// if err != nil {
@@ -35,13 +39,13 @@ func HandleRequest(ctx context.Context, event events.DynamoDBEvent) {
 		// }
 		// fmt.Printf("Item: %v\n", myItem2)
 		//
-		recordData, err := FromDynamoDBEventAVMap(record.Change.NewImage)
-		if err != nil {
-			fmt.Printf("Error Marshaling recordData: %s", err)
-		}
-		fmt.Printf("Record Data: %v\n", recordData)
+		// recordData, err := FromDynamoDBEventAVMap(record.Dynamodb.NewImage)
+		// if err != nil {
+		// 	fmt.Printf("Error Marshaling recordData: %s", err)
+		// }
+		// fmt.Printf("Record Data: %v\n", recordData)
 		var myItem MyDBItem
-		err = attributevalue.UnmarshalMap(recordData, &myItem)
+		err = attributevalue.UnmarshalMap(record.Dynamodb.NewImage, &myItem)
 		if err != nil {
 			fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
 		}
