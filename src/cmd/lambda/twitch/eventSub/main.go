@@ -7,13 +7,14 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodbstreams/types"
 )
 
 // MyDBItem represents the structure of a DynamoDB item
-type MyDBItem struct {
+type ChatStatDynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
 	StreamID string `dynamodbav:"StreamID" json:"StreamID"`
-	Online   bool   `dynamodbav:"Online" json:"Online"`
+	Online   bool   `dynamodbav:"Online,omitempty" json:"Online"`
 	// Add other fields as needed
 }
 
@@ -25,35 +26,81 @@ func HandleRequest(ctx context.Context, event events.DynamoDBEvent) {
 	fmt.Printf("Event: %v\n", event)
 	records, err := FromDynamoDBEvent(event)
 	if err != nil {
-		fmt.Printf("Error Converting DynamoDBEvent: %s", err)
+		panic(fmt.Sprintf("Error Converting DynamoDBEvent: %s", err))
 	}
 	for _, record := range records {
-		fmt.Printf("Record: %v\n", record)
-		fmt.Printf("Record Change: %v\n", record.Dynamodb.NewImage)
-		fmt.Printf("Record Change NewImage: %v\n", record.Dynamodb.NewImage)
-		fmt.Printf("StreamID: %v\n", record.Dynamodb.NewImage["StreamID"])
-		// var myItem2 MyDBItem
-		// err := attributevalue.Unmarshal(record.Change.NewImage, &myItem2)
-		// if err != nil {
-		// 	fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
-		// }
-		// fmt.Printf("Item: %v\n", myItem2)
-		//
-		// recordData, err := FromDynamoDBEventAVMap(record.Dynamodb.NewImage)
-		// if err != nil {
-		// 	fmt.Printf("Error Marshaling recordData: %s", err)
-		// }
-		// fmt.Printf("Record Data: %v\n", recordData)
-		var myItem MyDBItem
-		err = attributevalue.UnmarshalMap(record.Dynamodb.NewImage, &myItem)
-		if err != nil {
-			fmt.Printf("Error UnMarshaling MyDBItem: %s", err)
+		eventName := record.EventName
+		switch eventName {
+		case types.OperationTypeInsert:
+			fmt.Printf("Opertaion type %s\n", eventName)
+			handleInsert(record)
+		case types.OperationTypeModify:
+			fmt.Printf("Opertaion type %s\n", eventName)
+			handleModify(record)
+		case types.OperationTypeRemove:
+			fmt.Printf("Opertaion type %s\n", eventName)
+			handleRemove(record)
+		default:
+			fmt.Printf("Opertaion type not found. Operation type = %s\n", eventName)
 		}
-		fmt.Printf("Item: %v\n", myItem)
-
-		// Process the DynamoDB item
-		// Example: Print the item's ID and Name
-		fmt.Println("StreamID:", myItem.StreamID)
-		fmt.Println("Online status:", myItem.Online)
 	}
+}
+
+func handleInsert(record types.Record) {
+	var Item ChatStatDynamoDBItem
+	newImage := record.Dynamodb.NewImage
+
+	err := attributevalue.UnmarshalMap(newImage, &Item)
+	if err != nil {
+		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
+	}
+
+	fmt.Println("StreamID:", Item.StreamID)
+	fmt.Println("Online status:", Item.Online)
+}
+
+func handleModify(record types.Record) {
+	var NewItem ChatStatDynamoDBItem
+	var OldItem ChatStatDynamoDBItem
+	newImage := record.Dynamodb.NewImage
+	OldImage := record.Dynamodb.OldImage
+
+	err := attributevalue.UnmarshalMap(newImage, &NewItem)
+	if err != nil {
+		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
+	}
+
+	err = attributevalue.UnmarshalMap(OldImage, &OldItem)
+	if err != nil {
+		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
+	}
+
+	fmt.Println("New StreamID:", NewItem.StreamID)
+	fmt.Println("New Online status:", NewItem.Online)
+
+	fmt.Println("Old StreamID:", OldItem.StreamID)
+	fmt.Println("Old Online status:", OldItem.Online)
+}
+
+func handleRemove(record types.Record) {
+	var NewItem ChatStatDynamoDBItem
+	var OldItem ChatStatDynamoDBItem
+	newImage := record.Dynamodb.NewImage
+	OldImage := record.Dynamodb.OldImage
+
+	err := attributevalue.UnmarshalMap(newImage, &NewItem)
+	if err != nil {
+		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
+	}
+
+	err = attributevalue.UnmarshalMap(OldImage, &OldItem)
+	if err != nil {
+		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
+	}
+
+	fmt.Println("New StreamID:", NewItem.StreamID)
+	fmt.Println("New Online status:", NewItem.Online)
+
+	fmt.Println("Old StreamID:", OldItem.StreamID)
+	fmt.Println("Old Online status:", OldItem.Online)
 }
