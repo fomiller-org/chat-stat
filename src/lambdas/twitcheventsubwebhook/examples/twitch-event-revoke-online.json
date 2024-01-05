@@ -24,7 +24,7 @@
         "X-Forwarded-Proto": "https",
         "Twitch-Eventsub-Message-Id": "9132cd9b-56fb-2799-9328-588c69761270",
         "twitch-eventsub-message-retry": "0",
-        "Twitch-Eventsub-Message-Type": "webhook_callback_verification",
+        "Twitch-Eventsub-Message-Type": "revocation",
         "Twitch-Eventsub-Message-Timestamp": "2023-12-31T15:23:45.678901234Z",
         "Twitch-Eventsub-Subscription-Type": "stream.online",
         "Twitch-Eventsub-Subscription-Version": "1"
@@ -137,5 +137,5 @@
         "requestTimeEpoch": 1589522469693,
         "apiId": "gy415nuibc"
     },
-    "body": "{\"challenge\":\"671e46ae-0bb6-e0cc-109b-95874c5821b9\",\"subscription\":{\"id\":\"a17ed21d-29ba-256e-306d-971b49898c8d\",\"status\":\"webhook_callback_verification_pending\",\"type\":\"stream.online\",\"version\":\"1\",\"condition\":{\"broadcaster_user_id\":\"16328381\"},\"transport\":{\"method\":\"webhook\",\"callback\":\"https://6rm4cdx6bizoo6jsdxatsontnm0sgiym.lambda-url.us-east-1.on.aws/\"},\"created_at\":\"2024-01-05T13:07:25.522257Z\",\"cost\":0}}"
+    "body": "{\n  \"subscription\": {\n    \"id\": \"f1c2a387-161a-49f9-a165-0f21d7a4e1c4\",\n    \"status\": \"authorization_revoked\",\n    \"type\": \"stream.online\",\n    \"cost\": 1,\n    \"version\": \"1\",\n    \"condition\": {\n      \"broadcaster_user_id\": \"12826\"\n    },\n    \"transport\": {\n      \"method\": \"webhook\",\n      \"callback\": \"https://example.com/webhooks/callback\"\n    },\n    \"created_at\": \"2019-11-16T10:11:12.634234626Z\"\n  }\n}"
 }
