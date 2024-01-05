@@ -51,7 +51,7 @@ jobs:
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
       lambda_dir: src/lambdas/twitcheventsub
-      lambda_output:  infra/modules/aws/lambda/bin/twitch-event-sub
+      lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
         
   Build-lambda-twitch-event-sub-webhook:
@@ -60,7 +60,7 @@ jobs:
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
       lambda_dir: src/lambdas/twitcheventsub
-      lambda_output:  infra/modules/aws/lambda/bin/twitch-event-sub-webhook
+      lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
         
   Deploy-infra:
