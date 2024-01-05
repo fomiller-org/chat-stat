@@ -27,7 +27,7 @@ jobs:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
             
-  Build-lambda-hello:
+  Build-lambda-hello-world:
     name: 'Build lambda Hello World'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
@@ -45,18 +45,18 @@ jobs:
   #     lambda_output:  infra/modules/aws/lambda/bin/twitch/eventSub/bootstrap
   #     artifacts_dir: infra/modules/aws/lambda/bin
         
-  Build-lambda-eventSub:
-    name: 'Build lambda EventSub'
+  Build-lambda-event-sub:
+    name: 'Build lambda event-sub'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
-      lambda_dir: src/rust-lambda-2
-      lambda_output:  infra/modules/aws/lambda/bin/twitch
+      lambda_dir: src/lambda/event_sub
+      lambda_output:  infra/modules/aws/lambda/bin/event-sub
       artifacts_dir: infra/modules/aws/lambda/bin
         
   Deploy-infra:
     name: 'Deploy Infra'
-    needs: [Build-lambda-hello, Build-lambda-eventSub]
+    needs: [Build-lambda-hello-world, Build-lambda-event-sub]
     uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}

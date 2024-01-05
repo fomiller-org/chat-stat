@@ -37,3 +37,6 @@ infra/us-east-1/**/common.tf
 
 # aws
 .aws-assume.ini
+
+# rust
+**/target/
