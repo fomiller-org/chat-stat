@@ -1,13 +1,30 @@
 use lambda_http::{run, service_fn, Body, Error, Request, RequestExt, Response};
+use serde::{Deserialize, Serialize};
+/// This is the main body for the function.
+/// Write your code inside it.
+/// There are some code example in the following URLs:
+/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
+///
+///
 
 /// This is the main body for the function.
 /// Write your code inside it.
 /// There are some code example in the following URLs:
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MyRequest {
+    name: String,
+}
 async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
     // Extract some useful information from the request
     println!("EVENT: {:?}", event);
     println!("BODY: {:?}", event.body());
+    let body = event.body();
+    let body: MyRequest = match serde_json::from_slice(body) {
+        Ok(parsed_body) => parsed_body,
+        Err(_) => return Ok(Response::new("Bad Request".into())),
+    };
     let who = event
         .query_string_parameters_ref()
         .and_then(|params| params.first("name"))
