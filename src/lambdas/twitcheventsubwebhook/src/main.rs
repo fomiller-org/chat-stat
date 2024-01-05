@@ -6,7 +6,8 @@ use lambda_http::{run, service_fn, Body, Error, Request, RequestExt, Response};
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
     // Extract some useful information from the request
-    println!("{:?}", event.body());
+    println!("EVENT: {:?}", event);
+    println!("BODY: {:?}", event.body());
     let who = event
         .query_string_parameters_ref()
         .and_then(|params| params.first("name"))
