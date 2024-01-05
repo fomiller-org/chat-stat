@@ -45,13 +45,22 @@ jobs:
   #     lambda_output:  infra/modules/aws/lambda/bin/twitch/eventSub/bootstrap
   #     artifacts_dir: infra/modules/aws/lambda/bin
         
-  Build-lambda-event-sub:
-    name: 'Build lambda event-sub'
+  Build-lambda-twitch-event-sub:
+    name: 'Build lambda twitch-event-sub'
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
-      lambda_dir: src/lambdas/eventsub
-      lambda_output:  infra/modules/aws/lambda/bin/event-sub
+      lambda_dir: src/lambdas/twitcheventsub
+      lambda_output:  infra/modules/aws/lambda/bin/twitch-event-sub
+      artifacts_dir: infra/modules/aws/lambda/bin
+        
+  Build-lambda-twitch-event-sub-webhook:
+    name: 'Build lambda twitch-event-sub-webhook'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
+    with:
+      lambda_dir: src/lambdas/twitcheventsub
+      lambda_output:  infra/modules/aws/lambda/bin/twitch-event-sub-webhook
       artifacts_dir: infra/modules/aws/lambda/bin
         
   Deploy-infra:
