@@ -65,7 +65,7 @@ jobs:
         
   Deploy-infra:
     name: 'Deploy Infra'
-    needs: [Build-lambda-hello-world, Build-lambda-twitch-event-sub]
+    needs: [Build-lambda-hello-world, Build-lambda-twitch-event-sub, Build-lambda-twitch-event-sub-webhook]
     uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
