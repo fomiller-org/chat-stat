@@ -50,7 +50,7 @@ jobs:
     needs: Pre-check
     uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
-      lambda_dir: src/lambda/event_sub
+      lambda_dir: src/lambdas/eventsub
       lambda_output:  infra/modules/aws/lambda/bin/event-sub
       artifacts_dir: infra/modules/aws/lambda/bin
         
