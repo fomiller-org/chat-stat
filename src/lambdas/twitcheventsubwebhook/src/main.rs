@@ -7,8 +7,9 @@ use twitch_api::eventsub::{
 async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
     let headers = request.headers();
     let body = request.body();
-    println!("HEADERS: {:?}", headers);
-    println!("BODY: {:?}", body);
+    println!("REQUEST: {:?}\n", request);
+    println!("HEADERS: {:?}\n", headers);
+    println!("BODY: {:?}\n", body);
 
     let event = Event::parse_http(&request)?;
 
@@ -16,7 +17,7 @@ async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
         println!("Subscription Verified");
         let resp = Response::builder()
             .status(200)
-            .header("content-type", "text/html")
+            .header("content-type", "text/plain")
             .body(verification.challenge.clone().into())
             .map_err(Box::new)?;
         return Ok(resp);
@@ -26,7 +27,7 @@ async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
         println!("Subscription Revoked");
         let resp = Response::builder()
             .status(200)
-            .header("content-type", "text/html")
+            .header("content-type", "text/plain")
             .body("".into())
             .map_err(Box::new)?;
         return Ok(resp);
@@ -47,7 +48,7 @@ async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
     // Return something that implements IntoResponse.
     let resp = Response::builder()
         .status(200)
-        .header("content-type", "text/html")
+        .header("content-type", "text/plain")
         .body(format!("Twitch EventSub Webhook").into())
         .map_err(Box::new)?;
     Ok(resp)

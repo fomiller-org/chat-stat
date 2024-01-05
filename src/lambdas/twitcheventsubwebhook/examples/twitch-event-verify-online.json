@@ -1,0 +1,22 @@
+{
+    "method": "POST",
+    "uri": "https://localhost:9000/twitch-event-sub-webhook/",
+    "version": "HTTP/1.1",
+    "headers": {
+        "host": "localhost:9000",
+        "user-agent": "twitch-cli/1.1.22",
+        "content-length": "393",
+        "content-type": "application/json",
+        "twitch-eventsub-message-id": "f76bebfc-4fa6-bdb3-15f1-5e7ed413932c",
+        "twitch-eventsub-message-retry": "0",
+        "twitch-eventsub-message-signature": "sha256=759b8df32762f2691cc88813c83107464ca410643c6ee3bb5f1fc8aa1840f95a",
+        "twitch-eventsub-message-timestamp": "2024-01-05T12:56:52.747144Z",
+        "twitch-eventsub-message-type": "webhook_callback_verification",
+        "twitch-eventsub-subscription-type": "stream.offline",
+        "twitch-eventsub-subscription-version": "1",
+        "accept-encoding": "gzip",
+        "lambda-runtime-aws-request-id": "cb24c420-087b-4c51-a34b-5fc408f266ae",
+        "x-amzn-trace-id": "Root=1-6597fc94-4f7e62ca8be7c6acf7d3e46f;Parent=ee34f8745e762776;Sampled=1"
+    },
+    "body": "{\"challenge\":\"42a1fa17-a49f-7e04-489e-df0a1a3599a5\",\"subscription\":{\"id\":\"f76bebfc-4fa6-bdb3-15f1-5e7ed413932c\",\"status\":\"webhook_callback_verification_pending\",\"type\":\"stream.offline\",\"version\":\"1\",\"condition\":{\"broadcaster_user_id\":\"65086496\"},\"transport\":{\"method\":\"webhook\",\"callback\":\"http://localhost:9000/twitch-event-sub-webhook/\"},\"created_at\":\"2024-01-05T12:56:52.747537Z\",\"cost\":0}}"
+}
