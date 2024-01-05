@@ -10,7 +10,7 @@
                 "ApproximateCreationDateTime": 1480642020,
                 "Keys": {
                     "StreamID": {
-                        "S": "Forrest"
+                        "S": "sodapoppin"
                     },
                     "Online": {
                         "BOOL": true
@@ -18,7 +18,7 @@
                 },
                 "NewImage": {
                     "StreamID": {
-                        "S": "Forrest"
+                        "S": "sodapoppin"
                     },
                     "Online": {
                         "BOOL": true
