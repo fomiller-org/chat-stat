@@ -7,6 +7,26 @@ use twitch_api::eventsub::{
 async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
     let event = Event::parse_http(&request)?;
 
+    if let Some(verification) = event.get_verification_request() {
+        println!("Subscription Verified");
+        let resp = Response::builder()
+            .status(200)
+            .header("content-type", "text/html")
+            .body(verification.challenge.clone().into())
+            .map_err(Box::new)?;
+        return Ok(resp);
+    }
+
+    if event.is_revocation() {
+        println!("Subscription Revoked");
+        let resp = Response::builder()
+            .status(200)
+            .header("content-type", "text/html")
+            .body("".into())
+            .map_err(Box::new)?;
+        return Ok(resp);
+    }
+
     match event {
         Event::StreamOnlineV1(Payload {
             message: Message::Notification(notif),
@@ -15,17 +35,15 @@ async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
         Event::StreamOfflineV1(Payload {
             message: Message::Notification(notif),
             ..
-        }) => handle_online(notif),
+        }) => handle_offline(notif),
         _ => println!("event not supported"),
     }
-
-    let message = format!("Twitch EventSub Webhook");
 
     // Return something that implements IntoResponse.
     let resp = Response::builder()
         .status(200)
         .header("content-type", "text/html")
-        .body(message.into())
+        .body(format!("Twitch EventSub Webhook").into())
         .map_err(Box::new)?;
     Ok(resp)
 }
@@ -43,12 +61,12 @@ async fn main() -> Result<(), Error> {
     run(service_fn(function_handler)).await
 }
 
-fn handle_online(notif: Payload<StreamOnlineV1Payload>) {
+fn handle_online(notif: StreamOnlineV1Payload) {
     println!("Stream Online");
     println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
     println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
 }
-fn handle_offline(notif: Payload<StreamOfflineV1Payload>) {
+fn handle_offline(notif: StreamOfflineV1Payload) {
     println!("Stream Offline");
     println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
     println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
