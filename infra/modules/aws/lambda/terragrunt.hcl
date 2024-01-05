@@ -5,9 +5,17 @@ include "root" {
 dependencies {
     paths = [
         "../kms",
-        "../secrets",
         "../ecr",
     ]
+}
+
+dependency "secrets" {
+    config_path = "../secrets"
+    mock_outputs_merge_strategy_with_state = "shallow"
+    mock_outputs_allowed_terraform_commands = ["validate", "plan", "apply", "destroy"]
+    mock_outputs = {
+         secretsmanager_secret_version_twitch_creds = {"client_id":"mock-${uuid()}","client_secret":"mock-${uuid()}"}
+    }
 }
 
 dependency "dynamodb" {
@@ -33,4 +41,5 @@ inputs = {
     dynamodb_table_stream_arn_chat_stat = dependency.dynamodb.outputs.dynamodb_table_stream_arn_chat_stat
     iam_role_arn_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub
     iam_role_arn_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub_webhook
+    secretsmanager_secret_version_twitch_creds = dependency.secrets.outputs.secretsmanager_secret_version_twitch_creds
 }

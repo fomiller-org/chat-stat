@@ -25,6 +25,12 @@ resource "aws_lambda_function" "twitch_event_sub" {
   architectures    = ["arm64"]
   memory_size      = 128
   timeout          = 10
+  environment {
+    variables = {
+      TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
+      TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
+    }
+  }
 }
 
 resource "aws_lambda_function" "twitch_event_sub_webhook" {
@@ -37,4 +43,10 @@ resource "aws_lambda_function" "twitch_event_sub_webhook" {
   architectures    = ["arm64"]
   memory_size      = 128
   timeout          = 10
+  environment {
+    variables = {
+      TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
+      TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
+    }
+  }
 }
