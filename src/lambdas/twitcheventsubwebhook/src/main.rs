@@ -1,38 +1,27 @@
-use lambda_http::{run, service_fn, Body, Error, Request, RequestExt, Response};
-use serde::{Deserialize, Serialize};
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
-///
-///
+use lambda_http::{run, service_fn, Body, Error, Request, Response};
+use twitch_api::eventsub::{
+    stream::{StreamOfflineV1Payload, StreamOnlineV1Payload},
+    Event, Message, Payload,
+};
 
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
+async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
+    let event = Event::parse_http(&request)?;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct MyRequest {
-    name: String,
-}
-async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
-    // Extract some useful information from the request
-    println!("EVENT: {:?}", event);
-    println!("BODY: {:?}", event.body());
-    let body = event.body();
-    let body: MyRequest = match serde_json::from_slice(body) {
-        Ok(parsed_body) => parsed_body,
-        Err(_) => return Ok(Response::new("Bad Request".into())),
-    };
-    let who = event
-        .query_string_parameters_ref()
-        .and_then(|params| params.first("name"))
-        .unwrap_or("world");
-    let message = format!("Hello {who}, this is an AWS Lambda HTTP request");
+    match event {
+        Event::StreamOnlineV1(Payload {
+            message: Message::Notification(notif),
+            ..
+        }) => handle_online(notif),
+        Event::StreamOfflineV1(Payload {
+            message: Message::Notification(notif),
+            ..
+        }) => handle_online(notif),
+        _ => println!("event not supported"),
+    }
+
+    let message = format!("Twitch EventSub Webhook");
 
     // Return something that implements IntoResponse.
-    // It will be serialized to the right response event automatically by the runtime
     let resp = Response::builder()
         .status(200)
         .header("content-type", "text/html")
@@ -52,4 +41,15 @@ async fn main() -> Result<(), Error> {
         .init();
 
     run(service_fn(function_handler)).await
+}
+
+fn handle_online(notif: Payload<StreamOnlineV1Payload>) {
+    println!("Stream Online");
+    println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
+    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
+}
+fn handle_offline(notif: Payload<StreamOfflineV1Payload>) {
+    println!("Stream Offline");
+    println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
+    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
 }

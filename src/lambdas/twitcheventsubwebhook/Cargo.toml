@@ -24,3 +24,5 @@ tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = [
     "fmt",
 ] }
+twitch_api = { version = "0.7.0-rc.7", features = ["eventsub", "hmac"] }
+twitch_types = "0.4.4"
