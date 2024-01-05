@@ -5,6 +5,11 @@ use twitch_api::eventsub::{
 };
 
 async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
+    let headers = request.headers();
+    let body = request.body();
+    println!("HEADERS: {:?}", headers);
+    println!("BODY: {:?}", body);
+
     let event = Event::parse_http(&request)?;
 
     if let Some(verification) = event.get_verification_request() {
