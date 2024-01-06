@@ -21,8 +21,7 @@ aws_lambda_events = { version = "0.12.0", default-features = false, features = [
 ] }
 
 lambda_runtime = "0.8.3"
-openssl = { version = "0.10", features = ["vendored"] }
-reqwest = "0.11.23"
+reqwest = { version = "0.11.23", features = ["rustls-tls"] }
 serde = { version = "1.0.194", features = ["serde_derive"] }
 serde_dynamo = { version = "4.2.13", features = ["aws-sdk-dynamodb+1"] }
 tokio = { version = "1", features = ["macros"] }
