@@ -39,7 +39,7 @@ jobs:
   Build-lambda-twitch-event-sub:
     name: 'Build lambda twitch-event-sub'
     needs: Pre-check
-    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@feature/cross
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
     with:
       lambda_dir: src/lambdas/twitcheventsub
       lambda_output:  infra/modules/aws/lambda/bin/
