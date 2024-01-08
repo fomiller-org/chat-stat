@@ -5,6 +5,13 @@ use std::env;
 use std::fmt;
 use std::str::FromStr;
 use twitch_api::eventsub;
+use twitch_api::eventsub::stream::StreamOnlineV1;
+use twitch_api::eventsub::WebhookTransport;
+use twitch_api::helix::eventsub::CreateEventSubSubscription;
+use twitch_api::helix::ClientRequestError;
+use twitch_api::helix::HelixRequestBody;
+use twitch_api::helix::HelixRequestPostError;
+use twitch_api::helix::RequestPost;
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
 
@@ -110,8 +117,35 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
         .await?
         .unwrap();
     let event = eventsub::stream::online::StreamOnlineV1::broadcaster_user_id(user.id);
-
     println!("{:?}", event);
+    let callback =
+        "https://6rm4cdx6bizoo6jsdxatsontnm0sgiym.lambda-url.us-east-1.on.aws/".to_string();
+    let secret = "abcdef12345".to_string();
+
+    let transport = eventsub::Transport::webhook(callback, secret);
+    let res = helix
+        .create_eventsub_subscription(event, transport, &token)
+        .await;
+    match res {
+        Ok(event) => {
+            println!("Subscription created Successfully");
+            println!("Create Event Sub Res: {:?}", event);
+        }
+        Err(error) => match error {
+            ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
+                error,
+                status,
+                message,
+                body,
+                ..
+            }) => {
+                println!("There was an Error: {}", error);
+                println!("Status: {}", status);
+                println!("Message: {}", message);
+            }
+            _ => return Err(Box::new(error)),
+        },
+    }
 
     Ok(())
 }
