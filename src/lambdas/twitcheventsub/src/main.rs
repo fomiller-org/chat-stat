@@ -12,7 +12,7 @@ use twitch_api::HelixClient;
 use twitch_types::EventSubId;
 
 static LAMBDA_URL: &str = "https://6rm4cdx6bizoo6jsdxatsontnm0sgiym.lambda-url.us-east-1.on.aws/";
-static TRANSPORT_SECRET: &str = "abc1234";
+static TRANSPORT_SECRET: &str = "abcdef12345678";
 
 #[derive(Debug, PartialEq)]
 enum EventName {
