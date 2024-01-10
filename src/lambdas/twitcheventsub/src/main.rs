@@ -64,7 +64,7 @@ struct MyModel {
     stream_id: String,
     #[serde(rename = "Online")]
     online: Option<bool>,
-    #[serde(rename = "EventSubId")]
+    #[serde(rename = "SubscriptionId")]
     event_sub_id: Option<EventSubId>,
 }
 
