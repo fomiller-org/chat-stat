@@ -13,7 +13,7 @@ import (
 // MyDBItem represents the structure of a DynamoDB item
 type ChatStatDynamoDBItem struct {
 	// Define fields based on your DynamoDB table structure
-	StreamID string `dynamodbav:"StreamID" json:"StreamID"`
+	StreamId string `dynamodbav:"StreamId" json:"StreamId"`
 	Online   bool   `dynamodbav:"Online,omitempty" json:"Online"`
 	// Add other fields as needed
 }
@@ -55,7 +55,7 @@ func handleInsert(record types.Record) {
 		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
 	}
 
-	fmt.Println("StreamID:", Item.StreamID)
+	fmt.Println("StreamId:", Item.StreamId)
 	fmt.Println("Online status:", Item.Online)
 }
 
@@ -75,10 +75,10 @@ func handleModify(record types.Record) {
 		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
 	}
 
-	fmt.Println("New StreamID:", NewItem.StreamID)
+	fmt.Println("New StreamId:", NewItem.StreamId)
 	fmt.Println("New Online status:", NewItem.Online)
 
-	fmt.Println("Old StreamID:", OldItem.StreamID)
+	fmt.Println("Old StreamId:", OldItem.StreamId)
 	fmt.Println("Old Online status:", OldItem.Online)
 }
 
@@ -98,9 +98,9 @@ func handleRemove(record types.Record) {
 		panic(fmt.Sprintf("Error UnMarshaling MyDBItem: %s", err))
 	}
 
-	fmt.Println("New StreamID:", NewItem.StreamID)
+	fmt.Println("New StreamId:", NewItem.StreamId)
 	fmt.Println("New Online status:", NewItem.Online)
 
-	fmt.Println("Old StreamID:", OldItem.StreamID)
+	fmt.Println("Old StreamId:", OldItem.StreamId)
 	fmt.Println("Old Online status:", OldItem.Online)
 }

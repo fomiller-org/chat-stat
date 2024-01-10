@@ -58,9 +58,9 @@ impl fmt::Display for EventName {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename = "StreamID")]
+#[serde(rename = "StreamId")]
 struct MyModel {
-    #[serde(rename = "StreamID")]
+    #[serde(rename = "StreamId")]
     stream_id: String,
     #[serde(rename = "Online")]
     online: Option<bool>,
@@ -113,7 +113,7 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
     let new_image = record.change.new_image.clone();
     let new_item: MyModel = serde_dynamo::from_item(new_image)?;
 
-    println!("NEW StreamID: {:?}", &new_item.stream_id);
+    println!("NEW StreamId: {:?}", &new_item.stream_id);
     println!("NEW Online Status: {:?}", &new_item.clone().get_online());
 
     let creds = TwitchCreds::new();
@@ -170,10 +170,10 @@ fn handle_modify(record: &EventRecord) -> Result<(), Error> {
     let new_item: MyModel = serde_dynamo::from_item(new_image)?;
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
 
-    println!("NEW StreamID: {:?}", new_item.stream_id);
+    println!("NEW StreamId: {:?}", new_item.stream_id);
     println!("NEW Online Status: {:?}", new_item.get_online());
 
-    println!("OLD StreamID: {:?}", old_item.stream_id);
+    println!("OLD StreamId: {:?}", old_item.stream_id);
     println!("OLD Online Status: {:?}", old_item.get_online());
     Ok(())
 }
@@ -181,7 +181,7 @@ fn handle_modify(record: &EventRecord) -> Result<(), Error> {
 async fn handle_remove(record: &EventRecord) -> Result<(), Error> {
     let old_image = record.change.old_image.clone();
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
-    println!("OLD StreamID: {:?}", &old_item.stream_id);
+    println!("OLD StreamId: {:?}", &old_item.stream_id);
     println!("OLD Online Status: {:?}", &old_item.clone().get_online());
 
     let creds = TwitchCreds::new();
