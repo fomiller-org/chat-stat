@@ -6,7 +6,8 @@ data "aws_iam_policy_document" "lambda_event_sub" {
       "dynamodb:GetRecords",
       "dynamodb:GetShardIterator",
       "dynamodb:DescribeStream",
-      "dynamodb:ListStreams"
+      "dynamodb:ListStreams",
+      "dynamodb:UpdateItem"
     ]
     resources = [
       "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.namespace}-${var.app_prefix}/stream/*"
