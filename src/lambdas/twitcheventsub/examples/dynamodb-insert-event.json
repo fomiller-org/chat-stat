@@ -9,7 +9,7 @@
             "dynamodb": {
                 "ApproximateCreationDateTime": 1480642020,
                 "Keys": {
-                    "StreamID": {
+                    "StreamId": {
                         "S": "sodapoppin"
                     },
                     "Online": {
@@ -17,7 +17,7 @@
                     }
                 },
                 "NewImage": {
-                    "StreamID": {
+                    "StreamId": {
                         "S": "sodapoppin"
                     },
                     "Online": {

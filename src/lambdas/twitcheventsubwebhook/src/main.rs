@@ -154,7 +154,7 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
     let request = dynamodb_client
         .update_item()
         .table_name(table_name)
-        .key("StreamID", user_id)
+        .key("StreamId", user_id)
         .update_expression(update_expression)
         .expression_attribute_values(String::from(":bid"), broadcaster_user_id)
         .expression_attribute_values(String::from(":sid"), sub_id)
