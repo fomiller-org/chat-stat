@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "lambda_twitch_event_sub" {
+data "aws_iam_policy_document" "lambda_twitch_event_sub_webhook" {
   statement {
     sid    = "LambdaTwitchEventSubDynamoDB"
     effect = "Allow"
@@ -7,7 +7,6 @@ data "aws_iam_policy_document" "lambda_twitch_event_sub" {
       "dynamodb:GetShardIterator",
       "dynamodb:DescribeStream",
       "dynamodb:ListStreams",
-      "dynamodb:UpdateItem"
     ]
     resources = [
       "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.namespace}-${var.app_prefix}/stream/*"
@@ -35,7 +34,7 @@ data "aws_iam_policy_document" "lambda_twitch_event_sub" {
   }
 }
 
-resource "aws_iam_policy" "lambda_twitch_event_sub" {
-  name   = "${title(var.namespace)}LambdaTwitchEventSubPolicy"
-  policy = data.aws_iam_policy_document.lambda_twitch_event_sub.json
+resource "aws_iam_policy" "lambda_twitch_event_sub_webhook" {
+  name   = "${title(var.namespace)}LambdaTwitchEventSubWebhookPolicy"
+  policy = data.aws_iam_policy_document.lambda_twitch_event_sub_webhook.json
 }
