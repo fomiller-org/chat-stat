@@ -195,28 +195,29 @@ async fn handle_remove(record: &EventRecord) -> Result<(), Error> {
         vec![],
     )
     .await?;
-
-    let res = helix_client
-        .delete_eventsub_subscription(&old_item.event_sub_id.unwrap(), &token)
-        .await;
-
-    match res {
-        Ok(event) => {
-            println!("Delete Event Sub Response: {:?}", event);
-        }
-        Err(error) => match error {
-            ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
-                error,
-                status,
-                message,
-                ..
-            }) => {
-                println!("There was an Error: {}", error);
-                println!("Status: {}", status);
-                println!("Message: {}", message);
+    if let Some(id) = &old_item.event_sub_id {
+        let res = helix_client.delete_eventsub_subscription(id, &token).await;
+        match res {
+            Ok(event) => {
+                println!("Delete Event Sub Response: {:?}", event);
             }
-            _ => return Err(Box::new(error)),
-        },
+            Err(error) => match error {
+                ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
+                    error,
+                    status,
+                    message,
+                    ..
+                }) => {
+                    println!("There was an Error: {}", error);
+                    println!("Status: {}", status);
+                    println!("Message: {}", message);
+                }
+                _ => return Err(Box::new(error)),
+            },
+        }
+    } else {
+        println!("No SubscriptionId");
+        return Ok(());
     }
 
     Ok(())
