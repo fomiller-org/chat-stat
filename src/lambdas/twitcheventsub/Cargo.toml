@@ -37,3 +37,4 @@ twitch_api = { version = "0.7.0-rc.7", features = [
     "twitch_oauth2",
     "reqwest",
 ] }
+twitch_types = "0.4.4"

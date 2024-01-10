@@ -2,7 +2,7 @@
     "Records": [
         {
             "eventID": "f07f8ca4b0b26cb9c4e5e77e42f274ee",
-            "eventName": "REMOVE",
+            "eventName": "INSERT",
             "eventVersion": "1.1",
             "eventSource": "aws:dynamodb",
             "awsRegion": "us-east-1",
@@ -10,24 +10,12 @@
                 "ApproximateCreationDateTime": 1480642020,
                 "Keys": {
                     "StreamID": {
-                        "S": "sodapoppin"
-                    },
-                    "Online": {
-                        "BOOL": true
-                    },
-                    "EventSubId": {
-                        "S": "0bda8c2a-210b-4583-915b-50e30c1ddf9a"
+                        "S": ""
                     }
                 },
-                "OldImage": {
+                "NewImage": {
                     "StreamID": {
-                        "S": "sodapoppin"
-                    },
-                    "Online": {
-                        "BOOL": false
-                    },
-                    "EventSubId": {
-                        "S": "0bda8c2a-210b-4583-915b-50e30c1ddf9a"
+                        "S": ""
                     }
                 },
                 "SequenceNumber": "1405400000000002063282832",

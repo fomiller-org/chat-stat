@@ -4,16 +4,15 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::fmt;
 use std::str::FromStr;
-use twitch_api::eventsub;
-use twitch_api::eventsub::stream::StreamOnlineV1;
-use twitch_api::eventsub::WebhookTransport;
-use twitch_api::helix::eventsub::CreateEventSubSubscription;
+use twitch_api::eventsub::{stream::online::StreamOnlineV1, Transport};
 use twitch_api::helix::ClientRequestError;
-use twitch_api::helix::HelixRequestBody;
 use twitch_api::helix::HelixRequestPostError;
-use twitch_api::helix::RequestPost;
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
+use twitch_types::EventSubId;
+
+static LAMBDA_URL: &str = "https://6rm4cdx6bizoo6jsdxatsontnm0sgiym.lambda-url.us-east-1.on.aws/";
+static TRANSPORT_SECRET: &str = "abc1234";
 
 #[derive(Debug, PartialEq)]
 enum EventName {
@@ -22,6 +21,21 @@ enum EventName {
     Remove,
 }
 
+struct TwitchCreds {
+    client_id: String,
+    client_secret: String,
+}
+
+impl TwitchCreds {
+    fn new() -> TwitchCreds {
+        let twitch_client_secret: String = env::var("TWITCH_CLIENT_SECRET").unwrap();
+        let twitch_client_id: String = env::var("TWITCH_CLIENT_ID").unwrap();
+        TwitchCreds {
+            client_id: twitch_client_id,
+            client_secret: twitch_client_secret,
+        }
+    }
+}
 impl FromStr for EventName {
     type Err = ();
     fn from_str(input: &str) -> Result<EventName, Self::Err> {
@@ -50,6 +64,8 @@ struct MyModel {
     stream_id: String,
     #[serde(rename = "Online")]
     online: Option<bool>,
+    #[serde(rename = "EventSubId")]
+    event_sub_id: Option<EventSubId>,
 }
 
 impl MyModel {
@@ -73,7 +89,7 @@ async fn function_handler(event: LambdaEvent<Event>) -> Result<(), Error> {
             }
             EventName::Remove => {
                 println!("Opertaion type {}", event_name);
-                handle_remove(record).unwrap()
+                handle_remove(record).await?
             }
         };
     }
@@ -100,32 +116,31 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
     println!("NEW StreamID: {:?}", &new_item.stream_id);
     println!("NEW Online Status: {:?}", &new_item.clone().get_online());
 
-    let twitch_client_secret: String = env::var("TWITCH_CLIENT_SECRET").unwrap();
-    let twitch_client_id: String = env::var("TWITCH_CLIENT_ID").unwrap();
+    let creds = TwitchCreds::new();
 
-    let helix: HelixClient<reqwest::Client> = HelixClient::new();
+    let helix_client: HelixClient<reqwest::Client> = HelixClient::new();
+
     let token = AppAccessToken::get_app_access_token(
-        &helix,
-        twitch_client_id.into(),
-        twitch_client_secret.into(),
+        &helix_client,
+        creds.client_id.into(),
+        creds.client_secret.into(),
         vec![],
     )
     .await?;
 
-    let user = helix
+    let user = helix_client
         .get_user_from_login(&new_item.stream_id, &token)
         .await?
         .unwrap();
-    let event = eventsub::stream::online::StreamOnlineV1::broadcaster_user_id(user.id);
-    println!("{:?}", event);
-    let callback =
-        "https://6rm4cdx6bizoo6jsdxatsontnm0sgiym.lambda-url.us-east-1.on.aws/".to_string();
-    let secret = "abcdef12345".to_string();
 
-    let transport = eventsub::Transport::webhook(callback, secret);
-    let res = helix
+    let event = StreamOnlineV1::broadcaster_user_id(user.id);
+
+    let transport = Transport::webhook(LAMBDA_URL.to_string(), TRANSPORT_SECRET.to_string());
+
+    let res = helix_client
         .create_eventsub_subscription(event, transport, &token)
         .await;
+
     match res {
         Ok(event) => {
             println!("Subscription created Successfully");
@@ -136,7 +151,6 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
                 error,
                 status,
                 message,
-                body,
                 ..
             }) => {
                 println!("There was an Error: {}", error);
@@ -164,13 +178,46 @@ fn handle_modify(record: &EventRecord) -> Result<(), Error> {
     Ok(())
 }
 
-fn handle_remove(record: &EventRecord) -> Result<(), Error> {
+async fn handle_remove(record: &EventRecord) -> Result<(), Error> {
     let old_image = record.change.old_image.clone();
-    println!("OldImage: {:?}", old_image);
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
-    println!("OldItem: {:?}", old_item);
+    println!("OLD StreamID: {:?}", &old_item.stream_id);
+    println!("OLD Online Status: {:?}", &old_item.clone().get_online());
 
-    println!("OLD StreamID: {:?}", old_item.stream_id);
-    println!("OLD Online Status: {:?}", old_item.get_online());
+    let creds = TwitchCreds::new();
+
+    let helix_client: HelixClient<reqwest::Client> = HelixClient::new();
+
+    let token = AppAccessToken::get_app_access_token(
+        &helix_client,
+        creds.client_id.into(),
+        creds.client_secret.into(),
+        vec![],
+    )
+    .await?;
+
+    let res = helix_client
+        .delete_eventsub_subscription(&old_item.event_sub_id.unwrap(), &token)
+        .await;
+
+    match res {
+        Ok(event) => {
+            println!("Delete Event Sub Response: {:?}", event);
+        }
+        Err(error) => match error {
+            ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
+                error,
+                status,
+                message,
+                ..
+            }) => {
+                println!("There was an Error: {}", error);
+                println!("Status: {}", status);
+                println!("Message: {}", message);
+            }
+            _ => return Err(Box::new(error)),
+        },
+    }
+
     Ok(())
 }
