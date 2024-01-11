@@ -1,42 +1,76 @@
+use aws_config::BehaviorVersion;
+use aws_sdk_dynamodb::client::Client;
+use aws_sdk_dynamodb::types::{AttributeValue, ReturnValue};
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
-
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::env;
+use std::fmt;
+use std::str::FromStr;
+use twitch_api::helix::HelixClient;
+use twitch_api::twitch_oauth2::AppAccessToken;
 
-/// This is a made-up example. Requests come into the runtime as unicode
-/// strings in json format, which can map to any structure that implements `serde::Deserialize`
-/// The runtime pays no attention to the contents of the request payload.
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct Request {
-    command: String,
+    #[serde(rename = "eventName")]
+    event_name: String,
+    key: String,
 }
 
-/// This is a made-up example of what a response structure may look like.
-/// There is no restriction on what it can be. The runtime requires responses
-/// to be serialized into json. The runtime pays no attention
-/// to the contents of the response payload.
-#[derive(Serialize)]
-struct Response {
-    req_id: String,
-    msg: String,
+#[derive(Debug, PartialEq)]
+enum EventName {
+    Insert,
+    Modify,
+    Remove,
 }
 
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
-/// - https://github.com/aws-samples/serverless-rust-demo/
-async fn function_handler(event: LambdaEvent<Request>) -> Result<Response, Error> {
-    // Extract some useful info from the request
-    let command = event.payload.command;
+struct TwitchCreds {
+    client_id: String,
+    client_secret: String,
+}
 
+impl TwitchCreds {
+    fn new() -> TwitchCreds {
+        let twitch_client_secret: String = env::var("TWITCH_CLIENT_SECRET").unwrap();
+        let twitch_client_id: String = env::var("TWITCH_CLIENT_ID").unwrap();
+        TwitchCreds {
+            client_id: twitch_client_id,
+            client_secret: twitch_client_secret,
+        }
+    }
+}
+impl FromStr for EventName {
+    type Err = ();
+    fn from_str(input: &str) -> Result<EventName, Self::Err> {
+        match input {
+            "INSERT" => Ok(EventName::Insert),
+            "MODIFY" => Ok(EventName::Modify),
+            "REMOVE" => Ok(EventName::Remove),
+            _ => Err(()),
+        }
+    }
+}
+impl fmt::Display for EventName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            EventName::Insert => write!(f, "INSERT"),
+            EventName::Modify => write!(f, "MODIFY"),
+            EventName::Remove => write!(f, "REMOVE"),
+        }
+    }
+}
+async fn function_handler(event: LambdaEvent<Request>) -> Result<(), Error> {
     // Prepare the response
-    let resp = Response {
-        req_id: event.context.request_id,
-        msg: format!("Command {}.", command),
-    };
+    let event_name = EventName::from_str(event.payload.event_name.as_str()).unwrap();
+    let key = &event.payload.key;
 
-    // Return `Response` (it will be serialized to JSON automatically by the runtime)
-    Ok(resp)
+    println!("EventName {}, Key {}", &event_name, &key);
+    match event_name {
+        EventName::Insert => handle_insert(&key).await?,
+        EventName::Remove => handle_remove(&key).await?,
+        _ => println!("Event Type not supported : {}", event_name),
+    }
+    Ok(())
 }
 
 #[tokio::main]
@@ -50,4 +84,87 @@ async fn main() -> Result<(), Error> {
         .init();
 
     run(service_fn(function_handler)).await
+}
+
+async fn handle_insert(key: &String) -> Result<(), Error> {
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .region("us-east-1")
+        .load()
+        .await;
+
+    let dynamodb_client = Client::new(&config);
+    let creds = TwitchCreds::new();
+
+    let helix_client: HelixClient<reqwest::Client> = HelixClient::new();
+
+    let token = AppAccessToken::get_app_access_token(
+        &helix_client,
+        creds.client_id.into(),
+        creds.client_secret.into(),
+        vec![],
+    )
+    .await?;
+
+    let user = helix_client.get_user_from_login(key, &token).await?;
+    if let Some(user) = user {
+        let table_name = String::from("fomiller-chat-stat");
+        let item = HashMap::from([
+            (
+                "StreamId".to_string(),
+                AttributeValue::S(String::from(user.login)),
+            ),
+            (
+                "BroadcasterId".to_string(),
+                AttributeValue::S(String::from(user.id)),
+            ),
+            (
+                "SubscriptionStatus".to_string(),
+                AttributeValue::S(String::from("PENDING")),
+            ),
+            ("Online".to_string(), AttributeValue::Bool(false)),
+        ]);
+
+        let res = dynamodb_client
+            .put_item()
+            .table_name(table_name)
+            .set_item(Some(item))
+            .return_values(ReturnValue::AllNew)
+            .send()
+            .await?;
+
+        println!(
+            "Item succesfully created. Net Item: {:?}",
+            res.attributes.unwrap()
+        );
+    } else {
+        println!("Could Not find User: {}", key)
+    }
+
+    Ok(())
+}
+async fn handle_remove(key: &String) -> Result<(), Error> {
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .region("us-east-1")
+        .load()
+        .await;
+
+    let dynamodb_client = Client::new(&config);
+
+    let table_name = String::from("fomiller-chat-stat");
+    let stream_id = AttributeValue::S(String::from(key));
+
+    let res = dynamodb_client
+        .delete_item()
+        .table_name(table_name)
+        .key("StreamId", stream_id)
+        .return_values(ReturnValue::AllOld)
+        .send()
+        .await?;
+
+    println!(
+        "Delete Successful. Item deleted: {:?}",
+        res.attributes.unwrap()
+    );
+
+    Ok(())
 }
