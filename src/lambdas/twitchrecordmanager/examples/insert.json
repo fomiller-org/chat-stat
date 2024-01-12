@@ -1,8 +1,4 @@
 {
-    "Records": [
-        {
-            "eventName": "INSERT",
-            "key": "sodapoppin"
-        }
-    ]
+    "eventName": "INSERT",
+    "key": "sodapoppin"
 }

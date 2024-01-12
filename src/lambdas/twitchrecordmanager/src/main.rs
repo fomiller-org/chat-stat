@@ -7,10 +7,11 @@ use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::str::FromStr;
+use tracing::span::Attributes;
 use twitch_api::helix::HelixClient;
 use twitch_api::twitch_oauth2::AppAccessToken;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Request {
     #[serde(rename = "eventName")]
     event_name: String,
@@ -60,6 +61,7 @@ impl fmt::Display for EventName {
     }
 }
 async fn function_handler(event: LambdaEvent<Request>) -> Result<(), Error> {
+    println!("EVENT: {:?}", event.payload);
     // Prepare the response
     let event_name = EventName::from_str(event.payload.event_name.as_str()).unwrap();
     let key = &event.payload.key;
@@ -124,18 +126,14 @@ async fn handle_insert(key: &String) -> Result<(), Error> {
             ("Online".to_string(), AttributeValue::Bool(false)),
         ]);
 
-        let res = dynamodb_client
+        dynamodb_client
             .put_item()
             .table_name(table_name)
             .set_item(Some(item))
-            .return_values(ReturnValue::AllNew)
             .send()
             .await?;
 
-        println!(
-            "Item succesfully created. Net Item: {:?}",
-            res.attributes.unwrap()
-        );
+        println!("Item succesfully created");
     } else {
         println!("Could Not find User: {}", key)
     }
@@ -161,10 +159,11 @@ async fn handle_remove(key: &String) -> Result<(), Error> {
         .send()
         .await?;
 
-    println!(
-        "Delete Successful. Item deleted: {:?}",
-        res.attributes.unwrap()
-    );
+    if let Some(attrs) = res.attributes {
+        println!("Delete Successful. Item deleted: {:?}", attrs);
+    } else {
+        println!("No record Found.")
+    }
 
     Ok(())
 }

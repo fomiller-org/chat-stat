@@ -7,3 +7,8 @@ resource "aws_cloudwatch_log_group" "event_sub" {
   name              = "/aws/lambda/${aws_lambda_function.twitch_event_sub.function_name}"
   retention_in_days = 7
 }
+
+resource "aws_cloudwatch_log_group" "event_sub" {
+  name              = "/aws/lambda/${aws_lambda_function.twitch_event_record_manager.function_name}"
+  retention_in_days = 7
+}
