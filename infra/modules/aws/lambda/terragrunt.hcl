@@ -34,6 +34,7 @@ dependency "roles" {
     mock_outputs = {
         iam_role_arn_lambda_twitch_event_sub = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchEventSub"
         iam_role_arn_lambda_twitch_event_sub_webhook = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchEventSubWebhook"
+        iam_role_arn_lambda_twitch_record_manager = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchRecordManager"
     }
 }
 
@@ -41,5 +42,6 @@ inputs = {
     dynamodb_table_stream_arn_chat_stat = dependency.dynamodb.outputs.dynamodb_table_stream_arn_chat_stat
     iam_role_arn_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub
     iam_role_arn_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub_webhook
+    iam_role_arn_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_arn_lambda_twitch_record_manager
     secretsmanager_secret_version_twitch_creds = dependency.secrets.outputs.secretsmanager_secret_version_twitch_creds
 }
