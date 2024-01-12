@@ -14,7 +14,7 @@ resource "aws_cloudwatch_log_group" "twitch_event_sub_webhook" {
 }
 
 resource "aws_cloudwatch_log_group" "twitch_record_manager" {
-  name              = "/aws/lambda/${aws_lambda_function.twitch_event_record_manager.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.twitch_record_manager.function_name}"
   retention_in_days = 7
 }
 
