@@ -50,3 +50,21 @@ resource "aws_lambda_function" "twitch_event_sub_webhook" {
     }
   }
 }
+
+resource "aws_lambda_function" "twitch_record_manager" {
+  function_name    = "${var.namespace}-${var.app_prefix}-twitch-record-manager"
+  role             = var.iam_role_arn_lambda_twitch_record_manager
+  handler          = "bootstrap"
+  filename         = "${path.module}/bin/twitch-record-manager/lambda_function.zip"
+  source_code_hash = data.archive_file.twitch_record_manager.output_base64sha256
+  runtime          = "provided.al2"
+  architectures    = ["arm64"]
+  memory_size      = 128
+  timeout          = 10
+  environment {
+    variables = {
+      TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
+      TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
+    }
+  }
+}

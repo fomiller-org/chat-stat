@@ -17,3 +17,8 @@ resource "aws_iam_role_policy_attachment" "lambda_twitch_event_sub_webhook_dynam
   policy_arn = aws_iam_policy.lambda_twitch_event_sub_webhook.arn
   role       = var.iam_role_name_lambda_twitch_event_sub_webhook
 }
+
+resource "aws_iam_role_policy_attachment" "lambda_twitch_record_manager_dynamodb_attachment" {
+  policy_arn = aws_iam_policy.lambda_twitch_record_manager.arn
+  role       = var.iam_role_name_lambda_twitch_record_manager
+}

@@ -9,10 +9,12 @@ dependency "roles" {
     mock_outputs = {
         iam_role_name_lambda_twitch_event_sub = "FomillerLambdaTwitchEventSub"
         iam_role_name_lambda_twitch_event_sub_webhook = "FomillerLambdaTwitchEventSubWebhook"
+        iam_role_name_lambda_twitch_record_manager = "FomillerLambdaTwitchRecordManager"
     }
 }
 
 inputs = {
     iam_role_name_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_name_lambda_twitch_event_sub
     iam_role_name_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_name_lambda_twitch_event_sub_webhook
+    iam_role_name_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_name_lambda_twitch_record_manager
 }
