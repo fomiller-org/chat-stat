@@ -85,7 +85,7 @@ jobs:
     uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
-      repo: api
+      repo: logger
       repo-prefix: "fomiller-chat-stat"
     secrets: inherit
      
