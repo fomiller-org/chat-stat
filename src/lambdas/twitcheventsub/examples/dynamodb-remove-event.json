@@ -9,27 +9,25 @@
             "dynamodb": {
                 "ApproximateCreationDateTime": 1480642020,
                 "Keys": {
-                    "StreamID": {
-                        "S": "Forrest"
+                    "StreamId": {
+                        "S": "sodapoppin"
                     },
                     "Online": {
                         "BOOL": true
-                    }
-                },
-                "NewImage": {
-                    "StreamID": {
-                        "S": ""
                     },
-                    "Online": {
-                        "BOOL": false
+                    "EventSubId": {
+                        "S": "0bda8c2a-210b-4583-915b-50e30c1ddf9a"
                     }
                 },
                 "OldImage": {
-                    "StreamID": {
-                        "S": "Forrest"
+                    "StreamId": {
+                        "S": "sodapoppin"
                     },
                     "Online": {
                         "BOOL": false
+                    },
+                    "EventSubId": {
+                        "S": "0bda8c2a-210b-4583-915b-50e30c1ddf9a"
                     }
                 },
                 "SequenceNumber": "1405400000000002063282832",

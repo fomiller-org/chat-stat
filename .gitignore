@@ -31,9 +31,12 @@ chat.txt
 */**/.terragrunt-cache/
 **/*.gen.tf
 **/.terraform.lock.hcl
-infra/modules/aws/lambda/bin/*
+infra/modules/aws/lambda/bin/
 infra/modules/aws/lambda/*.zip
 infra/us-east-1/**/common.tf
 
 # aws
 .aws-assume.ini
+
+# rust
+**/target/

@@ -2,34 +2,20 @@
     "Records": [
         {
             "eventID": "f07f8ca4b0b26cb9c4e5e77e42f274ee",
-            "eventName": "MODIFY",
+            "eventName": "INSERT",
             "eventVersion": "1.1",
             "eventSource": "aws:dynamodb",
             "awsRegion": "us-east-1",
             "dynamodb": {
                 "ApproximateCreationDateTime": 1480642020,
                 "Keys": {
-                    "StreamID": {
-                        "S": "Forrest"
-                    },
-                    "Online": {
-                        "BOOL": true
+                    "StreamId": {
+                        "S": "sodapoppin"
                     }
                 },
                 "NewImage": {
-                    "StreamID": {
-                        "S": "Forrest"
-                    },
-                    "Online": {
-                        "BOOL": true
-                    }
-                },
-                "OldImage": {
-                    "StreamID": {
-                        "S": "CHUCK"
-                    },
-                    "Online": {
-                        "BOOL": false
+                    "StreamId": {
+                        "S": "sodapoppin"
                     }
                 },
                 "SequenceNumber": "1405400000000002063282832",

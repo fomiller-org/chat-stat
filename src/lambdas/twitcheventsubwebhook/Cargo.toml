@@ -1,5 +1,5 @@
 [package]
-name = "eventSub"
+name = "twitch-event-sub-webhook"
 version = "0.1.0"
 edition = "2021"
 
@@ -15,16 +15,19 @@ edition = "2021"
 # and it will keep the alphabetic ordering for you.
 
 [dependencies]
+aws-config = "1.1.1"
 aws-sdk-dynamodb = "1.9.0"
-aws_lambda_events = { version = "0.12.0", default-features = false, features = [
-    "dynamodb",
-] }
-
+lambda_http = "0.8.3"
 lambda_runtime = "0.8.3"
+reqwest = { version = "0.11.23", default-features = false, features = [
+    "rustls-tls",
+] }
 serde = { version = "1.0.194", features = ["serde_derive"] }
-serde_dynamo = { version = "4.2.13", features = ["aws-sdk-dynamodb+1"] }
+serde_json = "1.0.111"
 tokio = { version = "1", features = ["macros"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = [
     "fmt",
 ] }
+twitch_api = { version = "0.7.0-rc.7", features = ["eventsub", "hmac", "helix", "twitch_oauth2", "client", "reqwest"] }
+twitch_types = "0.4.4"

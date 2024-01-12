@@ -88,6 +88,12 @@ destroy-all:
     -- terragrunt run-all \
     destroy --terragrunt-working-dir {{infraDir}}
     
+import dir resource value:
+    doppler run \
+    --name-transformer tf-var  \
+    -- terragrunt import \
+    --terragrunt-working-dir {{infraDir}}/{{dir}} \
+    {{ resource }} {{ value }}
 
 fmt:
     doppler run \
