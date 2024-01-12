@@ -148,8 +148,9 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
     let broadcaster_user_id = AttributeValue::S(String::from(condition.broadcaster_user_id));
     let sub_id = AttributeValue::S(String::from(sub.id));
     let created_at = AttributeValue::S(String::from(condition.created_at));
+    let sub_status = AttributeValue::S(String::from("SUBSCRIBED"));
     let update_expression =
-        String::from("SET BroadcasterId = :bid, SubscriptionId = :sid, CreatedAt = :ca");
+        String::from("SET BroadcasterId = :bid, SubscriptionId = :sid, CreatedAt = :ca, SubscriptionStatus = :ss");
 
     let request = dynamodb_client
         .update_item()
@@ -158,7 +159,8 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
         .update_expression(update_expression)
         .expression_attribute_values(String::from(":bid"), broadcaster_user_id)
         .expression_attribute_values(String::from(":sid"), sub_id)
-        .expression_attribute_values(String::from(":ca"), created_at);
+        .expression_attribute_values(String::from(":ca"), created_at)
+        .expression_attribute_values(String::from(":ss"), sub_status);
     let resp = request.send().await?;
     println!("Item is updated. New Item: {:?}", resp.attributes);
 
