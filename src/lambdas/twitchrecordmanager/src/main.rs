@@ -7,7 +7,6 @@ use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::str::FromStr;
-use tracing::span::Attributes;
 use twitch_api::helix::HelixClient;
 use twitch_api::twitch_oauth2::AppAccessToken;
 
