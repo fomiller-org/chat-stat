@@ -1,3 +1,6 @@
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 data "archive_file" "hello_world" {
   type        = "zip"
   source_file = "${path.module}/bin/hello/bootstrap"
