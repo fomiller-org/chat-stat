@@ -10,6 +10,7 @@ dependency "roles" {
         iam_role_name_lambda_twitch_event_sub = "FomillerLambdaTwitchEventSub"
         iam_role_name_lambda_twitch_event_sub_webhook = "FomillerLambdaTwitchEventSubWebhook"
         iam_role_name_lambda_twitch_record_manager = "FomillerLambdaTwitchRecordManager"
+        iam_role_name_sfn_chat_stat_logger = "FomillerSfnChatStatLogger"
     }
 }
 
@@ -17,4 +18,5 @@ inputs = {
     iam_role_name_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_name_lambda_twitch_event_sub
     iam_role_name_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_name_lambda_twitch_event_sub_webhook
     iam_role_name_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_name_lambda_twitch_record_manager
+    iam_role_name_sfn_chat_stat_logger = dependency.roles.outputs.iam_role_name_sfn_chat_stat_logger
 }

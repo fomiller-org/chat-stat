@@ -27,3 +27,13 @@ resource "aws_iam_role_policy_attachment" "lambda_twitch_record_manager_dynamodb
   policy_arn = aws_iam_policy.lambda_twitch_record_manager.arn
   role       = var.iam_role_name_lambda_twitch_record_manager
 }
+
+resource "aws_iam_role_policy_attachment" "sfn_chat_stat_logger_attachment" {
+  policy_arn = aws_iam_policy.sfn_chat_stat_logger.arn
+  role       = var.iam_role_name_sfn_chat_stat_logger
+}
+
+resource "aws_iam_role_policy_attachment" "sfn_chat_stat_logger_cloudwatch_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+  role       = var.iam_role_name_sfn_chat_stat_logger
+}
