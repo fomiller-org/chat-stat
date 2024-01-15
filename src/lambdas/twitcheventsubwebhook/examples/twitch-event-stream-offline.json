@@ -137,5 +137,5 @@
         "requestTimeEpoch": 1589522469693,
         "apiId": "gy415nuibc"
     },
-    "body": "{\n  \"subscription\": {\n    \"id\": \"9518acce-94f0-f729-608b-3002b6f2f856\",\n    \"status\": \"enabled\",\n    \"type\": \"stream.offline\",\n    \"version\": \"1\",\n    \"condition\": {\n      \"broadcaster_user_id\": \"23910262\"\n    },\n    \"transport\": {\n      \"method\": \"webhook\",\n      \"callback\": \"null\"\n    },\n    \"created_at\": \"2024-01-05T10:31:37.433965Z\",\n    \"cost\": 0\n  },\n  \"event\": {\n    \"broadcaster_user_id\": \"23910262\",\n    \"broadcaster_user_login\": \"Forrest\",\n    \"broadcaster_user_name\": \"Forrest\"\n  }\n}"
+    "body": "{\n  \"subscription\": {\n    \"id\": \"9518acce-94f0-f729-608b-3002b6f2f856\",\n    \"status\": \"enabled\",\n    \"type\": \"stream.offline\",\n    \"version\": \"1\",\n    \"condition\": {\n      \"broadcaster_user_id\": \"23910262\"\n    },\n    \"transport\": {\n      \"method\": \"webhook\",\n      \"callback\": \"null\"\n    },\n    \"created_at\": \"2024-01-05T10:31:37.433965Z\",\n    \"cost\": 0\n  },\n  \"event\": {\n    \"broadcaster_user_id\": \"23910262\",\n    \"broadcaster_user_login\": \"lirik\",\n    \"broadcaster_user_name\": \"lirik\"\n  }\n}"
 }

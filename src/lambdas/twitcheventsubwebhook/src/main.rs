@@ -127,7 +127,7 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
 
     deployment.insert(
         "stream_id".to_string(),
-        notif.broadcaster_user_name.to_string(),
+        notif.broadcaster_user_name.to_string().to_lowercase(),
     );
 
     let sfn_input = serde_json::to_string(&SfnInput { deployment }).unwrap();
@@ -153,9 +153,10 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
     let sfn_client = aws_sdk_sfn::Client::new(&config);
     let ddb_client = Client::new(&config);
 
-    let stream_id = AttributeValue::S(notif.broadcaster_user_name.to_string());
+    let stream_id = AttributeValue::S(notif.broadcaster_user_name.to_string().to_lowercase());
     let item = ddb_client
         .get_item()
+        .table_name("fomiller-chat-stat")
         .key("StreamId", stream_id)
         .send()
         .await
