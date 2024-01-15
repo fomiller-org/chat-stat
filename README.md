@@ -9,7 +9,7 @@ within a 1 sec, 5 sec, 30 sec, 1 min, 5min, 1 hour interval.
     - all infra deployed to aws
     - connect to ~25 channels, possibly hard coded
 ## Architecture
-![aws-architecture](./chat-stat-2024.png)
+![aws-architecture](./scripts/chat-stat-2024.png)
 
 ## Todo
 [x] connect bot
