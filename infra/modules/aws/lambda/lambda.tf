@@ -29,8 +29,6 @@ resource "aws_lambda_function" "twitch_event_sub" {
     variables = {
       TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
       TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
-      AWS_REGION           = data.aws_region.current.name
-      AWS_ACCOUNT          = data.aws_caller_identity.current.account_id
     }
   }
 }
@@ -49,8 +47,6 @@ resource "aws_lambda_function" "twitch_event_sub_webhook" {
     variables = {
       TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
       TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
-      AWS_REGION           = data.aws_region.current.name
-      AWS_ACCOUNT          = data.aws_caller_identity.current.account_id
     }
   }
 }
@@ -69,8 +65,6 @@ resource "aws_lambda_function" "twitch_record_manager" {
     variables = {
       TWITCH_CLIENT_ID     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
       TWITCH_CLIENT_SECRET = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
-      AWS_REGION           = data.aws_region.current.name
-      AWS_ACCOUNT          = data.aws_caller_identity.current.account_id
     }
   }
 }
