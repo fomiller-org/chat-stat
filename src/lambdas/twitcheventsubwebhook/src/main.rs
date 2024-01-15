@@ -3,7 +3,7 @@ use aws_sdk_dynamodb::client::Client;
 use aws_sdk_dynamodb::types::AttributeValue;
 use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use serde::{Deserialize, Serialize};
-use std::env;
+use std::{collections::HashMap, env};
 use twitch_api::eventsub::{
     stream::{StreamOfflineV1Payload, StreamOnlineV1Payload},
     Event, EventSubSubscription, Message, Payload,
@@ -22,6 +22,11 @@ struct Condition {
 struct TwitchCreds {
     client_id: String,
     client_secret: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct SfnInput {
+    deployment: HashMap<String, String>,
 }
 
 impl TwitchCreds {
@@ -73,12 +78,12 @@ async fn function_handler(request: Request) -> Result<Response<Body>, Error> {
         Event::StreamOnlineV1(Payload {
             message: Message::Notification(notif),
             ..
-        }) => handle_online(notif),
+        }) => handle_online(notif).await?,
         Event::StreamOfflineV1(Payload {
             message: Message::Notification(notif),
             ..
-        }) => handle_offline(notif),
-        _ => println!("event not supported"),
+        }) => handle_offline(notif).await?,
+        _ => println!("EventType not supported"),
     }
 
     // Return something that implements IntoResponse.
@@ -103,15 +108,75 @@ async fn main() -> Result<(), Error> {
     run(service_fn(function_handler)).await
 }
 
-fn handle_online(notif: StreamOnlineV1Payload) {
+async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .region("us-east-1")
+        .load()
+        .await;
+
+    let sfn_client = aws_sdk_sfn::Client::new(&config);
+    let region = env::var("AWS_REGION").expect("Missing AWS_REGION env var.");
+    let account = env::var("AWS_ACCOUNT").expect("Missing AWS_ACCOUNT env var.");
+    let sfn_name = "fomiller-chat-stat-logger";
+
+    let arn = format!(
+        "arn:aws:states:{}:{}:stateMachine:{}",
+        region, account, sfn_name,
+    );
+    let mut deployment = HashMap::new();
+
+    deployment.insert(
+        "stream_id".to_string(),
+        notif.broadcaster_user_name.to_string(),
+    );
+
+    let sfn_input = serde_json::to_string(&SfnInput { deployment }).unwrap();
+
+    let sfn_res = sfn_client
+        .start_execution()
+        .state_machine_arn(&arn)
+        .input(sfn_input)
+        .send()
+        .await?;
+
     println!("Stream Online");
+    println!("SFN RESPONSE: {:?}", sfn_res);
     println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
-    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
+    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name);
+    Ok(())
 }
-fn handle_offline(notif: StreamOfflineV1Payload) {
+async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .region("us-east-1")
+        .load()
+        .await;
+    let sfn_client = aws_sdk_sfn::Client::new(&config);
+    let ddb_client = Client::new(&config);
+
+    let stream_id = AttributeValue::S(notif.broadcaster_user_name.to_string());
+    let item = ddb_client
+        .get_item()
+        .key("StreamId", stream_id)
+        .send()
+        .await
+        .unwrap()
+        .item
+        .unwrap();
+
+    let token = item["TaskToken"].as_s().expect("No TaskToken found");
+
+    let sfn_res = sfn_client
+        .send_task_success()
+        .task_token(token)
+        .output("{}")
+        .send()
+        .await;
+
     println!("Stream Offline");
+    println!("SFN RESPONSE: {:?}", sfn_res);
     println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
-    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name)
+    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name);
+    Ok(())
 }
 
 async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
@@ -123,7 +188,7 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
         .load()
         .await;
 
-    let dynamodb_client = Client::new(&config);
+    let ddb_client = Client::new(&config);
 
     let creds = TwitchCreds::new();
 
@@ -152,7 +217,7 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
     let update_expression =
         String::from("SET BroadcasterId = :bid, SubscriptionId = :sid, CreatedAt = :ca, SubscriptionStatus = :ss");
 
-    let request = dynamodb_client
+    let request = ddb_client
         .update_item()
         .table_name(table_name)
         .key("StreamId", user_id)
