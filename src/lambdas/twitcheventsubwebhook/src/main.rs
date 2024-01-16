@@ -117,8 +117,8 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
     let sfn_client = aws_sdk_sfn::Client::new(&config);
     let ddb_client = Client::new(&config);
 
-    let region = env::var("AWS_REGION").expect("Missing AWS_REGION env var.");
-    let account = env::var("AWS_ACCOUNT").expect("Missing AWS_ACCOUNT env var.");
+    let region = env::var("REGION").expect("Missing AWS_REGION env var.");
+    let account = env::var("ACCOUNT").expect("Missing AWS_ACCOUNT env var.");
     let sfn_name = "fomiller-chat-stat-logger";
 
     let arn = format!(
