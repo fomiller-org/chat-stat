@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::fmt;
 use std::str::FromStr;
+use twitch_api::eventsub::stream::StreamOfflineV1;
 use twitch_api::eventsub::{stream::online::StreamOnlineV1, Transport};
 use twitch_api::helix::ClientRequestError;
 use twitch_api::helix::HelixRequestPostError;
@@ -64,8 +65,10 @@ struct MyModel {
     stream_id: String,
     #[serde(rename = "Online")]
     online: Option<bool>,
-    #[serde(rename = "SubscriptionId")]
-    event_sub_id: Option<EventSubId>,
+    #[serde(rename = "SubscriptionIdOffline")]
+    event_sub_id_online: Option<EventSubId>,
+    #[serde(rename = "SubscriptionIdOffline")]
+    event_sub_id_offline: Option<EventSubId>,
 }
 
 impl MyModel {
@@ -83,14 +86,11 @@ async fn function_handler(event: LambdaEvent<Event>) -> Result<(), Error> {
                 println!("Opertaion type {}", event_name);
                 handle_insert(record).await?
             }
-            EventName::Modify => {
-                println!("Opertaion type {}", event_name);
-                handle_modify(record).unwrap()
-            }
             EventName::Remove => {
                 println!("Opertaion type {}", event_name);
                 handle_remove(record).await?
             }
+            _ => println!("Event not handled."),
         };
     }
     Ok(())
@@ -133,12 +133,37 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
         .await?
         .unwrap();
 
-    let event = StreamOnlineV1::broadcaster_user_id(user.id);
+    let online_event = StreamOnlineV1::broadcaster_user_id(user.id.to_owned());
+    let offline_event = StreamOfflineV1::broadcaster_user_id(user.id.to_owned());
 
     let transport = Transport::webhook(LAMBDA_URL.to_string(), TRANSPORT_SECRET.to_string());
 
     let res = helix_client
-        .create_eventsub_subscription(event, transport, &token)
+        .create_eventsub_subscription(online_event, transport.to_owned(), &token)
+        .await;
+
+    match res {
+        Ok(event) => {
+            println!("Subscription created Successfully");
+            println!("Create Event Sub Res: {:?}", event);
+        }
+        Err(error) => match error {
+            ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
+                error,
+                status,
+                message,
+                ..
+            }) => {
+                println!("There was an Error: {}", error);
+                println!("Status: {}", status);
+                println!("Message: {}", message);
+            }
+            _ => return Err(Box::new(error)),
+        },
+    }
+
+    let res = helix_client
+        .create_eventsub_subscription(offline_event, transport.to_owned(), &token)
         .await;
 
     match res {
@@ -164,20 +189,6 @@ async fn handle_insert(record: &EventRecord) -> Result<(), Error> {
     Ok(())
 }
 
-fn handle_modify(record: &EventRecord) -> Result<(), Error> {
-    let new_image = record.change.new_image.clone();
-    let old_image = record.change.old_image.clone();
-    let new_item: MyModel = serde_dynamo::from_item(new_image)?;
-    let old_item: MyModel = serde_dynamo::from_item(old_image)?;
-
-    println!("NEW StreamId: {:?}", new_item.stream_id);
-    println!("NEW Online Status: {:?}", new_item.get_online());
-
-    println!("OLD StreamId: {:?}", old_item.stream_id);
-    println!("OLD Online Status: {:?}", old_item.get_online());
-    Ok(())
-}
-
 async fn handle_remove(record: &EventRecord) -> Result<(), Error> {
     let old_image = record.change.old_image.clone();
     let old_item: MyModel = serde_dynamo::from_item(old_image)?;
@@ -195,29 +206,36 @@ async fn handle_remove(record: &EventRecord) -> Result<(), Error> {
         vec![],
     )
     .await?;
-    if let Some(id) = &old_item.event_sub_id {
-        let res = helix_client.delete_eventsub_subscription(id, &token).await;
-        match res {
-            Ok(event) => {
-                println!("Delete Event Sub Response: {:?}", event);
-            }
-            Err(error) => match error {
-                ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
-                    error,
-                    status,
-                    message,
-                    ..
-                }) => {
-                    println!("There was an Error: {}", error);
-                    println!("Status: {}", status);
-                    println!("Message: {}", message);
+
+    let event_ids = vec![
+        &old_item.event_sub_id_online,
+        &old_item.event_sub_id_offline,
+    ];
+    for event_id in event_ids {
+        if let Some(id) = event_id {
+            let res = helix_client.delete_eventsub_subscription(id, &token).await;
+            match res {
+                Ok(event) => {
+                    println!("Delete Event Sub Response: {:?}", event);
                 }
-                _ => return Err(Box::new(error)),
-            },
+                Err(error) => match error {
+                    ClientRequestError::HelixRequestPostError(HelixRequestPostError::Error {
+                        error,
+                        status,
+                        message,
+                        ..
+                    }) => {
+                        println!("There was an Error: {}", error);
+                        println!("Status: {}", status);
+                        println!("Message: {}", message);
+                    }
+                    _ => return Err(Box::new(error)),
+                },
+            }
+        } else {
+            println!("No SubscriptionId");
+            return Ok(());
         }
-    } else {
-        println!("No SubscriptionId");
-        return Ok(());
     }
 
     Ok(())
