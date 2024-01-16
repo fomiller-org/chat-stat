@@ -1,6 +1,5 @@
 data "aws_iam_policy_document" "lambda_twitch_event_sub_webhook" {
   statement {
-    sid    = "LambdaTwitchEventSubDynamoDB"
     effect = "Allow"
     actions = [
       "dynamodb:GetRecords",
@@ -14,7 +13,6 @@ data "aws_iam_policy_document" "lambda_twitch_event_sub_webhook" {
   }
 
   statement {
-    sid    = "LambdaDynamoDBTablePermissions"
     effect = "Allow"
     actions = [
       "dynamodb:BatchGetItem",
@@ -34,7 +32,6 @@ data "aws_iam_policy_document" "lambda_twitch_event_sub_webhook" {
   }
 
   statement {
-    sid    = "LambdaSfnPermissions"
     effect = "Allow"
     actions = [
       "states:StartExecution",
@@ -46,7 +43,6 @@ data "aws_iam_policy_document" "lambda_twitch_event_sub_webhook" {
     ]
   }
   statement {
-    sid    = "LambdaSfnPermissions"
     effect = "Allow"
     actions = [
       "states:SendTaskSuccess",
