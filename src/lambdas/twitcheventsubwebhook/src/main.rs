@@ -115,6 +115,8 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
         .await;
 
     let sfn_client = aws_sdk_sfn::Client::new(&config);
+    let ddb_client = Client::new(&config);
+
     let region = env::var("AWS_REGION").expect("Missing AWS_REGION env var.");
     let account = env::var("AWS_ACCOUNT").expect("Missing AWS_ACCOUNT env var.");
     let sfn_name = "fomiller-chat-stat-logger";
@@ -125,10 +127,8 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
     );
     let mut deployment = HashMap::new();
 
-    deployment.insert(
-        "stream_id".to_string(),
-        notif.broadcaster_user_name.to_string().to_lowercase(),
-    );
+    let stream_id = notif.broadcaster_user_name.to_string().to_lowercase();
+    deployment.insert("stream_id".to_string(), stream_id.to_owned());
 
     let sfn_input = serde_json::to_string(&SfnInput { deployment }).unwrap();
 
@@ -138,6 +138,19 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
         .input(sfn_input)
         .send()
         .await?;
+
+    let update_expression = String::from("SET #o = :o");
+    let online_status = AttributeValue::Bool(true);
+    ddb_client
+        .update_item()
+        .table_name("fomiller-chat-stat")
+        .key("StreamId", AttributeValue::S(stream_id))
+        .update_expression(update_expression)
+        .expression_attribute_values(String::from(":o"), online_status)
+        .expression_attribute_names(String::from("#o"), "Online".to_string())
+        .send()
+        .await
+        .unwrap();
 
     println!("Stream Online");
     println!("SFN RESPONSE: {:?}", sfn_res);
@@ -172,6 +185,20 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
         .output("{}")
         .send()
         .await;
+
+    let stream_id = notif.broadcaster_user_name.to_string().to_lowercase();
+    let online_status = AttributeValue::Bool(false);
+    let update_expression = String::from("SET #o = :o");
+    ddb_client
+        .update_item()
+        .table_name("fomiller-chat-stat")
+        .key("StreamId", AttributeValue::S(stream_id))
+        .update_expression(update_expression)
+        .expression_attribute_values(String::from(":o"), online_status)
+        .expression_attribute_names(String::from("#o"), "Online".to_string())
+        .send()
+        .await
+        .unwrap();
 
     println!("Stream Offline");
     println!("SFN RESPONSE: {:?}", sfn_res);
