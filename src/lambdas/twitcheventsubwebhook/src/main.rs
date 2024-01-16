@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, env};
 use twitch_api::eventsub::{
     stream::{StreamOfflineV1Payload, StreamOnlineV1Payload},
-    Event, EventSubSubscription, Message, Payload,
+    Event, EventSubSubscription, EventType, Message, Payload,
 };
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
@@ -117,8 +117,8 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
     let sfn_client = aws_sdk_sfn::Client::new(&config);
     let ddb_client = Client::new(&config);
 
-    let region = env::var("REGION").expect("Missing AWS_REGION env var.");
-    let account = env::var("ACCOUNT").expect("Missing AWS_ACCOUNT env var.");
+    let region = env::var("REGION").expect("Missing REGION env var.");
+    let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
     let sfn_name = "fomiller-chat-stat-logger";
 
     let arn = format!(
@@ -210,6 +210,7 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
 async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
     let mut condition: Condition = serde_json::from_value(sub.condition).unwrap();
     condition.created_at = sub.created_at.to_string();
+    let event_type = sub.type_;
 
     let config = aws_config::defaults(BehaviorVersion::latest())
         .region("us-east-1")
@@ -236,14 +237,21 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
         .unwrap();
     println!("User: {:?}", user);
 
+    let sub_id_key = if event_type == EventType::StreamOnline {
+        "SubscriptionIdOnline".to_string()
+    } else {
+        "SubscriptionIdOffline".to_string()
+    };
+
     let table_name = String::from("fomiller-chat-stat");
     let user_id = AttributeValue::S(String::from(user.login));
     let broadcaster_user_id = AttributeValue::S(String::from(condition.broadcaster_user_id));
     let sub_id = AttributeValue::S(String::from(sub.id));
     let created_at = AttributeValue::S(String::from(condition.created_at));
     let sub_status = AttributeValue::S(String::from("SUBSCRIBED"));
-    let update_expression =
-        String::from("SET BroadcasterId = :bid, SubscriptionId = :sid, CreatedAt = :ca, SubscriptionStatus = :ss");
+    let update_expression = String::from(
+        "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss",
+    );
 
     let request = ddb_client
         .update_item()
@@ -253,7 +261,8 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
         .expression_attribute_values(String::from(":bid"), broadcaster_user_id)
         .expression_attribute_values(String::from(":sid"), sub_id)
         .expression_attribute_values(String::from(":ca"), created_at)
-        .expression_attribute_values(String::from(":ss"), sub_status);
+        .expression_attribute_values(String::from(":ss"), sub_status)
+        .expression_attribute_names(String::from("#ss"), sub_id_key);
     let resp = request.send().await?;
     println!("Item is updated. New Item: {:?}", resp.attributes);
 
