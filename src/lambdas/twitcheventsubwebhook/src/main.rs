@@ -1,5 +1,4 @@
 use aws_config::BehaviorVersion;
-use aws_sdk_dynamodb::client::Client;
 use aws_sdk_dynamodb::types::AttributeValue;
 use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use serde::{Deserialize, Serialize};
@@ -10,13 +9,12 @@ use twitch_api::eventsub::{
 };
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
-use twitch_types::UserId;
+use twitch_types::{DisplayName, EventSubId, Nickname, Timestamp, UserId};
 
 #[derive(Serialize, Deserialize)]
 struct Condition {
-    broadcaster_user_id: UserId,
-    #[serde(skip_deserializing)]
-    created_at: String,
+    #[serde(rename = "broadcaster_user_id")]
+    user_id: UserId,
 }
 
 struct TwitchCreds {
@@ -36,6 +34,66 @@ impl TwitchCreds {
         TwitchCreds {
             client_id: twitch_client_id,
             client_secret: twitch_client_secret,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct VerificitionUpdate {
+    created_at: AttributeValue,
+    sub_id: AttributeValue,
+    sub_id_key: String,
+    sub_status: AttributeValue,
+    table: String,
+    user_id: AttributeValue,
+    user_login: AttributeValue,
+    update_expression: String,
+}
+
+impl VerificitionUpdate {
+    fn new(
+        created_at: Timestamp,
+        event: EventType,
+        sub_id: EventSubId,
+        user_id: UserId,
+        user_login: Nickname,
+    ) -> Self {
+        Self {
+            created_at: AttributeValue::S(created_at.to_string()),
+            sub_id: AttributeValue::S(sub_id.to_string()),
+            table: "fomiller-chat-stat".to_string(),
+            user_id: AttributeValue::S(user_id.to_string()),
+            user_login: AttributeValue::S(user_login.to_string()),
+            update_expression:
+                "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss"
+                    .to_string(),
+            sub_id_key: if event == EventType::StreamOnline {
+                "SubscriptionIdOnline".to_string()
+            } else {
+                "SubscriptionIdOffline".to_string()
+            },
+            sub_status: AttributeValue::S(String::from("SUBSCRIBED")),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct OnlineStatusUpdate {
+    online_status: AttributeValue,
+    online_status_key: String,
+    table: String,
+    update_expression: String,
+    user_login: AttributeValue,
+}
+
+impl OnlineStatusUpdate {
+    fn new(user_login: &DisplayName, status: bool) -> Self {
+        Self {
+            online_status: AttributeValue::Bool(status),
+            online_status_key: "Online".to_string(),
+            table: "fomiller-chat-stat".to_string(),
+            update_expression: String::from("SET #o = :o"),
+            user_login: AttributeValue::S(user_login.to_string().to_lowercase()),
         }
     }
 }
@@ -115,47 +173,40 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
         .await;
 
     let sfn_client = aws_sdk_sfn::Client::new(&config);
-    let ddb_client = Client::new(&config);
+    let ddb_client = aws_sdk_dynamodb::Client::new(&config);
 
     let region = env::var("REGION").expect("Missing REGION env var.");
     let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
-    let sfn_name = "fomiller-chat-stat-logger";
+    let sfn_name = "fomiller-chat-stat-logger".to_string();
 
-    let arn = format!(
-        "arn:aws:states:{}:{}:stateMachine:{}",
-        region, account, sfn_name,
-    );
-    let mut deployment = HashMap::new();
+    let arn = format_sfn_arn(&account, &region, &sfn_name);
 
-    let stream_id = notif.broadcaster_user_name.to_string().to_lowercase();
-    deployment.insert("stream_id".to_string(), stream_id.to_owned());
-
-    let sfn_input = serde_json::to_string(&SfnInput { deployment }).unwrap();
+    let input = create_sfn_input(&notif.broadcaster_user_name)?;
 
     let sfn_res = sfn_client
         .start_execution()
         .state_machine_arn(&arn)
-        .input(sfn_input)
+        .input(input)
         .send()
         .await?;
 
-    let update_expression = String::from("SET #o = :o");
-    let online_status = AttributeValue::Bool(true);
+    let update = OnlineStatusUpdate::new(&notif.broadcaster_user_name, true);
+
     ddb_client
         .update_item()
-        .table_name("fomiller-chat-stat")
-        .key("StreamId", AttributeValue::S(stream_id))
-        .update_expression(update_expression)
-        .expression_attribute_values(String::from(":o"), online_status)
-        .expression_attribute_names(String::from("#o"), "Online".to_string())
+        .table_name(update.table)
+        .key("StreamId", update.user_login)
+        .update_expression(update.update_expression)
+        .expression_attribute_values(String::from(":o"), update.online_status)
+        .expression_attribute_names(String::from("#o"), update.online_status_key)
         .send()
         .await
         .unwrap();
 
     println!("Stream Online");
     println!("SFN RESPONSE: {:?}", sfn_res);
-    println!("Broadcaster ID {:?}", notif.broadcaster_user_id);
-    println!("Broadcaster User Name {:?}", notif.broadcaster_user_name);
+    println!("Broadcaster ID {:?}", &notif.broadcaster_user_id);
+    println!("Broadcaster User Name {:?}", &notif.broadcaster_user_name);
     Ok(())
 }
 async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
@@ -164,7 +215,7 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
         .load()
         .await;
     let sfn_client = aws_sdk_sfn::Client::new(&config);
-    let ddb_client = Client::new(&config);
+    let ddb_client = aws_sdk_dynamodb::Client::new(&config);
 
     let stream_id = AttributeValue::S(notif.broadcaster_user_name.to_string().to_lowercase());
     let item = ddb_client
@@ -186,16 +237,15 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
         .send()
         .await;
 
-    let stream_id = notif.broadcaster_user_name.to_string().to_lowercase();
-    let online_status = AttributeValue::Bool(false);
-    let update_expression = String::from("SET #o = :o");
+    let update = OnlineStatusUpdate::new(&notif.broadcaster_user_name, false);
+
     ddb_client
         .update_item()
-        .table_name("fomiller-chat-stat")
-        .key("StreamId", AttributeValue::S(stream_id))
-        .update_expression(update_expression)
-        .expression_attribute_values(String::from(":o"), online_status)
-        .expression_attribute_names(String::from("#o"), "Online".to_string())
+        .table_name(update.table)
+        .key("StreamId", update.user_login)
+        .update_expression(update.update_expression)
+        .expression_attribute_values(String::from(":o"), update.online_status)
+        .expression_attribute_names(String::from("#o"), update.online_status_key)
         .send()
         .await
         .unwrap();
@@ -208,19 +258,15 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
 }
 
 async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
-    let mut condition: Condition = serde_json::from_value(sub.condition).unwrap();
-    condition.created_at = sub.created_at.to_string();
-    let event_type = sub.type_;
+    let condition: Condition = serde_json::from_value(sub.condition).unwrap();
 
     let config = aws_config::defaults(BehaviorVersion::latest())
         .region("us-east-1")
         .load()
         .await;
-
-    let ddb_client = Client::new(&config);
+    let ddb_client = aws_sdk_dynamodb::Client::new(&config);
 
     let creds = TwitchCreds::new();
-
     let helix_client: HelixClient<reqwest::Client> = HelixClient::new();
 
     let token = AppAccessToken::get_app_access_token(
@@ -232,39 +278,42 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
     .await?;
 
     let user = helix_client
-        .get_user_from_id(&condition.broadcaster_user_id, &token)
+        .get_user_from_id(&condition.user_id, &token)
         .await?
         .unwrap();
     println!("User: {:?}", user);
 
-    let sub_id_key = if event_type == EventType::StreamOnline {
-        "SubscriptionIdOnline".to_string()
-    } else {
-        "SubscriptionIdOffline".to_string()
-    };
-
-    let table_name = String::from("fomiller-chat-stat");
-    let user_id = AttributeValue::S(String::from(user.login));
-    let broadcaster_user_id = AttributeValue::S(String::from(condition.broadcaster_user_id));
-    let sub_id = AttributeValue::S(String::from(sub.id));
-    let created_at = AttributeValue::S(String::from(condition.created_at));
-    let sub_status = AttributeValue::S(String::from("SUBSCRIBED"));
-    let update_expression = String::from(
-        "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss",
-    );
+    let update = VerificitionUpdate::new(sub.created_at, sub.type_, sub.id, user.id, user.login);
 
     let request = ddb_client
         .update_item()
-        .table_name(table_name)
-        .key("StreamId", user_id)
-        .update_expression(update_expression)
-        .expression_attribute_values(String::from(":bid"), broadcaster_user_id)
-        .expression_attribute_values(String::from(":sid"), sub_id)
-        .expression_attribute_values(String::from(":ca"), created_at)
-        .expression_attribute_values(String::from(":ss"), sub_status)
-        .expression_attribute_names(String::from("#ss"), sub_id_key);
+        .table_name(update.table)
+        .key("StreamId", update.user_login)
+        .update_expression(update.update_expression)
+        .expression_attribute_values(String::from(":bid"), update.user_id)
+        .expression_attribute_values(String::from(":sid"), update.sub_id)
+        .expression_attribute_values(String::from(":ca"), update.created_at)
+        .expression_attribute_values(String::from(":ss"), update.sub_status)
+        .expression_attribute_names(String::from("#ss"), update.sub_id_key);
     let resp = request.send().await?;
     println!("Item is updated. New Item: {:?}", resp.attributes);
 
     Ok(())
+}
+
+fn format_sfn_arn(account: &String, region: &String, name: &String) -> String {
+    format!(
+        "arn:aws:states:{}:{}:stateMachine:{}",
+        region, account, name,
+    )
+}
+
+fn create_sfn_input(stream_id: &DisplayName) -> Result<String, Error> {
+    let mut deployment = HashMap::new();
+    deployment.insert(
+        "stream_id".to_string(),
+        stream_id.to_owned().to_string().to_lowercase(),
+    );
+    let input = serde_json::to_string(&SfnInput { deployment })?;
+    Ok(input)
 }

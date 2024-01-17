@@ -26,7 +26,7 @@
         "twitch-eventsub-message-retry": "0",
         "Twitch-Eventsub-Message-Type": "notification",
         "Twitch-Eventsub-Message-Timestamp": "2023-12-31T15:23:45.678901234Z",
-        "Twitch-Eventsub-Subscription-Type": "stream.offline",
+        "Twitch-Eventsub-Subscription-Type": "stream.online",
         "Twitch-Eventsub-Subscription-Version": "1"
     },
     "multiValueHeaders": {
@@ -137,5 +137,5 @@
         "requestTimeEpoch": 1589522469693,
         "apiId": "gy415nuibc"
     },
-    "body": "{\n  \"subscription\": {\n    \"id\": \"9518acce-94f0-f729-608b-3002b6f2f856\",\n    \"status\": \"enabled\",\n    \"type\": \"stream.offline\",\n    \"version\": \"1\",\n    \"condition\": {\n      \"broadcaster_user_id\": \"23910262\"\n    },\n    \"transport\": {\n      \"method\": \"webhook\",\n      \"callback\": \"null\"\n    },\n    \"created_at\": \"2024-01-05T10:31:37.433965Z\",\n    \"cost\": 0\n  },\n  \"event\": {\n    \"broadcaster_user_id\": \"23910262\",\n    \"broadcaster_user_login\": \"lirik\",\n    \"broadcaster_user_name\": \"lirik\"\n  }\n}"
+    "body": "{\"subscription\":{\"id\":\"55cd5741-2d60-4c33-b7ff-21b67ea9a5c9\",\"status\":\"enabled\",\"type\":\"stream.online\",\"version\":\"1\",\"condition\":{\"broadcaster_user_id\":\"11588064\"},\"transport\":{\"method\":\"webhook\",\"callback\":\"null\"},\"created_at\":\"2024-01-05T10:28:06.905854Z\",\"cost\":0},\"event\":{\"id\":\"9604336\",\"broadcaster_user_id\":\"11588064\",\"broadcaster_user_login\":\"cyr\",\"broadcaster_user_name\":\"cyr\",\"type\":\"live\",\"started_at\":\"2024-01-05T10:28:06.905854Z\"}}"
 }
