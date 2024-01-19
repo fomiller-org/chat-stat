@@ -1,5 +1,6 @@
 use aws_config::BehaviorVersion;
-use aws_sdk_dynamodb::types::AttributeValue;
+use aws_sdk_dynamodb::{operation::update_item::UpdateItemOutput, types::AttributeValue};
+use aws_sdk_sfn::operation::start_execution::StartExecutionOutput;
 use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, env};
@@ -7,9 +8,10 @@ use twitch_api::eventsub::{
     stream::{StreamOfflineV1Payload, StreamOnlineV1Payload},
     Event, EventSubSubscription, EventType, Message, Payload,
 };
+use twitch_api::helix::users::User;
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
-use twitch_types::{DisplayName, EventSubId, Nickname, Timestamp, UserId};
+use twitch_types::{DisplayName, UserId};
 
 #[derive(Serialize, Deserialize)]
 struct Condition {
@@ -39,7 +41,7 @@ impl TwitchCreds {
 }
 
 #[derive(Debug, Clone)]
-struct VerificitionUpdate {
+struct VerificitionStatus {
     created_at: AttributeValue,
     sub_id: AttributeValue,
     sub_id_key: String,
@@ -50,24 +52,18 @@ struct VerificitionUpdate {
     update_expression: String,
 }
 
-impl VerificitionUpdate {
-    fn new(
-        created_at: Timestamp,
-        event: EventType,
-        sub_id: EventSubId,
-        user_id: UserId,
-        user_login: Nickname,
-    ) -> Self {
+impl VerificitionStatus {
+    fn new(sub: &EventSubSubscription, user: User) -> Self {
         Self {
-            created_at: AttributeValue::S(created_at.to_string()),
-            sub_id: AttributeValue::S(sub_id.to_string()),
+            created_at: AttributeValue::S(sub.created_at.to_string()),
+            sub_id: AttributeValue::S(sub.id.to_string()),
             table: "fomiller-chat-stat".to_string(),
-            user_id: AttributeValue::S(user_id.to_string()),
-            user_login: AttributeValue::S(user_login.to_string()),
+            user_id: AttributeValue::S(user.id.to_string()),
+            user_login: AttributeValue::S(user.login.to_string()),
             update_expression:
                 "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss"
                     .to_string(),
-            sub_id_key: if event == EventType::StreamOnline {
+            sub_id_key: if sub.type_ == EventType::StreamOnline {
                 "SubscriptionIdOnline".to_string()
             } else {
                 "SubscriptionIdOffline".to_string()
@@ -75,10 +71,26 @@ impl VerificitionUpdate {
             sub_status: AttributeValue::S(String::from("SUBSCRIBED")),
         }
     }
+
+    async fn update(self, client: aws_sdk_dynamodb::Client) -> Result<UpdateItemOutput, Error> {
+        let res = client
+            .update_item()
+            .table_name(self.table)
+            .key("StreamId", self.user_login)
+            .update_expression(self.update_expression)
+            .expression_attribute_values(String::from(":bid"), self.user_id)
+            .expression_attribute_values(String::from(":sid"), self.sub_id)
+            .expression_attribute_values(String::from(":ca"), self.created_at)
+            .expression_attribute_values(String::from(":ss"), self.sub_status)
+            .expression_attribute_names(String::from("#ss"), self.sub_id_key)
+            .send()
+            .await?;
+        Ok(res)
+    }
 }
 
 #[derive(Debug, Clone)]
-struct OnlineStatusUpdate {
+struct OnlineStatus {
     online_status: AttributeValue,
     online_status_key: String,
     table: String,
@@ -86,7 +98,7 @@ struct OnlineStatusUpdate {
     user_login: AttributeValue,
 }
 
-impl OnlineStatusUpdate {
+impl OnlineStatus {
     fn new(user_login: &DisplayName, status: bool) -> Self {
         Self {
             online_status: AttributeValue::Bool(status),
@@ -95,6 +107,44 @@ impl OnlineStatusUpdate {
             update_expression: String::from("SET #o = :o"),
             user_login: AttributeValue::S(user_login.to_string().to_lowercase()),
         }
+    }
+    async fn update(self, client: aws_sdk_dynamodb::Client) -> Result<UpdateItemOutput, Error> {
+        let res = client
+            .update_item()
+            .table_name(self.table)
+            .key("StreamId", self.user_login)
+            .update_expression(self.update_expression)
+            .expression_attribute_values(String::from(":o"), self.online_status)
+            .expression_attribute_names(String::from("#o"), self.online_status_key)
+            .send()
+            .await?;
+        Ok(res)
+    }
+}
+
+#[derive(Debug, Clone)]
+struct TaskToken {
+    id: String,
+    token: Option<String>,
+}
+
+impl TaskToken {
+    fn new(id: String) -> Self {
+        Self { id, token: None }
+    }
+    async fn get_token(mut self, client: &aws_sdk_dynamodb::Client) -> Result<Self, Error> {
+        let res = client
+            .get_item()
+            .table_name("fomiller-chat-stat")
+            .key("StreamId", AttributeValue::S(self.id.to_lowercase()))
+            .send()
+            .await?;
+
+        let item = res.item.unwrap();
+        let token = item["TaskToken"].as_s().expect("No TaskToken found");
+        self.token = Some(token.clone());
+
+        Ok(self.clone())
     }
 }
 
@@ -171,44 +221,24 @@ async fn handle_online(notif: StreamOnlineV1Payload) -> Result<(), Error> {
         .region("us-east-1")
         .load()
         .await;
-
     let sfn_client = aws_sdk_sfn::Client::new(&config);
     let ddb_client = aws_sdk_dynamodb::Client::new(&config);
 
-    let region = env::var("REGION").expect("Missing REGION env var.");
-    let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
-    let sfn_name = "fomiller-chat-stat-logger".to_string();
-
-    let arn = format_sfn_arn(&account, &region, &sfn_name);
-
-    let input = create_sfn_input(&notif.broadcaster_user_name)?;
-
-    let sfn_res = sfn_client
-        .start_execution()
-        .state_machine_arn(&arn)
-        .input(input)
-        .send()
+    let res = StepFunctionExectution::new(&notif.broadcaster_user_name)
+        .start(sfn_client)
         .await?;
 
-    let update = OnlineStatusUpdate::new(&notif.broadcaster_user_name, true);
-
-    ddb_client
-        .update_item()
-        .table_name(update.table)
-        .key("StreamId", update.user_login)
-        .update_expression(update.update_expression)
-        .expression_attribute_values(String::from(":o"), update.online_status)
-        .expression_attribute_names(String::from("#o"), update.online_status_key)
-        .send()
-        .await
-        .unwrap();
+    let _ = OnlineStatus::new(&notif.broadcaster_user_name, true)
+        .update(ddb_client)
+        .await;
 
     println!("Stream Online");
-    println!("SFN RESPONSE: {:?}", sfn_res);
+    println!("SFN RESPONSE: {:?}", res);
     println!("Broadcaster ID {:?}", &notif.broadcaster_user_id);
     println!("Broadcaster User Name {:?}", &notif.broadcaster_user_name);
     Ok(())
 }
+
 async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
     let config = aws_config::defaults(BehaviorVersion::latest())
         .region("us-east-1")
@@ -217,18 +247,12 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
     let sfn_client = aws_sdk_sfn::Client::new(&config);
     let ddb_client = aws_sdk_dynamodb::Client::new(&config);
 
-    let stream_id = AttributeValue::S(notif.broadcaster_user_name.to_string().to_lowercase());
-    let item = ddb_client
-        .get_item()
-        .table_name("fomiller-chat-stat")
-        .key("StreamId", stream_id)
-        .send()
+    let token = TaskToken::new(notif.broadcaster_user_name.to_string())
+        .get_token(&ddb_client)
         .await
         .unwrap()
-        .item
+        .token
         .unwrap();
-
-    let token = item["TaskToken"].as_s().expect("No TaskToken found");
 
     let sfn_res = sfn_client
         .send_task_success()
@@ -237,18 +261,9 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
         .send()
         .await;
 
-    let update = OnlineStatusUpdate::new(&notif.broadcaster_user_name, false);
-
-    ddb_client
-        .update_item()
-        .table_name(update.table)
-        .key("StreamId", update.user_login)
-        .update_expression(update.update_expression)
-        .expression_attribute_values(String::from(":o"), update.online_status)
-        .expression_attribute_names(String::from("#o"), update.online_status_key)
-        .send()
-        .await
-        .unwrap();
+    let _ = OnlineStatus::new(&notif.broadcaster_user_name, false)
+        .update(ddb_client)
+        .await;
 
     println!("Stream Offline");
     println!("SFN RESPONSE: {:?}", sfn_res);
@@ -258,7 +273,7 @@ async fn handle_offline(notif: StreamOfflineV1Payload) -> Result<(), Error> {
 }
 
 async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
-    let condition: Condition = serde_json::from_value(sub.condition).unwrap();
+    let condition: Condition = serde_json::from_value(sub.clone().condition).unwrap();
 
     let config = aws_config::defaults(BehaviorVersion::latest())
         .region("us-east-1")
@@ -281,39 +296,49 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
         .get_user_from_id(&condition.user_id, &token)
         .await?
         .unwrap();
+
     println!("User: {:?}", user);
 
-    let update = VerificitionUpdate::new(sub.created_at, sub.type_, sub.id, user.id, user.login);
+    let res = VerificitionStatus::new(&sub, user)
+        .update(ddb_client)
+        .await?;
 
-    let request = ddb_client
-        .update_item()
-        .table_name(update.table)
-        .key("StreamId", update.user_login)
-        .update_expression(update.update_expression)
-        .expression_attribute_values(String::from(":bid"), update.user_id)
-        .expression_attribute_values(String::from(":sid"), update.sub_id)
-        .expression_attribute_values(String::from(":ca"), update.created_at)
-        .expression_attribute_values(String::from(":ss"), update.sub_status)
-        .expression_attribute_names(String::from("#ss"), update.sub_id_key);
-    let resp = request.send().await?;
-    println!("Item is updated. New Item: {:?}", resp.attributes);
+    println!("Item is updated. New Item: {:?}", res.attributes);
 
     Ok(())
 }
 
-fn format_sfn_arn(account: &String, region: &String, name: &String) -> String {
-    format!(
-        "arn:aws:states:{}:{}:stateMachine:{}",
-        region, account, name,
-    )
+struct StepFunctionExectution {
+    arn: String,
+    input: String,
 }
 
-fn create_sfn_input(stream_id: &DisplayName) -> Result<String, Error> {
-    let mut deployment = HashMap::new();
-    deployment.insert(
-        "stream_id".to_string(),
-        stream_id.to_owned().to_string().to_lowercase(),
-    );
-    let input = serde_json::to_string(&SfnInput { deployment })?;
-    Ok(input)
+impl StepFunctionExectution {
+    fn new(id: &DisplayName) -> Self {
+        let mut deployment = HashMap::new();
+        let region = env::var("REGION").expect("Missing REGION env var.");
+        let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
+        let name = "fomiller-chat-stat-logger".to_string();
+        let arn = format!(
+            "arn:aws:states:{}:{}:stateMachine:{}",
+            region, account, name,
+        );
+        deployment.insert(
+            "stream_id".to_string(),
+            id.to_owned().to_string().to_lowercase(),
+        );
+        let input = serde_json::to_string(&SfnInput { deployment }).unwrap();
+        Self { arn, input }
+    }
+
+    async fn start(self, client: aws_sdk_sfn::Client) -> Result<StartExecutionOutput, Error> {
+        let res = client
+            .start_execution()
+            .state_machine_arn(self.arn.clone())
+            .input(self.input)
+            .send()
+            .await?;
+
+        Ok(res)
+    }
 }
