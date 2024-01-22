@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/timestreamwrite"
 	"github.com/fomiller/chat-stat/src/internal/db"
 	emote "github.com/fomiller/chat-stat/src/internal/emotes"
-	"github.com/fomiller/chat-stat/src/internal/timeseries"
 	twitch "github.com/gempir/go-twitch-irc/v3"
 	helix "github.com/nicklaw5/helix/v2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -113,18 +112,24 @@ func PrivateMessage(message twitch.PrivateMessage) {
 
 	if len(message.Emotes) > 0 {
 		for _, emote := range message.Emotes {
-			timeseries.CreateTimeSeries(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
+			// timeseries.CreateTimeSeries(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
 			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
-			TsWriteClient.WriteRecords(&TimeStreamInput)
+			_, err := TsWriteClient.WriteRecords(&TimeStreamInput)
+			if err != nil {
+				fmt.Println("ERROR Writing record to timestream db: ", err)
+			}
 		}
 	}
 
 	for _, word := range messageContent {
 		val, ok := TwitchBot.Emotes[word]
 		if ok {
-			timeseries.CreateTimeSeries(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
+			// timeseries.CreateTimeSeries(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
 			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
-			TsWriteClient.WriteRecords(&TimeStreamInput)
+			_, err := TsWriteClient.WriteRecords(&TimeStreamInput)
+			if err != nil {
+				fmt.Println("ERROR Writing record to timestream db: ", err)
+			}
 		}
 	}
 

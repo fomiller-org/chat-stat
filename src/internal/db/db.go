@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	redisTS "github.com/RedisTimeSeries/redistimeseries-go"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/timestreamwrite"
@@ -21,11 +19,11 @@ var Host = fmt.Sprintf("%v:%v", getEnvWithFallback("REDIS_HOST", "localhost"), "
 var TimeStreamDbName = "fomiller"
 var TimeStreamTableName = "chat-stat"
 
-var TimeSeries = redisTS.NewClient(
-	Host,
-	"chat-stat",
-	&Pass,
-)
+// var TimeSeries = redisTS.NewClient(
+// 	Host,
+// 	"chat-stat",
+// 	&Pass,
+// )
 
 func getEnvWithFallback(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -56,8 +54,6 @@ func NewTimeStreamClient() *timestreamwrite.TimestreamWrite {
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 
-	databaseName := "fomiller"
-	// tableName := "chat-stat"
 	// So client makes HTTP/2 requests
 	http2.ConfigureTransport(tr)
 
@@ -91,25 +87,26 @@ func NewTimeStreamClient() *timestreamwrite.TimestreamWrite {
 		fmt.Println("Database exists")
 		fmt.Println(describeDatabaseOutput)
 	}
+	fmt.Println("Created WRITE SERVICE")
 	return writeSvc
 }
 
 func CreateTimeStreamWriteRecordInput(emote string, channel string, extension string, timestamp int64) timestreamwrite.WriteRecordsInput {
 	record := &timestreamwrite.Record{
 		Dimensions: []*timestreamwrite.Dimension{
-			&timestreamwrite.Dimension{
+			{
 				Name:  aws.String("emote"),
 				Value: aws.String(emote),
 			},
-			&timestreamwrite.Dimension{
+			{
 				Name:  aws.String("extension"),
 				Value: aws.String(extension),
 			},
-			&timestreamwrite.Dimension{
+			{
 				Name:  aws.String("platform"),
 				Value: aws.String("twitch"),
 			},
-			&timestreamwrite.Dimension{
+			{
 				Name:  aws.String("channel"),
 				Value: aws.String(channel),
 			},
