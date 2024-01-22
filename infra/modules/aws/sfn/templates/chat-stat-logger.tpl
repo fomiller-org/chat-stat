@@ -37,6 +37,7 @@
                                   }
                               },
                               "spec": {
+                                  "serviceAccountName": "fargate-chat-stat",
                                   "containers": [
                                   {
                                       "name": "chat-stat-logger",
