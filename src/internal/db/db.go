@@ -123,5 +123,6 @@ func CreateTimeStreamWriteRecordInput(emote string, channel string, extension st
 		TableName:    aws.String(TimeStreamTableName),
 		Records:      []*timestreamwrite.Record{record},
 	}
+	fmt.Printf("%v %v %v %v\n", timestamp, channel, extension, emote)
 	return input
 }
