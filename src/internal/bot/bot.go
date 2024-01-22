@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/service/timestreamwrite"
+	"github.com/fomiller/chat-stat/src/internal/db"
 	emote "github.com/fomiller/chat-stat/src/internal/emotes"
 	"github.com/fomiller/chat-stat/src/internal/timeseries"
 	twitch "github.com/gempir/go-twitch-irc/v3"
@@ -16,9 +18,10 @@ import (
 )
 
 var (
-	ClientID     string
-	ClientSecret string
-	helixClient  *helix.Client
+	ClientID      string
+	ClientSecret  string
+	helixClient   *helix.Client
+	TsWriteClient *timestreamwrite.TimestreamWrite
 )
 
 func init() {
@@ -43,6 +46,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	TsWriteClient = db.NewTimeStreamClient()
 }
 
 var TwitchBot = &Bot{}
@@ -109,6 +114,8 @@ func PrivateMessage(message twitch.PrivateMessage) {
 	if len(message.Emotes) > 0 {
 		for _, emote := range message.Emotes {
 			timeseries.CreateTimeSeries(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
+			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
+			TsWriteClient.WriteRecords(&TimeStreamInput)
 		}
 	}
 
@@ -116,6 +123,8 @@ func PrivateMessage(message twitch.PrivateMessage) {
 		val, ok := TwitchBot.Emotes[word]
 		if ok {
 			timeseries.CreateTimeSeries(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
+			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
+			TsWriteClient.WriteRecords(&TimeStreamInput)
 		}
 	}
 
