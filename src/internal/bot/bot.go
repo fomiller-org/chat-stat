@@ -51,8 +51,6 @@ func init() {
 
 var TwitchBot = &Bot{}
 
-// var Bots = &BotList{Bots: map[string]*Bot{}}
-
 type BotList struct {
 	Bots map[string]*Bot
 }
@@ -84,22 +82,6 @@ func NewBot(channel string) *Bot {
 	return &Bot{Client: client, Name: channel, ID: channelID, Emotes: make(map[string]emote.Emote)}
 }
 
-//
-// func ConnectBots(f *os.File, botList *BotList) {
-// 	scanner := bufio.NewScanner(f)
-// 	scanner.Split(bufio.ScanLines)
-//
-// 	for scanner.Scan() {
-// 		channel := scanner.Text()
-//
-// 		bot := NewBot(channel)
-// 		go bot.PopulateEmotes()
-// 		go bot.ConnectClient()
-//
-// 		// botList.Bots[bot.Name] = &bot
-// 	}
-// }
-
 func (b Bot) ConnectClient() {
 	err := b.Client.Connect()
 	if err != nil {
@@ -112,7 +94,6 @@ func PrivateMessage(message twitch.PrivateMessage) {
 
 	if len(message.Emotes) > 0 {
 		for _, emote := range message.Emotes {
-			// timeseries.CreateTimeSeries(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
 			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(emote.Name, message.Channel, "twitch", message.Time.UnixMilli())
 			_, err := TsWriteClient.WriteRecords(&TimeStreamInput)
 			if err != nil {
@@ -124,7 +105,6 @@ func PrivateMessage(message twitch.PrivateMessage) {
 	for _, word := range messageContent {
 		val, ok := TwitchBot.Emotes[word]
 		if ok {
-			// timeseries.CreateTimeSeries(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
 			TimeStreamInput := db.CreateTimeStreamWriteRecordInput(val.GetName(), message.Channel, val.GetExtension(), message.Time.UnixMilli())
 			_, err := TsWriteClient.WriteRecords(&TimeStreamInput)
 			if err != nil {
@@ -158,15 +138,3 @@ func (b *Bot) PopulateEmotes() {
 	}
 	fmt.Println("ALL EMOTES: ", b.Emotes)
 }
-
-// func (b Bot) GetTotalEmotes() int {
-// 	return len(b.Emotes)
-// }
-
-// func GetBot() (*Bot, error) {
-// 	bot := TwitchBot
-// 	if bot == nil {
-// 		return nil, errors.New("could not find bot.")
-// 	}
-// 	return bot, nil
-// }
