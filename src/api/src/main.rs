@@ -4,13 +4,15 @@ use axum::{
     routing::*,
     Router,
 };
+use serde_json::{json, Value};
 
 #[tokio::main]
 async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", get(hello_world))
-        .route("/:id", get(my_post));
+        .route("/:id", get(my_post))
+        .route("/user/:id", get(my_json));
 
     // run it
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
@@ -27,4 +29,8 @@ async fn hello_world() -> Html<&'static str> {
 async fn my_post(Path(user_id): Path<String>) -> Html<String> {
     let res = format!("<h1>Hello, user {}!</h1>", user_id);
     Html(res)
+}
+
+async fn my_json(Path(user_id): Path<String>) -> Json<Value> {
+    Json(json!({"user": user_id}))
 }
