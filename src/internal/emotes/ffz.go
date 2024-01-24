@@ -55,8 +55,6 @@ func (c Client) GetFFZUserEmotes(channel string) (FFZResponse, error) {
 			emotes.Sets[i].Emotes[ii].Extension = "ffz"
 		}
 	}
-	// fmt.Println("test", emotes)
-
 	return emotes, nil
 }
 
@@ -82,7 +80,6 @@ func (c Client) GetFFZGlobalEmotes() (FFZResponse, error) {
 			emotes.Sets[i].Emotes[ii].Extension = "ffz"
 		}
 	}
-
 	return emotes, nil
 }
 
@@ -112,6 +109,5 @@ func (c Client) GetFFZEmotes(user string, channel bool, global bool) []Emote {
 			}
 		}
 	}
-
 	return emotes
 }

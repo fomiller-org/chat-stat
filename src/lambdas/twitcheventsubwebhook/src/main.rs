@@ -8,10 +8,9 @@ use twitch_api::eventsub::{
     stream::{StreamOfflineV1Payload, StreamOnlineV1Payload},
     Event, EventSubSubscription, EventType, Message, Payload,
 };
-use twitch_api::helix::users::User;
 use twitch_api::twitch_oauth2::AppAccessToken;
 use twitch_api::HelixClient;
-use twitch_types::{DisplayName, UserId};
+use twitch_types::{DisplayName, Timestamp, UserId};
 
 #[derive(Serialize, Deserialize)]
 struct Condition {
@@ -22,11 +21,6 @@ struct Condition {
 struct TwitchCreds {
     client_id: String,
     client_secret: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct SfnInput {
-    deployment: HashMap<String, String>,
 }
 
 impl TwitchCreds {
@@ -40,11 +34,16 @@ impl TwitchCreds {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct SfnInput {
+    deployment: HashMap<String, String>,
+}
+
 #[derive(Debug, Clone)]
 struct VerificitionStatus {
     created_at: AttributeValue,
     sub_id: AttributeValue,
-    sub_id_key: String,
+    sub_id_key: Option<String>,
     sub_status: AttributeValue,
     table: String,
     user_id: AttributeValue,
@@ -53,20 +52,26 @@ struct VerificitionStatus {
 }
 
 impl VerificitionStatus {
-    fn new(sub: &EventSubSubscription, user: User) -> Self {
+    fn new(
+        created_at: Timestamp,
+        event: EventType,
+        sub_id: String,
+        user_id: String,
+        user_login: String,
+    ) -> Self {
         Self {
-            created_at: AttributeValue::S(sub.created_at.to_string()),
-            sub_id: AttributeValue::S(sub.id.to_string()),
+            created_at: AttributeValue::S(created_at.to_string()),
+            sub_id: AttributeValue::S(sub_id.to_string()),
             table: "fomiller-chat-stat".to_string(),
-            user_id: AttributeValue::S(user.id.to_string()),
-            user_login: AttributeValue::S(user.login.to_string()),
+            user_id: AttributeValue::S(user_id.to_string()),
+            user_login: AttributeValue::S(user_login.to_string().to_lowercase()),
             update_expression:
                 "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss"
                     .to_string(),
-            sub_id_key: if sub.type_ == EventType::StreamOnline {
-                "SubscriptionIdOnline".to_string()
-            } else {
-                "SubscriptionIdOffline".to_string()
+            sub_id_key: match event {
+                EventType::StreamOnline => Some("SubscriptionIdOnline".to_string()),
+                EventType::StreamOffline => Some("SubscriptionIdOffline".to_string()),
+                _ => None,
             },
             sub_status: AttributeValue::S(String::from("SUBSCRIBED")),
         }
@@ -82,7 +87,11 @@ impl VerificitionStatus {
             .expression_attribute_values(String::from(":sid"), self.sub_id)
             .expression_attribute_values(String::from(":ca"), self.created_at)
             .expression_attribute_values(String::from(":ss"), self.sub_status)
-            .expression_attribute_names(String::from("#ss"), self.sub_id_key)
+            .expression_attribute_names(
+                String::from("#ss"),
+                self.sub_id_key
+                    .expect("Could not determine SubscriptionId key."),
+            )
             .send()
             .await?;
         Ok(res)
@@ -145,6 +154,41 @@ impl TaskToken {
         self.token = Some(token.clone());
 
         Ok(self.clone())
+    }
+}
+
+struct StepFunctionExectution {
+    arn: String,
+    input: String,
+}
+
+impl StepFunctionExectution {
+    fn new(id: &DisplayName) -> Self {
+        let mut deployment = HashMap::new();
+        let region = env::var("REGION").expect("Missing REGION env var.");
+        let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
+        let name = "fomiller-chat-stat-logger".to_string();
+        let arn = format!(
+            "arn:aws:states:{}:{}:stateMachine:{}",
+            region, account, name,
+        );
+        deployment.insert(
+            "stream_id".to_string(),
+            id.to_owned().to_string().to_lowercase(),
+        );
+        let input = serde_json::to_string(&SfnInput { deployment }).unwrap();
+        Self { arn, input }
+    }
+
+    async fn start(self, client: aws_sdk_sfn::Client) -> Result<StartExecutionOutput, Error> {
+        let res = client
+            .start_execution()
+            .state_machine_arn(self.arn.clone())
+            .input(self.input)
+            .send()
+            .await?;
+
+        Ok(res)
     }
 }
 
@@ -299,46 +343,79 @@ async fn handle_verification(sub: EventSubSubscription) -> Result<(), Error> {
 
     println!("User: {:?}", user);
 
-    let res = VerificitionStatus::new(&sub, user)
-        .update(ddb_client)
-        .await?;
+    let res = VerificitionStatus::new(
+        sub.created_at,
+        sub.type_,
+        sub.id.to_string(),
+        user.id.to_string(),
+        user.login.to_string(),
+    )
+    .update(ddb_client)
+    .await?;
 
     println!("Item is updated. New Item: {:?}", res.attributes);
 
     Ok(())
 }
+#[cfg(test)]
+mod tests {
+    use aws_sdk_dynamodb::types::AttributeValue;
+    use lambda_http::Error;
+    use twitch_api::eventsub::EventType;
+    use twitch_types::Timestamp;
 
-struct StepFunctionExectution {
-    arn: String,
-    input: String,
-}
+    use crate::TwitchCreds;
+    use crate::VerificitionStatus;
 
-impl StepFunctionExectution {
-    fn new(id: &DisplayName) -> Self {
-        let mut deployment = HashMap::new();
-        let region = env::var("REGION").expect("Missing REGION env var.");
-        let account = env::var("ACCOUNT").expect("Missing ACCOUNT env var.");
-        let name = "fomiller-chat-stat-logger".to_string();
-        let arn = format!(
-            "arn:aws:states:{}:{}:stateMachine:{}",
-            region, account, name,
-        );
-        deployment.insert(
-            "stream_id".to_string(),
-            id.to_owned().to_string().to_lowercase(),
-        );
-        let input = serde_json::to_string(&SfnInput { deployment }).unwrap();
-        Self { arn, input }
+    #[test]
+    fn twitch_creds_new() {
+        std::env::set_var("TWITCH_CLIENT_ID", "id123");
+        std::env::set_var("TWITCH_CLIENT_SECRET", "secret123");
+        let creds = TwitchCreds::new();
+        assert_eq!(creds.client_id, "id123");
+        assert_eq!(creds.client_secret, "secret123")
     }
 
-    async fn start(self, client: aws_sdk_sfn::Client) -> Result<StartExecutionOutput, Error> {
-        let res = client
-            .start_execution()
-            .state_machine_arn(self.arn.clone())
-            .input(self.input)
-            .send()
-            .await?;
+    #[test]
+    fn verification_status_new() -> Result<(), Error> {
+        let timestamp = Timestamp::now();
+        let v = VerificitionStatus::new(
+            timestamp.clone(),
+            EventType::StreamOnline,
+            "abcedf".to_string(),
+            "123456".to_string(),
+            "NewDay".to_string(),
+        );
+        assert_eq!(v.table, "fomiller-chat-stat".to_string());
+        assert_eq!(v.created_at, AttributeValue::S(timestamp.to_string()));
+        assert_eq!(v.sub_id, AttributeValue::S("abcedf".to_string()));
+        assert_eq!(v.user_id, AttributeValue::S("123456".to_string()));
+        assert_eq!(v.user_login, AttributeValue::S("newday".to_string()));
+        assert_eq!(v.sub_id_key, Some("SubscriptionIdOnline".to_string()));
+        assert_eq!(v.sub_status, AttributeValue::S("SUBSCRIBED".to_string()));
+        assert_eq!(
+            v.update_expression,
+            "SET BroadcasterId = :bid, #ss = :sid, CreatedAt = :ca, SubscriptionStatus = :ss"
+                .to_string()
+        );
 
-        Ok(res)
+        let v = VerificitionStatus::new(
+            timestamp.clone(),
+            EventType::StreamOffline,
+            "abcedf".to_string(),
+            "123456".to_string(),
+            "NewDay".to_string(),
+        );
+        assert_eq!(v.sub_id_key, Some("SubscriptionIdOffline".to_string()));
+
+        let v = VerificitionStatus::new(
+            timestamp.clone(),
+            EventType::ChannelSubscribe,
+            "abcedf".to_string(),
+            "123456".to_string(),
+            "NewDay".to_string(),
+        );
+        assert_eq!(v.sub_id_key, None);
+        Ok(())
     }
 }

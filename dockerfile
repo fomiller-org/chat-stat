@@ -2,7 +2,6 @@ FROM golang:latest
 
 WORKDIR /app
 
-COPY ./assets/channels.txt ./
 COPY ./src/ ./src/
 COPY ./go.mod ./
 COPY ./go.sum ./

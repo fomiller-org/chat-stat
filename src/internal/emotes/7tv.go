@@ -3,7 +3,9 @@ package emote
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/seventv/common/structures/v3"
+
 	// "go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"log"
@@ -68,7 +70,6 @@ type MyResponse struct {
 type SevenTVResponse []SevenTVEmote
 
 func (c Client) Get7TVUserEmotes(channelID string) (SevenTVChannelEmotes, error) {
-	// var myRes MyResponse
 	// https://7tv.io/v3/users/twitch/26301881 // endpoint for getting sodapoppin emotes
 	// will have to get channel.id from twich api to make this call
 	// https://7tv.io/v3/users/{platform [twitch,youtube,kick,etc]}/{channel id from platform}
@@ -80,7 +81,6 @@ func (c Client) Get7TVUserEmotes(channelID string) (SevenTVChannelEmotes, error)
 	}
 	defer response.Body.Close()
 
-	// Read the response body
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
@@ -92,29 +92,9 @@ func (c Client) Get7TVUserEmotes(channelID string) (SevenTVChannelEmotes, error)
 	if err != nil {
 		return SevenTVChannelEmotes{}, fmt.Errorf("failed to unmarshal emotes: %v", err)
 	}
-	// Unmarshal the BSON response into your struct
-	// var myStruct MyResponse
-	// err = bson.Unmarshal(body, &myStruct)
-	// if err != nil {
-	// 	fmt.Println("Error unmarshaling BSON response:", err)
-	// 	return nil, err
-	// }
-
-	// decoder := json.NewDecoder(resp.Body)
-	// decoder.Decode(&myRes)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	fmt.Println("EMOTESET: ", emotes)
 	fmt.Println("EMOTESET EMOTES: ", emotes.EmoteSet.Emotes)
 	fmt.Println("TOTAL EMOTES", len(emotes.EmoteSet.Emotes))
-
-	// for _, v := range emotes.EmoteSet.Emotes {
-	// 	emotes = append(emotes, v)
-	// 	// emotes[i].ID = v.ID.String()
-	// 	// emotes[i].Name = v.Name
-	// 	// emotes[i].Extension = "7tv"
-	// }
 	fmt.Println("EMOTES: ", emotes)
 
 	return emotes, nil

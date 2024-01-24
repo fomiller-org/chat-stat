@@ -5,18 +5,19 @@ go 1.20
 require (
 	github.com/RedisTimeSeries/redistimeseries-go v1.4.4
 	github.com/aws/aws-lambda-go v1.43.0
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.13
+	github.com/aws/aws-sdk-go v1.44.108
+	github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.18.6
 	github.com/gempir/go-twitch-irc/v3 v3.3.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/seventv/common v0.0.0-20231212143655-048a247f3aa4
+	golang.org/x/net v0.19.0
 	golang.org/x/oauth2 v0.15.0
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/feature/dynamodbstreams/attributevalue v1.12.13 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.7 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.18.6 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
@@ -29,6 +30,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gomodule/redigo v1.8.2 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
@@ -41,7 +43,6 @@ require (
 	go.mongodb.org/mongo-driver v1.10.2 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

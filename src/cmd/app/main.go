@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	redisTS "github.com/RedisTimeSeries/redistimeseries-go"
 	"github.com/fomiller/chat-stat/src/internal/bot"
 )
 
-var RTSDB = redisTS.NewClient("localhost:6379", "", nil)
+// var RTSDB = redisTS.NewClient("localhost:6379", "", nil)
 var ctx = context.Background()
 var exit = make(chan int)
 
