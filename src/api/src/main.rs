@@ -47,49 +47,29 @@ async fn query(
     Path(user_id): Path<String>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Value>, StatusCode> {
-    // let res = state.clients["timestreamquery"]
-    //     .query()
-    //     .query_string("select count(*) from 'fomiller'.'chat-stat'")
-    //     .send()
-    //     .await;
-
-    let config = aws_config::defaults(BehaviorVersion::latest())
-        .region("us-east-1")
-        .load()
+    let query = r#"select count(*) from fomiller."chat-stat""#;
+    let res = state.clients["query"]
+        .query()
+        .query_string(query)
+        .send()
         .await;
 
-    let client = aws_sdk_timestreamquery::Client::new(&config)
-        .with_endpoint_discovery_enabled()
-        .await;
-
-    match client {
-        Ok(client) => {
-            let query = r#"select count(*) from fomiller."chat-stat""#;
-            println!("{}", query);
-            let res = client.0.query().query_string(query).send().await;
-
-            match res {
-                Ok(r) => {
-                    let x = r
-                        .rows()
-                        .first()
-                        .unwrap()
-                        .data()
-                        .first()
-                        .unwrap()
-                        .scalar_value()
-                        .unwrap();
-                    println!("{:?}", x);
-                    Ok(Json(json!({"query": x})))
-                }
-                Err(e) => {
-                    eprintln!("{:?}", e.as_service_error());
-                    Err(StatusCode::NOT_FOUND)
-                }
-            }
+    match res {
+        Ok(r) => {
+            let x = r
+                .rows()
+                .first()
+                .unwrap()
+                .data()
+                .first()
+                .unwrap()
+                .scalar_value()
+                .unwrap();
+            println!("{:?}", x);
+            Ok(Json(json!({"query": x})))
         }
         Err(e) => {
-            eprintln!("{:?}", e);
+            eprintln!("{:?}", e.as_service_error());
             Err(StatusCode::NOT_FOUND)
         }
     }
@@ -107,10 +87,18 @@ impl AppState {
             .load()
             .await;
 
-        clients.insert(
-            "timestreamquery".to_string(),
-            aws_sdk_timestreamquery::Client::new(&config),
-        );
+        let query_client = aws_sdk_timestreamquery::Client::new(&config)
+            .with_endpoint_discovery_enabled()
+            .await;
+
+        match query_client {
+            Ok(client) => {
+                clients.insert("query".to_string(), client.0);
+            }
+            Err(e) => {
+                eprintln!("Error establishing Timestream Query Client {:?}", e);
+            }
+        }
 
         Self { clients }
     }
