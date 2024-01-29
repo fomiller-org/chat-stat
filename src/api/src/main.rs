@@ -78,9 +78,7 @@ async fn main() {
         .with_state(Arc::clone(&state));
 
     // run it
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3333").await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
@@ -110,6 +108,7 @@ async fn total_emote_count(State(state): State<Arc<AppState>>) -> Result<Json<Va
                 .scalar_value()
                 .unwrap();
             println!("{:?}", x);
+
             Ok(Json(json!({"total emote count": x})))
         }
         Err(e) => {

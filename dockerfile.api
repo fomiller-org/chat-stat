@@ -1,0 +1,40 @@
+# FROM rust:1.75
+#
+# WORKDIR /app
+#
+# COPY ./src/api/ ./src/api/
+#
+# RUN cargo install --path src/api/
+#
+# EXPOSE 3333
+#
+# CMD ["api"]
+
+# We only pay the installation cost once, 
+# it will be cached from the second build onwards
+FROM rust:1.75 AS chef 
+RUN cargo install cargo-chef 
+WORKDIR /app
+
+
+FROM chef AS planner
+COPY ./src/api .
+RUN cargo chef prepare --recipe-path recipe.json
+
+
+# Build dependencies - this is the caching Docker layer!
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+
+# Build application
+COPY ./src/api .
+RUN cargo build --release
+
+
+# We do not need the Rust toolchain to run the binary!
+FROM debian:bookworm-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/target/release/api /usr/local/bin
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+CMD ["/usr/local/bin/api"]
