@@ -98,7 +98,7 @@ jobs:
       repo: api
       repo-prefix: "fomiller-chat-stat"
       dockerfile: dockerfile.api
-      platforms: linux/amd64,linux/arm64
+      platforms: "linux/amd64,linux/arm64"
     secrets: inherit
     # use if you need to debug workflow
     # - name: DEBUG
