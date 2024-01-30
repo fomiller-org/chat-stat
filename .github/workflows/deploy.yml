@@ -10,7 +10,7 @@ on:
       - 'infra/**'
       - 'src/**'
       - 'justfile'
-      - 'dockerfile'
+      - 'dockerfile*'
       - 'go.mod'
       - 'go.sum'
    
