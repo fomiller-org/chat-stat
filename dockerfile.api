@@ -12,8 +12,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
-
-# Build application
 COPY ./src/api .
 RUN cargo build --release
 
@@ -23,5 +21,4 @@ FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 COPY --from=builder /app/target/release/api /usr/local/bin
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-RUN echo "hello"
 ENTRYPOINT ["/bin/bash", "-c", "/usr/local/bin/api"]
