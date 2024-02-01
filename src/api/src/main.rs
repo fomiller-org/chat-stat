@@ -1,5 +1,4 @@
 use aws_config::BehaviorVersion;
-use aws_sdk_timestreamquery::operation::query::QueryError;
 use aws_sdk_timestreamquery::Client;
 use axum::{
     extract::{Json, Path, State},
@@ -8,8 +7,7 @@ use axum::{
     routing::*,
     Router,
 };
-use color_eyre::{eyre::eyre, Result};
-use serde::{ser::Error, Serialize};
+use color_eyre::Result;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
