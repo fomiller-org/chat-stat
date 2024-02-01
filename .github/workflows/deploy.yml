@@ -27,61 +27,61 @@ jobs:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
             
-  # Build-lambda-hello-world:
-  #   name: 'Build lambda Hello World'
-  #   needs: Pre-check
-  #   uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
-  #   with:
-  #     lambda_src: src/cmd/lambda/hello/main.go
-  #     lambda_output:  infra/modules/aws/lambda/bin/hello/bootstrap
-  #     artifacts_dir: infra/modules/aws/lambda/bin
-  #       
-  # Build-lambda-twitch-event-sub:
-  #   name: 'Build lambda twitch-event-sub'
-  #   needs: Pre-check
-  #   uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
-  #   with:
-  #     lambda_dir: src/lambdas/twitcheventsub
-  #     lambda_output:  infra/modules/aws/lambda/bin/
-  #     artifacts_dir: infra/modules/aws/lambda/bin
-  #       
-  # Build-lambda-twitch-event-sub-webhook:
-  #   name: 'Build lambda twitch-event-sub-webhook'
-  #   needs: Pre-check
-  #   uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
-  #   with:
-  #     lambda_dir: src/lambdas/twitcheventsubwebhook
-  #     lambda_output:  infra/modules/aws/lambda/bin/
-  #     artifacts_dir: infra/modules/aws/lambda/bin
-  #       
-  # Build-lambda-twitch-record-manager:
-  #   name: 'Build lambda twitch-record-manager'
-  #   needs: Pre-check
-  #   uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
-  #   with:
-  #     lambda_dir: src/lambdas/twitchrecordmanager
-  #     lambda_output:  infra/modules/aws/lambda/bin/
-  #     artifacts_dir: infra/modules/aws/lambda/bin
-  #       
-  # Deploy-infra:
-  #   name: 'Deploy Infra'
-  #   needs: 
-  #     - Build-lambda-hello-world
-  #     - Build-lambda-twitch-event-sub
-  #     - Build-lambda-twitch-event-sub-webhook
-  #     - Build-lambda-twitch-record-manager
-  #   uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
-  #   with:
-  #     environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
-  #     infra-dir: infra/modules/aws
-  #     doppler-project: chat-stat
-  #     download-artifacts: true
-  #     artifacts_dir: infra/modules/aws/lambda/bin
-  #   secrets: inherit
+  Build-lambda-hello-world:
+    name: 'Build lambda Hello World'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
+    with:
+      lambda_src: src/cmd/lambda/hello/main.go
+      lambda_output:  infra/modules/aws/lambda/bin/hello/bootstrap
+      artifacts_dir: infra/modules/aws/lambda/bin
+        
+  Build-lambda-twitch-event-sub:
+    name: 'Build lambda twitch-event-sub'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
+    with:
+      lambda_dir: src/lambdas/twitcheventsub
+      lambda_output:  infra/modules/aws/lambda/bin/
+      artifacts_dir: infra/modules/aws/lambda/bin
+        
+  Build-lambda-twitch-event-sub-webhook:
+    name: 'Build lambda twitch-event-sub-webhook'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
+    with:
+      lambda_dir: src/lambdas/twitcheventsubwebhook
+      lambda_output:  infra/modules/aws/lambda/bin/
+      artifacts_dir: infra/modules/aws/lambda/bin
+        
+  Build-lambda-twitch-record-manager:
+    name: 'Build lambda twitch-record-manager'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
+    with:
+      lambda_dir: src/lambdas/twitchrecordmanager
+      lambda_output:  infra/modules/aws/lambda/bin/
+      artifacts_dir: infra/modules/aws/lambda/bin
+        
+  Deploy-infra:
+    name: 'Deploy Infra'
+    needs: 
+      - Build-lambda-hello-world
+      - Build-lambda-twitch-event-sub
+      - Build-lambda-twitch-event-sub-webhook
+      - Build-lambda-twitch-record-manager
+    uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      infra-dir: infra/modules/aws
+      doppler-project: chat-stat
+      download-artifacts: true
+      artifacts_dir: infra/modules/aws/lambda/bin
+    secrets: inherit
         
   Build-chat-stat-logger-image:
     name: 'Build/Deploy ECR chat-stat-logger image'
-    # needs: Deploy-infra
+    needs: Deploy-infra
     uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
@@ -96,7 +96,7 @@ jobs:
      
   Build-chat-stat-api-image:
     name: 'Build/Deploy ECR chat-stat-api image'
-    # needs: Deploy-infra
+    needs: Deploy-infra
     uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
@@ -109,6 +109,7 @@ jobs:
           - 'dockerfile.api'
           - 'src/api/**'
     secrets: inherit
+    
     # use if you need to debug workflow
     # - name: DEBUG
     #   uses: lhotari/action-upterm@v1
