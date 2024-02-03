@@ -49,10 +49,6 @@ async fn main() {
         .route("/", get(hello))
         .with_state(Arc::clone(&state))
         .route(
-            "/channel/emotes/:channel",
-            get(get_all_channel_emotes).with_state(Arc::clone(&state)),
-        )
-        .route(
             "/channel/:channel/",
             get(channel_total_emote_count).with_state(Arc::clone(&state)),
         )
@@ -63,6 +59,10 @@ async fn main() {
         .route(
             "/channel/:channel/:emote",
             get(channel_individual_emote_count).with_state(Arc::clone(&state)),
+        )
+        .route(
+            "/channel/emotes/:channel",
+            get(get_all_channel_emotes).with_state(Arc::clone(&state)),
         )
         .route(
             "/emote/:id",
