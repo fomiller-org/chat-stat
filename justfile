@@ -21,6 +21,14 @@ build-docker:
     eval $(minikube -p minikube docker-env)
     doppler run docker build -t chat-stat:local .
 
+build-api:
+    docker build -t chat-stat-api:latest --file dockerfile.api .
+
+run-api:
+    docker run -it --init --rm \
+    -v $HOME/.aws/:/root/.aws/ \
+    -p 8080:8080 chat-stat-api:latest
+
 run:
     docker run -e REDIS_HOST="docker.for.mac.localhost" chat-stat:local
 

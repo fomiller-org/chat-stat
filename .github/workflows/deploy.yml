@@ -10,7 +10,7 @@ on:
       - 'infra/**'
       - 'src/**'
       - 'justfile'
-      - 'dockerfile'
+      - 'dockerfile*'
       - 'go.mod'
       - 'go.sum'
    
@@ -79,16 +79,37 @@ jobs:
       artifacts_dir: infra/modules/aws/lambda/bin
     secrets: inherit
         
-  Build-deploy-ecr-images:
-    name: 'Build/Deploy ECR images'
+  Build-chat-stat-logger-image:
+    name: 'Build/Deploy ECR chat-stat-logger image'
     needs: Deploy-infra
     uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
       repo: logger
       repo-prefix: "fomiller-chat-stat"
+      src-filters: |
+        docker:
+          - 'dockerfile'
+          - 'src/cmd/app/**'
+          - 'src/internal/**'
     secrets: inherit
      
+  Build-chat-stat-api-image:
+    name: 'Build/Deploy ECR chat-stat-api image'
+    needs: Deploy-infra
+    uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      repo: api
+      repo-prefix: "fomiller-chat-stat"
+      dockerfile: dockerfile.api
+      platforms: '["linux/amd64", "linux/arm64"]'
+      src-filters: |
+        docker:
+          - 'dockerfile.api'
+          - 'src/api/**'
+    secrets: inherit
+    
     # use if you need to debug workflow
     # - name: DEBUG
     #   uses: lhotari/action-upterm@v1
