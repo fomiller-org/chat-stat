@@ -1,0 +1,23 @@
+<!-- {% for todo in todos %} -->
+<!-- <p class="text-lg">{{ todo }}</p> -->
+<!-- {% endfor %} -->
+<div class="overflow-x-auto">
+    <table class="table">
+        <!-- head -->
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- row 1 -->
+            {% for todo in todos %}
+            <tr>
+                <th>{{loop.index}}</th>
+                <td>{{ todo }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,24 +1,81 @@
+use askama::Template;
 use aws_config::BehaviorVersion;
 use aws_sdk_timestreamquery::Client;
 use axum::{
-    extract::{Json, Path, State},
+    extract::{Form, Json, Path, State},
     http::StatusCode,
-    response::Html,
+    response::{Html, IntoResponse, Response},
     routing::*,
     Router,
 };
 use color_eyre::Result;
+use serde::Deserialize;
 use serde_json::{json, Value};
-use std::collections::HashMap;
 use std::sync::Arc;
+use std::{collections::HashMap, sync::Mutex};
+use tower_http::services::ServeDir;
+use tracing::info;
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+
+    info!("initializing state...");
+    // build our application with a route
+    let state = Arc::new(AppState::new().await);
+    let assets_path = std::env::current_dir().unwrap();
+
+    info!("initializing routers...");
+    let api_router = Router::new()
+        .route("/hello", get(hello_from_the_server))
+        .route("/todos", post(add_todo))
+        .route("/channel/:channel/", get(channel_total_emote_count))
+        .route(
+            "/channel/:channel/average/:interval",
+            get(channel_average_emote_count_with_interval),
+        )
+        .route(
+            "/channel/:channel/:emote",
+            get(channel_individual_emote_count),
+        )
+        .route("/channel/emotes/:channel", get(get_all_channel_emotes))
+        .route("/emote/:id", get(total_emote_count))
+        .route(
+            "/emote/average/:channel/:emote/:interval",
+            get(channel_average_individual_emote_count_with_interval),
+        )
+        .with_state(Arc::clone(&state));
+
+    let app = Router::new()
+        .nest("/api", api_router)
+        .route("/", get(hello))
+        .route("/todos", get(another_page))
+        .with_state(Arc::clone(&state))
+        .nest_service(
+            "/assets",
+            ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
+        )
+        .with_state(Arc::clone(&state));
+
+    // run it
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    println!("listening on {}", listener.local_addr().unwrap());
+    axum::serve(listener, app).await.unwrap();
+}
 
 struct AppState {
     clients: HashMap<String, Client>,
+    todos: Mutex<Vec<String>>,
 }
 
 impl AppState {
     async fn new() -> Self {
         let mut clients = HashMap::new();
+        let todos = Mutex::new(vec![]);
         let config = aws_config::defaults(BehaviorVersion::latest())
             .region("us-east-1")
             .load()
@@ -37,52 +94,8 @@ impl AppState {
             }
         }
 
-        Self { clients }
+        Self { clients, todos }
     }
-}
-#[tokio::main]
-async fn main() {
-    // build our application with a route
-    let state = Arc::new(AppState::new().await);
-
-    let app = Router::new()
-        .route("/", get(hello))
-        .with_state(Arc::clone(&state))
-        .route(
-            "/channel/:channel/",
-            get(channel_total_emote_count).with_state(Arc::clone(&state)),
-        )
-        .route(
-            "/channel/:channel/average/:interval",
-            get(channel_average_emote_count_with_interval).with_state(Arc::clone(&state)),
-        )
-        .route(
-            "/channel/:channel/:emote",
-            get(channel_individual_emote_count).with_state(Arc::clone(&state)),
-        )
-        .route(
-            "/channel/emotes/:channel",
-            get(get_all_channel_emotes).with_state(Arc::clone(&state)),
-        )
-        .route(
-            "/emote/:id",
-            get(total_emote_count).with_state(Arc::clone(&state)),
-        )
-        .route(
-            "/emote/average/:channel/:emote/:interval",
-            get(channel_average_individual_emote_count_with_interval)
-                .with_state(Arc::clone(&state)),
-        )
-        .with_state(Arc::clone(&state));
-
-    // run it
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    println!("listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
-}
-
-async fn hello() -> Html<&'static str> {
-    Html("<h1>Hello, World!</h1>")
 }
 
 // returns the total emotes in the database table
@@ -336,4 +349,71 @@ async fn get_all_channel_emotes(
             Err(StatusCode::NOT_FOUND)
         }
     }
+}
+
+async fn hello() -> impl IntoResponse {
+    let template = HelloTemplate {};
+    HtmlTemplate(template)
+}
+
+#[derive(Template)]
+#[template(path = "pages/hello.html")]
+struct HelloTemplate;
+
+struct HtmlTemplate<T>(T);
+
+/// Allows us to convert Askama HTML templates into valid HTML for axum to serve in the response.
+impl<T> IntoResponse for HtmlTemplate<T>
+where
+    T: Template,
+{
+    fn into_response(self) -> Response {
+        // Attempt to render the template with askama
+        match self.0.render() {
+            // If we're able to successfully parse and aggregate the template, serve it
+            Ok(html) => Html(html).into_response(),
+            // If we're not, return an error or some bit of fallback HTML
+            Err(err) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to render template. Error: {}", err),
+            )
+                .into_response(),
+        }
+    }
+}
+
+async fn another_page() -> impl IntoResponse {
+    let template = TodosPageTemplate {};
+    HtmlTemplate(template)
+}
+
+#[derive(Template)]
+#[template(path = "pages/todos.html")]
+struct TodosPageTemplate;
+
+async fn hello_from_the_server() -> &'static str {
+    "Hello!"
+}
+
+#[derive(Template)]
+#[template(path = "components/todo-list.html")]
+struct TodoList {
+    todos: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct TodoRequest {
+    todo: String,
+}
+
+async fn add_todo(
+    State(state): State<Arc<AppState>>,
+    Form(todo): Form<TodoRequest>,
+) -> impl IntoResponse {
+    let mut lock = state.todos.lock().unwrap();
+    lock.push(todo.todo);
+    let template = TodoList {
+        todos: lock.clone(),
+    };
+    HtmlTemplate(template)
 }
