@@ -1,6 +1,7 @@
 use askama::Template;
 use aws_config::BehaviorVersion;
 use aws_sdk_timestreamquery::Client;
+use axum::http::HeaderMap;
 use axum::{
     extract::{Form, Json, Path, State},
     http::StatusCode,
@@ -9,6 +10,7 @@ use axum::{
     Router,
 };
 use color_eyre::Result;
+use rand::Rng;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -33,6 +35,8 @@ async fn main() {
     let api_router = Router::new()
         .route("/hello", get(hello_from_the_server))
         .route("/todos", post(add_todo))
+        .route("/data", get(update_chart))
+        .route("/json", get(get_json))
         .route("/channel/:channel/", get(channel_total_emote_count))
         .route(
             "/channel/:channel/average/:interval",
@@ -54,6 +58,7 @@ async fn main() {
         .nest("/api", api_router)
         .route("/", get(hello))
         .route("/todos", get(another_page))
+        .route("/dashboard", get(dashboard_page))
         .with_state(Arc::clone(&state))
         .nest_service(
             "/assets",
@@ -416,4 +421,33 @@ async fn add_todo(
         todos: lock.clone(),
     };
     HtmlTemplate(template)
+}
+
+#[derive(Template)]
+#[template(path = "pages/dashboard.html")]
+struct DashboardPageTemplate;
+
+async fn dashboard_page() -> impl IntoResponse {
+    let template = DashboardPageTemplate {};
+    HtmlTemplate(template)
+}
+
+#[derive(Template)]
+#[template(path = "components/update-chart.html")]
+struct UpdateChartTemplate {}
+async fn update_chart() -> impl IntoResponse {
+    let template = UpdateChartTemplate {};
+    HtmlTemplate(template)
+}
+async fn get_json() -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    let mut data: Vec<u32> = vec![];
+    // Generate random number in the range [0, 99]
+    for _ in 0..5 {
+        let num = rand::thread_rng().gen_range(1000..9999);
+        data.push(num)
+    }
+    let header_data = serde_json::to_string(&json!({ "myEvent": {"data": data}})).unwrap();
+    headers.insert("HX-Trigger", header_data.parse().unwrap());
+    headers
 }
