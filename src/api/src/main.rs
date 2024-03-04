@@ -436,6 +436,7 @@ async fn dashboard_page() -> impl IntoResponse {
 #[template(path = "components/update-chart.html")]
 struct UpdateChartTemplate {
     data: Value,
+    members: u32,
 }
 
 async fn update_chart() -> impl IntoResponse {
@@ -445,7 +446,10 @@ async fn update_chart() -> impl IntoResponse {
         data.push(num)
     }
     let x = json!(data);
-    let template = UpdateChartTemplate { data: x };
+    let template = UpdateChartTemplate {
+        data: x,
+        members: data.iter().sum(),
+    };
     HtmlTemplate(template)
 }
 
