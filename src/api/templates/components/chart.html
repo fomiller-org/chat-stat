@@ -1,5 +1,4 @@
-<div hx-get="/api/json" hx-trigger="every 5s">get json</div>
-<div class="max-w-sm w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+<div class="max-w-lg w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
     <div class="flex justify-between">
         <div>
             <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">32.4k</h5>
@@ -70,6 +69,7 @@
         </div>
     </div>
 </div>
+
 <script id="chart_js">
     var options = {
         chart: {
@@ -142,13 +142,4 @@
         chart.render();
     }
 </script>
-<script>
-    document.body.addEventListener("myEvent", function (evt) {
-        console.log(evt.detail.data)
-        chart.updateSeries([{
-            name: "New users",
-            data: evt.detail.data,
-            color: "#1A56DB",
-        }]);
-    })
-</script>
+<script hx-get="/api/data" hx-trigger="every 5s" hx-swap="innerHTML" hx-target="this"></script>

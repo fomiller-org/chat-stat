@@ -434,15 +434,24 @@ async fn dashboard_page() -> impl IntoResponse {
 
 #[derive(Template)]
 #[template(path = "components/update-chart.html")]
-struct UpdateChartTemplate {}
+struct UpdateChartTemplate {
+    data: Value,
+}
+
 async fn update_chart() -> impl IntoResponse {
-    let template = UpdateChartTemplate {};
+    let mut data: Vec<u32> = vec![];
+    for _ in 0..10 {
+        let num = rand::thread_rng().gen_range(1000..9999);
+        data.push(num)
+    }
+    let x = json!(data);
+    let template = UpdateChartTemplate { data: x };
     HtmlTemplate(template)
 }
+
 async fn get_json() -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     let mut data: Vec<u32> = vec![];
-    // Generate random number in the range [0, 99]
     for _ in 0..5 {
         let num = rand::thread_rng().gen_range(1000..9999);
         data.push(num)
