@@ -1,5 +1,6 @@
 <!-- prettier-ignore -->
-<script hx-get="/api/data" hx-trigger="every 5s" hx-swap="outerHTML" hx-target="this">
+<script>
+    <!-- <script> -->
     var myData = {{data| json}}
     var members = {{members| json}}
     // var data = Alpine.reactive({count: members})
