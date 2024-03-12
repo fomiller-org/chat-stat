@@ -1,2 +1,3 @@
 src/lambdas/**
 **/target/
+src/**/node_modules

@@ -109,6 +109,22 @@ jobs:
           - 'dockerfile.api'
           - 'src/api/**'
     secrets: inherit
+      
+  Build-chat-stat-frontend-image:
+    name: 'Build/Deploy ECR chat-stat-frontend image'
+    needs: Deploy-infra
+    uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      repo: api
+      repo-prefix: "fomiller-chat-stat"
+      dockerfile: dockerfile.frontend
+      platforms: '["linux/amd64"]'
+      src-filters: |
+        docker:
+          - 'dockerfile.frontend'
+          - 'src/frontend/**'
+    secrets: inherit
     
     # use if you need to debug workflow
     # - name: DEBUG
