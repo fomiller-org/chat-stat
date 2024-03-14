@@ -10,8 +10,8 @@
 	<p>
 		My dashboard page
 	</p>
-    <Chart/>
 </div>
+<Chart/>
 
 <script>
     import Chart from '../Chart.svelte';
@@ -89,6 +89,24 @@ if (browser) {
         const chart = new ApexCharts(document.getElementById("area-chart"), options);
         console.log(options);
         chart.render();
+        myCallback();
+        window.setInterval(myCallback, 60000);
+
+        async function myCallback() {
+            let url = "https://chat-stat-api.fomiller-cluster.dev.aws.fomillercloud.com/api/emote/average/sodapoppin/xdd/300"
+            const response = await fetch(url);
+            const movies = await response.json();
+            console.log(movies);
+            let data = []
+            movies["rows"].forEach((element) => data.push(element[1]));
+            console.log(data)
+                chart.updateSeries([{
+                name: "New users",
+                data: data,
+                color: "#1A56DB",
+            }]);
+
+        }
     }
 }
 </script>
