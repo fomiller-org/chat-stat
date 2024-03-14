@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ./src/frontend .
 
 # Clean install all node modules
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Build SvelteKit app
 RUN npm run build
