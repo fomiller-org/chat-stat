@@ -15,6 +15,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
 use std::{collections::HashMap, sync::Mutex};
+use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 use tracing::info;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
@@ -56,6 +57,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/api", api_router)
+        .layer(CorsLayer::permissive())
         .route("/", get(hello))
         .route("/todos", get(another_page))
         .route("/dashboard", get(dashboard_page))
