@@ -1,8 +1,19 @@
+<script>
+    import {emote, chart_data} from './dashboard/store.ts'
+    let emote_sum;
+    chart_data.subscribe((data) => {
+        console.log("subscribed")
+        console.log(data)
+        emote_sum = data.reduce((a, b) => Number(a) + Number(b), 0);
+        console.log("emote_sum: ", emote_sum)
+    });
+</script>
+
 <div class="min-w-full w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
   <div class="flex justify-between">
     <div>
-      <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">32.4k</h5>
-      <p class="text-base font-normal text-gray-500 dark:text-gray-400">Users this week</p>
+      <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">{emote_sum}</h5>
+      <p class="text-base font-normal text-gray-500 dark:text-gray-400">{$emote} over 2 hours</p>
     </div>
     <div
       class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
@@ -49,7 +60,7 @@
       </div>
       <a
         href="#"
-        class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-blue-600 hover:text-blue-700 dark:hover:text-blue-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2">
+        class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-purple-600 hover:text-purple-700 dark:hover:text-purple-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2">
         Users Report
         <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
