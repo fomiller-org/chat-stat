@@ -44,6 +44,7 @@ jobs:
       lambda_dir: src/lambdas/twitcheventsub
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
       src-filters: |
         lambda:
           - 'src/lambdas/twitcheventsub/**'
@@ -57,6 +58,7 @@ jobs:
       lambda_dir: src/lambdas/twitcheventsubwebhook
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
       src-filters: |
         lambda:
           - 'src/lambdas/twitcheventsubwebhook/**'
@@ -70,6 +72,7 @@ jobs:
       lambda_dir: src/lambdas/twitchrecordmanager
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
       src-filters: |
         lambda:
           - 'src/lambdas/twitchrecordmanager/**'
