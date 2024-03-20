@@ -17,7 +17,7 @@ data "aws_lambda_function" "twitch_event_sub_webhook_exists" {
   function_name = "${var.namespace}-${var.app_prefix}-twitch-event-sub-webhook"
 }
 
-data "aws_lambda_function" "twitch_event_sub_exists" {
+data "aws_lambda_function" "twitch_record_manager_exists" {
   count         = fileexists("${path.module}/bin/twitch-record-manager/bootstrap.zip") ? 0 : 1
   function_name = "${var.namespace}-${var.app_prefix}-twitch-record-manager"
 }
