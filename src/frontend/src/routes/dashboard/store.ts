@@ -4,6 +4,7 @@ export const emote = writable("");
 export const channel = writable("");
 export const chart_data = writable([]);
 export const channel_emotes = writable([]);
+export const emote_chart_visible = writable(false);
 
 export function resetChartData() {
     chart_data.set([])

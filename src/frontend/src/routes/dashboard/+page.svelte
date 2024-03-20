@@ -1,6 +1,6 @@
 <svelte:head>
-	<title>About</title>
-	<meta name="description" content="About this app" />
+	<title>Dashboard</title>
+	<meta name="description" content="Chat Stat Dashboard" />
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </svelte:head>
 
@@ -10,14 +10,16 @@
 
 
 <DashboardInput/>
-<Chart/>
+<!-- {#if $emote_chart_visible} -->
+    <Chart/>
+<!-- {/if} -->
 
 <script>
 	/** @type {import('./$types').PageData} */
     import Chart from '../Chart.svelte';
     import DashboardInput from '../DashboardInput.svelte';
     import { browser } from '$app/environment';
-    import {emote, channel, chart_data, setChartData, resetChartData} from './store.ts'
+    import {emote, channel, chart_data, emote_chart_visible, setChartData, resetChartData} from './store.ts'
     
     const options = {
         chart: {
@@ -86,57 +88,35 @@
         },
     }
 
-    // function logEmote() {
-    //     if ( data["emotes"].includes(emote) ) {
-    //         console.log(emote);
-    //     } else {
-    //         console.log("not found")
-    //     }
-    // }
+     async function updateChart(chart) {
+         if ($emote != '') {
+             console.log("updating chart");
+             const domain = "https://chat-stat-api.fomiller-cluster.dev.aws.fomillercloud.com";
+             let endpoint = `api/emote/average/${$channel}/${$emote}/60`;
+             let response = await fetch(`${domain}/${endpoint}`);
+             let data = await response.json();
+             console.log(data)
+             // resetChartData()
+             $chart_data = Array.from(data["rows"], (x) => x[1])
+             // setChartData(x) 
+             console.log($chart_data);
+         }
+     }
     
-    // async function setChannel() {
-    //     const domain = "https://chat-stat-api.fomiller-cluster.dev.aws.fomillercloud.com";
-    //     let endpoint = `api/channel/emotes/${channel}`;
-    //     let url = `${domain}/${endpoint}`;
-    //     let response = await fetch(url);
-    //     let json = await response.json();
-    //     data["emotes"] = json["emotes"];
-    //     console.log(data["emotes"]);
-    // }
-
-    async function updateChart(chart) {
-        if ($emote != '') {
-            console.log("updating chart");
-            console.log($emote);
-            const domain = "https://chat-stat-api.fomiller-cluster.dev.aws.fomillercloud.com";
-            let endpoint = `api/emote/average/${$channel}/${$emote}/60`;
-            let url = `${domain}/${endpoint}`;
-            console.log(url)
-            let response = await fetch(url);
-            let data = await response.json();
-            console.log(data)
-            let clean_data = [];
-            resetChartData()
-            data["rows"].forEach((element) => clean_data.push(element[1]));
-            setChartData(clean_data) 
-            console.log($chart_data);
-        }
-    }
-   
-    if (browser) {
-        if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
-            const chart = new ApexCharts(document.getElementById("area-chart"), options);
-            chart.render();
-            chart_data.subscribe((data) => {
-                console.log("chart sub")
-                console.log("data", data)
-                chart.updateSeries([{
-                    name: `${$emote}s`,
-                    data: data,
-                    color: "#9146FF",
-                }]);
-            });
-            window.setInterval(updateChart, 60000, chart);
-        }
-    }
+     if (browser) {
+         if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
+             const chart = new ApexCharts(document.getElementById("area-chart"), options);
+             chart.render();
+             chart_data.subscribe((data) => {
+                 console.log("chart sub")
+                 console.log("data", data)
+                 chart.updateSeries([{
+                     name: `${$emote}s`,
+                     data: data,
+                     color: "#9146FF",
+                 }]);
+             });
+             window.setInterval(updateChart, 60000, chart);
+         }
+     }
 </script>
