@@ -24,6 +24,20 @@
             let x = Array.from(data["rows"], (x) => x[1])
             $emote_chart_visible = true;
             setChartData(x) 
+            if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("area-chart"), options);
+                chart.render();
+                chart_data.subscribe((data) => {
+                    console.log("chart sub")
+                    console.log("data", data)
+                    chart.updateSeries([{
+                        name: `${$emote}s`,
+                        data: data,
+                        color: "#9146FF",
+                    }]);
+                });
+                window.setInterval(updateChart, 60000, chart);
+            }
         } else {
             alert(`emote ${$emote} not found in ${$channel} emotes.`)
         }

@@ -1,5 +1,7 @@
 <script>
-    import {emote, chart_data} from './dashboard/store.ts'
+    import {emote, channel, chart_data, chart_options} from './dashboard/store.ts'
+    import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
     let emote_sum;
     chart_data.subscribe((data) => {
         console.log("subscribed")
@@ -7,6 +9,40 @@
         emote_sum = data.reduce((a, b) => Number(a) + Number(b), 0);
         console.log("emote_sum: ", emote_sum)
     });
+    
+    async function updateChart(chart) {
+        if ($emote != '') {
+            console.log("updating chart");
+            const domain = "https://chat-stat-api.fomiller-cluster.dev.aws.fomillercloud.com";
+            let endpoint = `api/emote/average/${$channel}/${$emote}/60`;
+            let response = await fetch(`${domain}/${endpoint}`);
+            let data = await response.json();
+            console.log(data)
+            // resetChartData()
+            $chart_data = Array.from(data["rows"], (x) => x[1])
+            // setChartData(x) 
+            console.log($chart_data);
+        }
+    }
+    
+    
+    onMount(async () => {
+        if (browser) {
+            if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("area-chart"), $chart_options);
+                chart.render();
+                chart_data.subscribe((data) => {
+                    chart.updateSeries([{
+                        name: `${$emote}s`,
+                        data: data,
+                        color: "#9146FF",
+                    }]);
+                });
+                window.setInterval(updateChart, 60000, chart);
+            }
+        }
+	});
+    
 </script>
 
 <div class="min-w-full w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
