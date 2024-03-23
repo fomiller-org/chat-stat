@@ -44,6 +44,11 @@ jobs:
       lambda_dir: src/lambdas/twitcheventsub
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
+      src-filters: |
+        lambda:
+          - 'src/lambdas/twitcheventsub/**'
+          - 'infra/modules/aws/lambda/**'
         
   Build-lambda-twitch-event-sub-webhook:
     name: 'Build lambda twitch-event-sub-webhook'
@@ -53,6 +58,11 @@ jobs:
       lambda_dir: src/lambdas/twitcheventsubwebhook
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
+      src-filters: |
+        lambda:
+          - 'src/lambdas/twitcheventsubwebhook/**'
+          - 'infra/modules/aws/lambda/**'
         
   Build-lambda-twitch-record-manager:
     name: 'Build lambda twitch-record-manager'
@@ -62,6 +72,11 @@ jobs:
       lambda_dir: src/lambdas/twitchrecordmanager
       lambda_output:  infra/modules/aws/lambda/bin/
       artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
+      src-filters: |
+        lambda:
+          - 'src/lambdas/twitchrecordmanager/**'
+          - 'infra/modules/aws/lambda/**'
         
   Deploy-infra:
     name: 'Deploy Infra'
@@ -108,6 +123,22 @@ jobs:
         docker:
           - 'dockerfile.api'
           - 'src/api/**'
+    secrets: inherit
+      
+  Build-chat-stat-frontend-image:
+    name: 'Build/Deploy ECR chat-stat-frontend image'
+    needs: Deploy-infra
+    uses: fomiller/gh-actions/.github/workflows/ecr.yaml@main
+    with:
+      environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
+      repo: frontend
+      repo-prefix: "fomiller-chat-stat"
+      dockerfile: dockerfile.frontend
+      platforms: '["linux/amd64"]'
+      src-filters: |
+        docker:
+          - 'dockerfile.frontend'
+          - 'src/frontend/**'
     secrets: inherit
     
     # use if you need to debug workflow

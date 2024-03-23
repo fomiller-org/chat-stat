@@ -1,0 +1,22 @@
+<!-- prettier-ignore -->
+<script>
+    <!-- <script> -->
+    var myData = {{data| json}}
+    var members = {{members| json}}
+    // var data = Alpine.reactive({count: members})
+    // Alpine.effect(() => {
+    //     // console.log(data.count)
+    // })
+    chart.updateSeries([{
+        name: "New users",
+        data: myData,
+        color: "#1A56DB",
+    }]);
+    var el = document.getElementById("myId")
+    var el2 = document.getElementById("chart_percentage")
+    original = el.textContent
+    var new_percent = Math.round(((original - members) / original) * 100)
+
+    el.textContent = members
+    el2.textContent = new_percent
+</script>

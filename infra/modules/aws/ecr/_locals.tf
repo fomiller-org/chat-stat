@@ -1,3 +1,3 @@
 locals {
-  ecr_repos = ["api", "bot", "logger"]
+  ecr_repos = ["api", "bot", "logger", "frontend"]
 }
