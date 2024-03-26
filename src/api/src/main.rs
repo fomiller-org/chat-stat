@@ -267,13 +267,21 @@ async fn channel_average_emote_count_with_interval(
 #[derive(Deserialize, Debug)]
 struct TopUsedQueryParams {
     limit: usize,
+    interval: String,
 }
 
 impl Default for TopUsedQueryParams {
     fn default() -> Self {
-        Self { limit: 5 }
+        Self {
+            limit: 5,
+            interval: "8h".to_string(),
+        }
     }
 }
+// s (second)
+// m (minute)
+// h (hour)
+// d (day)
 
 // returns top X emotes over X interval
 async fn top_used_emotes_over_interval(
@@ -287,11 +295,11 @@ async fn top_used_emotes_over_interval(
         SELECT emote, count(emote) AS emote_count
         FROM "fomiller"."chat-stat"
         WHERE channel='{}' 
-        AND time > ago(2h)
+        AND time > ago({})
         GROUP BY emote
         ORDER BY emote_count DESC LIMIT {:?}
         "#,
-        channel, params.limit
+        channel, params.interval, params.limit
     );
     let res = state.clients["query"]
         .query()
