@@ -11,6 +11,9 @@
 
 <DashboardInput/>
 
+{#if $channel}
+    <Donut/>
+{/if}
 {#if $emote_chart_visible}
     <Chart/>
 {/if}
@@ -22,6 +25,7 @@
 <script>
 	/** @type {import('./$types').PageData} */
     import Chart from '../Chart.svelte';
+    import Donut from '../Donut.svelte';
     import DashboardInput from '../DashboardInput.svelte';
     import { browser } from '$app/environment';
     import {emote, channel, chart_data, emote_chart_visible, setChartData, resetChartData} from './store.ts'
