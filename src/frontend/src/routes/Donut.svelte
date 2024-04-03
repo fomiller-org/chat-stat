@@ -23,32 +23,33 @@
                 const chart = new ApexCharts(document.getElementById("donut-chart"), $donut_chart_options);
                 console.log($donut_chart_options);
                 chart.render();
+                chart.updateSeries(Array.from($top_emotes, (e) => Number(e.value)));
                 // window.setInterval(updateChart, 5000, chart);
                 // Get all the checkboxes by their class name
                 const checkboxes = document.querySelectorAll('#top_emotes input[type="checkbox"]');
 
                 // Function to handle the checkbox change event
-                function handleCheckboxChange(event, chart) {
-                    const checkbox = event.target;
-                    if (checkbox.checked) {
-                        switch(checkbox.value) {
-                        case 'OMEGALAUGHING':
-                        chart.updateSeries([15.1, 22.5, 4.4, 8.4]);
-                        break;
-                        case 'ROFL':
-                        chart.updateSeries([25.1, 26.5, 1.4, 3.4]);
-                        break;
-                        case 'Classic':
-                        chart.updateSeries([45.1, 27.5, 8.4, 2.4]);
-                        break;
-                        default:
-                        chart.updateSeries([55.1, 28.5, 1.4, 5.4]);
-                    }
-
-                    } else {
-                        chart.updateSeries([35.1, 23.5, 2.4, 5.4]);
-                    }
-                }
+                // function handleCheckboxChange(event, chart) {
+                //     const checkbox = event.target;
+                //     if (checkbox.checked) {
+                //         switch(checkbox.value) {
+                //         case 'OMEGALAUGHING':
+                //         chart.updateSeries([15.1, 22.5, 4.4, 8.4]);
+                //         break;
+                //         case 'ROFL':
+                //         chart.updateSeries([25.1, 26.5, 1.4, 3.4]);
+                //         break;
+                //         case 'Classic':
+                //         chart.updateSeries([45.1, 27.5, 8.4, 2.4]);
+                //         break;
+                //         default:
+                //         chart.updateSeries([55.1, 28.5, 1.4, 5.4]);
+                //     }
+                //
+                //     } else {
+                //         chart.updateSeries([35.1, 23.5, 2.4, 5.4]);
+                //     }
+                // }
 
                 // Attach the event listener to each checkbox
                 checkboxes.forEach((checkbox) => {

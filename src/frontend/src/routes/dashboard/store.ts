@@ -9,7 +9,7 @@ export const limit = readable("3");
 export const interval = readable("120m");
 export const top_emotes = writable([{ "value": 100 }])
 export const donut_chart_options = readable({
-    series: Array.from(top_emotes, (x) => x.value),
+    series: [],
     colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
     chart: {
         height: 320,
@@ -33,13 +33,13 @@ export const donut_chart_options = readable({
                     total: {
                         showAlways: true,
                         show: true,
-                        label: "Unique visitors",
+                        label: "Emotes",
                         fontFamily: "Inter, sans-serif",
                         formatter: function(w) {
                             const sum = w.globals.seriesTotals.reduce((a, b) => {
                                 return a + b
                             }, 0)
-                            return '$' + sum + 'k'
+                            return sum
                         },
                     },
                     value: {
