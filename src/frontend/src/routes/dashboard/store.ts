@@ -5,6 +5,91 @@ export const channel = writable("");
 export const chart_data = writable([]);
 export const channel_emotes = writable([]);
 export const emote_chart_visible = writable(false);
+export const limit = readable("10");
+export const interval = readable("120m");
+export const top_emotes = writable([])
+export const donut_chart_options = writable({
+    series: [],
+    colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
+    chart: {
+        height: 320,
+        width: "100%",
+        type: "donut",
+    },
+    stroke: {
+        colors: ["transparent"],
+        lineCap: "",
+    },
+    plotOptions: {
+        pie: {
+            donut: {
+                labels: {
+                    show: true,
+                    name: {
+                        show: true,
+                        fontFamily: "Inter, sans-serif",
+                        offsetY: 20,
+                    },
+                    total: {
+                        showAlways: true,
+                        show: true,
+                        label: "Emotes",
+                        fontFamily: "Inter, sans-serif",
+                        formatter: function(w) {
+                            const sum = w.globals.seriesTotals.reduce((a, b) => {
+                                return a + b
+                            }, 0)
+                            return sum
+                        },
+                    },
+                    value: {
+                        show: true,
+                        fontFamily: "Inter, sans-serif",
+                        offsetY: -20,
+                        formatter: function(value) {
+                            return value
+                        },
+                    },
+                },
+                size: "80%",
+            },
+        },
+    },
+    grid: {
+        padding: {
+            top: -2,
+        },
+    },
+    labels: [],
+    dataLabels: {
+        enabled: false,
+    },
+    legend: {
+        position: "bottom",
+        fontFamily: "Inter, sans-serif",
+    },
+    yaxis: {
+        labels: {
+            formatter: function(value) {
+                return value
+            },
+        },
+    },
+    xaxis: {
+        labels: {
+            formatter: function(value) {
+                return value
+            },
+        },
+        axisTicks: {
+            show: false,
+        },
+        axisBorder: {
+            show: false,
+        },
+    },
+}
+)
 export const chart_options = readable({
     chart: {
         height: "100%",

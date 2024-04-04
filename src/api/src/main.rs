@@ -3,7 +3,7 @@ use aws_config::BehaviorVersion;
 use aws_sdk_timestreamquery::Client;
 use axum::http::HeaderMap;
 use axum::{
-    extract::{Form, Json, Path, State},
+    extract::{Form, Json, Path, Query, State},
     http::StatusCode,
     response::{Html, IntoResponse, Response},
     routing::*,
@@ -39,6 +39,7 @@ async fn main() {
         .route("/data", get(update_chart))
         .route("/json", get(get_json))
         .route("/channel/:channel/", get(channel_total_emote_count))
+        .route("/channel/:channel/top/", get(top_used_emotes_over_interval))
         .route(
             "/channel/:channel/average/:interval",
             get(channel_average_emote_count_with_interval),
@@ -232,6 +233,73 @@ async fn channel_average_emote_count_with_interval(
         ORDER BY binned_timestamp ASC
         "#,
         interval, channel, interval
+    );
+    let res = state.clients["query"]
+        .query()
+        .query_string(query)
+        .send()
+        .await;
+
+    match res {
+        Ok(r) => {
+            let x = r.rows();
+            let data = x
+                .into_iter()
+                .map(|r| {
+                    r.data()
+                        .into_iter()
+                        .map(|d| d.scalar_value().unwrap().to_string())
+                        .collect::<Vec<String>>()
+                })
+                .collect::<Vec<Vec<String>>>();
+            Ok(Json(json!({
+                "total rows": x.len(),
+                "rows": data
+            })))
+        }
+        Err(e) => {
+            eprintln!("{:?}", e.as_service_error());
+            Err(StatusCode::NOT_FOUND)
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+struct TopUsedQueryParams {
+    limit: usize,
+    interval: String,
+}
+
+impl Default for TopUsedQueryParams {
+    fn default() -> Self {
+        Self {
+            limit: 5,
+            interval: "8h".to_string(),
+        }
+    }
+}
+// s (second)
+// m (minute)
+// h (hour)
+// d (day)
+
+// returns top X emotes over X interval
+async fn top_used_emotes_over_interval(
+    Path(channel): Path<String>,
+    State(state): State<Arc<AppState>>,
+    query_params: Option<Query<TopUsedQueryParams>>,
+) -> Result<Json<Value>, StatusCode> {
+    let params = query_params.unwrap_or_default();
+    let query = format!(
+        r#"
+        SELECT emote, count(emote) AS emote_count
+        FROM "fomiller"."chat-stat"
+        WHERE channel='{}' 
+        AND time > ago({})
+        GROUP BY emote
+        ORDER BY emote_count DESC LIMIT {:?}
+        "#,
+        channel, params.interval, params.limit
     );
     let res = state.clients["query"]
         .query()

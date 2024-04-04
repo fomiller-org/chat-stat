@@ -1,6 +1,7 @@
 <script>
     import {emote, channel, channel_emotes, emote_chart_visible, chart_data, setChartData} from './dashboard/store.ts'
     let emoteInputVisible = false;
+    
     async function setChannel() {
         emoteInputVisible = false;
         $emote_chart_visible = false;
