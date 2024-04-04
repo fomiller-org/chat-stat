@@ -5,10 +5,10 @@ export const channel = writable("");
 export const chart_data = writable([]);
 export const channel_emotes = writable([]);
 export const emote_chart_visible = writable(false);
-export const limit = readable("3");
+export const limit = readable("10");
 export const interval = readable("120m");
-export const top_emotes = writable([{ "value": 100 }])
-export const donut_chart_options = readable({
+export const top_emotes = writable([])
+export const donut_chart_options = writable({
     series: [],
     colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
     chart: {
@@ -47,7 +47,7 @@ export const donut_chart_options = readable({
                         fontFamily: "Inter, sans-serif",
                         offsetY: -20,
                         formatter: function(value) {
-                            return value + "k"
+                            return value
                         },
                     },
                 },
@@ -60,7 +60,7 @@ export const donut_chart_options = readable({
             top: -2,
         },
     },
-    labels: ["Direct", "Sponsor", "Affiliate", "Email marketing"],
+    labels: [],
     dataLabels: {
         enabled: false,
     },
@@ -71,14 +71,14 @@ export const donut_chart_options = readable({
     yaxis: {
         labels: {
             formatter: function(value) {
-                return value + "k"
+                return value
             },
         },
     },
     xaxis: {
         labels: {
             formatter: function(value) {
-                return value + "k"
+                return value
             },
         },
         axisTicks: {
