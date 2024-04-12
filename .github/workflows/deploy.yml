@@ -27,15 +27,6 @@ jobs:
           cancel_others: 'true'
           concurrent_skipping: 'same_content_newer'
             
-  Build-lambda-hello-world:
-    name: 'Build lambda Hello World'
-    needs: Pre-check
-    uses: fomiller/gh-actions/.github/workflows/go-lambda.yaml@main
-    with:
-      lambda_src: src/cmd/lambda/hello/main.go
-      lambda_output:  infra/modules/aws/lambda/bin/hello/bootstrap
-      artifacts_dir: infra/modules/aws/lambda/bin
-        
   Build-lambda-twitch-event-sub:
     name: 'Build lambda twitch-event-sub'
     needs: Pre-check
