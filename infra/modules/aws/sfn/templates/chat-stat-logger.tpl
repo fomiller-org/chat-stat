@@ -25,7 +25,6 @@
                               "matchLabels": {
                                   "app.$": "States.Format('chat-stat-logger-{}', $.stream_id)",
                                   "channel.$": "$.stream_id",
-                                  "compute": "fargate"
                               }
                           },
                           "template": {
@@ -33,7 +32,6 @@
                                   "labels": {
                                       "app.$": "States.Format('chat-stat-logger-{}', $.stream_id)",
                                       "channel.$": "$.stream_id",
-                                      "compute": "fargate"
                                   }
                               },
                               "spec": {
