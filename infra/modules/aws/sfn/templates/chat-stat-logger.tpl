@@ -24,7 +24,7 @@
                           "selector": {
                               "matchLabels": {
                                   "app.$": "States.Format('chat-stat-logger-{}', $.stream_id)",
-                                  "channel.$": "$.stream_id",
+                                  "channel.$": "$.stream_id"
                               }
                           },
                           "template": {
@@ -32,10 +32,14 @@
                                   "labels": {
                                       "app.$": "States.Format('chat-stat-logger-{}', $.stream_id)",
                                       "channel.$": "$.stream_id",
+                                      "kubernetes.io/arch": "amd64"
                                   }
                               },
                               "spec": {
                                   "serviceAccountName": "fargate-chat-stat",
+                                  "nodeSelector": {
+                                    "kubernetes.io/arch": "amd64"
+                                  },
                                   "containers": [
                                   {
                                       "name": "chat-stat-logger",
