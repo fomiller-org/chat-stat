@@ -225,7 +225,7 @@ async fn channel_average_emote_count_with_interval(
     let query = format!(
         r#"
         SELECT BIN(time,{}s) AS binned_timestamp, count(*) AS emote_count
-        FROM "fomiller"."chat-stat"
+        FROM fomiller.chat_stat
         WHERE measure_name = 'count'
             AND channel = '{}'
             AND time > ago(2h)
@@ -293,7 +293,7 @@ async fn top_used_emotes_over_interval(
     let query = format!(
         r#"
         SELECT emote, count(emote) AS emote_count
-        FROM "fomiller"."chat-stat"
+        FROM fomiller.chat_stat
         WHERE channel='{}' 
         AND time > ago({})
         GROUP BY emote
@@ -339,7 +339,7 @@ async fn channel_average_individual_emote_count_with_interval(
     let query = format!(
         r#"
         SELECT BIN(time,{}s) AS binned_timestamp, count(emote) AS emote_count
-        FROM "fomiller"."chat-stat"
+        FROM fomiller.chat_stat
         WHERE measure_name = 'count'
             AND emote = '{}'
             AND channel = '{}'
@@ -388,7 +388,7 @@ async fn get_all_channel_emotes(
         r#"
         SELECT
            emote
-        FROM "fomiller"."chat-stat"
+        FROM fomiller.chat_stat
         WHERE channel='{}'
         GROUP BY emote
         "#,
