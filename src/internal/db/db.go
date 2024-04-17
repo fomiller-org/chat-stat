@@ -15,7 +15,7 @@ import (
 )
 
 var TimeStreamDbName = "fomiller"
-var TimeStreamTableName = "chat-stat"
+var TimeStreamTableName = "chat_stat"
 
 func getEnvWithFallback(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
