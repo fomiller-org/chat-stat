@@ -68,6 +68,20 @@ jobs:
         lambda:
           - 'src/lambdas/twitchrecordmanager/**'
           - 'infra/modules/aws/lambda/**'
+            
+  Build-lambda-timestream-query:
+    name: 'Build lambda timestream-query'
+    needs: Pre-check
+    uses: fomiller/gh-actions/.github/workflows/rust-lambda.yaml@main
+    with:
+      lambda_dir: src/lambdas/timestreamquery
+      lambda_output:  infra/modules/aws/lambda/bin/
+      artifacts_dir: infra/modules/aws/lambda/bin
+      # conditionally build lambdas if these files change
+      src-filters: |
+        lambda:
+          - 'src/lambdas/timestreamquery/**'
+          - 'infra/modules/aws/lambda/**'
         
   Deploy-infra:
     name: 'Deploy Infra'
@@ -75,6 +89,7 @@ jobs:
       - Build-lambda-twitch-event-sub
       - Build-lambda-twitch-event-sub-webhook
       - Build-lambda-twitch-record-manager
+      - Build-lambda-timestream-query
     uses: fomiller/gh-actions/.github/workflows/terragrunt.yaml@main
     with:
       environment: ${{ contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref) && 'prod' || 'dev' }}
