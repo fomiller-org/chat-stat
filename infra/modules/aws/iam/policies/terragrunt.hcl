@@ -7,7 +7,7 @@ dependency "lambda" {
     mock_outputs_merge_strategy_with_state = "shallow"
     mock_outputs_allowed_terraform_commands = ["validate", "plan", "apply", "destroy"]
     mock_outputs = {
-         lambda_arn_time_stream_query = "arn:aws:lambda:us-east-1:123456789012:function:fomiller-chat-stat-timestream-query"
+         lambda_arn_timestream_query = "arn:aws:lambda:us-east-1:123456789012:function:fomiller-chat-stat-timestream-query"
     }
 }
 dependency "roles" {
@@ -47,7 +47,7 @@ inputs = {
     iam_role_name_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_name_lambda_twitch_event_sub_webhook
     iam_role_name_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_name_lambda_twitch_record_manager
     iam_role_name_sfn_chat_stat_logger = dependency.roles.outputs.iam_role_name_sfn_chat_stat_logger
-    lambda_arn_time_stream_query = dependency.lambda.outputs.lambda_arn_time_stream_query
+    lambda_arn_timestream_query = dependency.lambda.outputs.lambda_arn_timestream_query
     s3_bucket_arn_chat_stat = dependency.s3.outputs.s3_bucket_arn_chat_stat
     sfn_arn_chat_stat_logger = dependency.sfn.outputs.sfn_arn_chat_stat_logger
 }
