@@ -50,10 +50,10 @@ dependency "s3" {
 
 inputs = {
     dynamodb_table_stream_arn_chat_stat = dependency.dynamodb.outputs.dynamodb_table_stream_arn_chat_stat
+    iam_role_arn_lambda_timestream_query = dependency.roles.outputs.iam_role_arn_lambda_timestream_query
     iam_role_arn_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub
     iam_role_arn_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub_webhook
     iam_role_arn_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_arn_lambda_twitch_record_manager
-    iam_role_arn_lambda_timestream_query = dependency.roles.outputs.iam_role_arn_lambda_timestream_query
-    secretsmanager_secret_version_twitch_creds = dependency.secrets.outputs.secretsmanager_secret_version_twitch_creds
     s3_bucket_name_chat_stat = dependency.s3.outputs.s3_bucket_name_chat_stat
+    secretsmanager_secret_version_twitch_creds = dependency.secrets.outputs.secretsmanager_secret_version_twitch_creds
 }
