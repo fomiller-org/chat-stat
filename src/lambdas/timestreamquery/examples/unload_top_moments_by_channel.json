@@ -1,0 +1,7 @@
+{
+    "query_type": "unload_top_moments_by_channel",
+    "channel": "sodapoppin",
+    "bin_time": "60s",
+    "limit": "10",
+    "start_time": "2024-04-19T17:48:00.000Z"
+}
