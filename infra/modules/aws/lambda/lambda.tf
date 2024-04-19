@@ -70,8 +70,9 @@ resource "aws_lambda_function" "timestream_query" {
   timeout          = 10
   environment {
     variables = {
-      REGION  = data.aws_region.current.name
-      ACCOUNT = data.aws_caller_identity.current.account_id
+      REGION           = data.aws_region.current.name
+      ACCOUNT          = data.aws_caller_identity.current.account_id
+      CHAT_STAT_BUCKET = var.s3_bucket_name_chat_stat
     }
   }
 }
