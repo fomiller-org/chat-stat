@@ -1,0 +1,6 @@
+{
+    "query_type": "top_moments_cross_channel",
+    "bin_time": "60s",
+    "limit": "10",
+    "time": "7d"
+}
