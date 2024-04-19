@@ -127,7 +127,7 @@
               "Type":"Task",
               "Resource":"arn:aws:states:::lambda:invoke",
               "Parameters":{  
-                  "FunctionName":"${lambda_arn_timestream_query}"
+                  "FunctionName":"${lambda_arn_timestream_query}",
                   "Payload":{
                       "query_type": "unload_top_moments_by_channel",
                       "channel.$": "$.deployment.stream_id",
