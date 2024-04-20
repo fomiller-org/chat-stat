@@ -121,6 +121,7 @@
                   "MaxAttempts": 2,
                   "BackoffRate": 2
               }],
+              "ResultPath": null,
               "Next": "Timestream: UNLOAD Top Moments By Channel"
           },
           "Timestream: UNLOAD Top Moments By Channel":{  
