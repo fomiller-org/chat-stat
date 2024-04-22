@@ -134,7 +134,7 @@
                       "channel.$": "$.deployment.stream_id",
                       "bin_time": "60s",
                       "limit": "10",
-                      "start_time": "$$.Execution.StartTime"
+                      "start_time.$": "$$.Execution.StartTime"
                   }
               },
               "Next": "SuccessState"
