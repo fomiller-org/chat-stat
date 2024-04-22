@@ -13,3 +13,7 @@ resource "aws_cloudwatch_log_group" "twitch_record_manager" {
   retention_in_days = 7
 }
 
+resource "aws_cloudwatch_log_group" "timestream_query" {
+  name              = "/aws/lambda/${aws_lambda_function.timestream_query.function_name}"
+  retention_in_days = 7
+}
