@@ -37,3 +37,8 @@ resource "aws_iam_role_policy_attachment" "sfn_chat_stat_logger_cloudwatch_attac
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
   role       = var.iam_role_name_sfn_chat_stat_logger
 }
+
+resource "aws_iam_role_policy_attachment" "lambda_timestream_query" {
+  policy_arn = aws_iam_policy.lambda_timestream_query.arn
+  role       = var.iam_role_name_lambda_timestream_query
+}

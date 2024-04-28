@@ -1,12 +1,13 @@
 data "template_file" "chat_stat_logger_sfn" {
   template = file("${path.module}/templates/chat-stat-logger.tpl")
   vars = {
-    twitch_client_id     = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
-    twitch_client_secret = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
-    cluster_endpoint     = data.aws_eks_cluster.fomiller.endpoint
-    cluster_certificate  = data.aws_eks_cluster.fomiller.certificate_authority[0].data
-    cluster_name         = "${var.namespace}-cluster"
-    namespace            = var.app_prefix
+    twitch_client_id            = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_id"]
+    twitch_client_secret        = jsondecode(var.secretsmanager_secret_version_twitch_creds)["client_secret"]
+    cluster_endpoint            = data.aws_eks_cluster.fomiller.endpoint
+    cluster_certificate         = data.aws_eks_cluster.fomiller.certificate_authority[0].data
+    cluster_name                = "${var.namespace}-cluster"
+    namespace                   = var.app_prefix
+    lambda_arn_timestream_query = var.lambda_arn_timestream_query
   }
 }
 

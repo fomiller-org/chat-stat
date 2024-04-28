@@ -35,13 +35,25 @@ dependency "roles" {
         iam_role_arn_lambda_twitch_event_sub = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchEventSub"
         iam_role_arn_lambda_twitch_event_sub_webhook = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchEventSubWebhook"
         iam_role_arn_lambda_twitch_record_manager = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTwitchRecordManager"
+        iam_role_arn_lambda_timestream_query = "arn:aws:iam::123456789012:role/MOCK-FomillerLambdaTimestreamQuery"
+    }
+}
+
+dependency "s3" {
+    config_path = "../s3"
+    mock_outputs_merge_strategy_with_state = "shallow"
+    mock_outputs_allowed_terraform_commands = ["validate", "plan", "apply", "destroy"]
+    mock_outputs = {
+         s3_bucket_name_chat_stat = "fomiller-dev-chat-stat"
     }
 }
 
 inputs = {
     dynamodb_table_stream_arn_chat_stat = dependency.dynamodb.outputs.dynamodb_table_stream_arn_chat_stat
+    iam_role_arn_lambda_timestream_query = dependency.roles.outputs.iam_role_arn_lambda_timestream_query
     iam_role_arn_lambda_twitch_event_sub = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub
     iam_role_arn_lambda_twitch_event_sub_webhook = dependency.roles.outputs.iam_role_arn_lambda_twitch_event_sub_webhook
     iam_role_arn_lambda_twitch_record_manager = dependency.roles.outputs.iam_role_arn_lambda_twitch_record_manager
+    s3_bucket_name_chat_stat = dependency.s3.outputs.s3_bucket_name_chat_stat
     secretsmanager_secret_version_twitch_creds = dependency.secrets.outputs.secretsmanager_secret_version_twitch_creds
 }

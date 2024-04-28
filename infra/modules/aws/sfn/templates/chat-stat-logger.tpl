@@ -121,7 +121,26 @@
                   "MaxAttempts": 2,
                   "BackoffRate": 2
               }],
-              "End": true
+              "ResultPath": null,
+              "Next": "Timestream: UNLOAD Top Moments By Channel"
+          },
+          "Timestream: UNLOAD Top Moments By Channel":{  
+              "Type":"Task",
+              "Resource":"arn:aws:states:::lambda:invoke",
+              "Parameters":{  
+                  "FunctionName":"${lambda_arn_timestream_query}",
+                  "Payload":{
+                      "query_type": "unload_top_moments_by_channel",
+                      "channel.$": "$.deployment.stream_id",
+                      "bin_time": "60s",
+                      "limit": "10",
+                      "start_time.$": "$$.Execution.StartTime"
+                  }
+              },
+              "Next": "SuccessState"
+          },
+          "SuccessState": {
+              "Type": "Succeed"
           }
       }
 }

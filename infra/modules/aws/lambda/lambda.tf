@@ -57,3 +57,22 @@ resource "aws_lambda_function" "twitch_record_manager" {
     }
   }
 }
+
+resource "aws_lambda_function" "timestream_query" {
+  function_name    = "${var.namespace}-${var.app_prefix}-timestream-query"
+  role             = var.iam_role_arn_lambda_timestream_query
+  handler          = "bootstrap"
+  filename         = "${path.module}/bin/timestream-query/bootstrap.zip"
+  source_code_hash = local.source_code_hash["timestream_query"]
+  runtime          = "provided.al2"
+  architectures    = ["arm64"]
+  memory_size      = 128
+  timeout          = 10
+  environment {
+    variables = {
+      REGION           = data.aws_region.current.name
+      ACCOUNT          = data.aws_caller_identity.current.account_id
+      CHAT_STAT_BUCKET = var.s3_bucket_name_chat_stat
+    }
+  }
+}

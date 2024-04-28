@@ -1,0 +1,7 @@
+{
+    "channel": "sodapoppin",
+    "query_type": "top_emote",
+    "query_schedule": "daily",
+    "time": "1d",
+    "limit": "10"
+}

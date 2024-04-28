@@ -21,6 +21,15 @@ data "aws_iam_policy_document" "sfn_chat_stat_logger" {
   statement {
     effect = "Allow"
     actions = [
+      "lambda:InvokeFunction",
+    ]
+    resources = [
+      var.lambda_arn_timestream_query
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
       "eks:*",
     ]
     resources = [

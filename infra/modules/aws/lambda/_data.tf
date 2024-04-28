@@ -1,6 +1,11 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
+data "aws_lambda_function" "timestream_query_exists" {
+  count         = fileexists("${path.module}/bin/timestream-query/bootstrap.zip") ? 0 : 1
+  function_name = "${var.namespace}-${var.app_prefix}-timestream-query"
+}
+
 data "aws_lambda_function" "twitch_event_sub_exists" {
   count         = fileexists("${path.module}/bin/twitch-event-sub/bootstrap.zip") ? 0 : 1
   function_name = "${var.namespace}-${var.app_prefix}-twitch-event-sub"
