@@ -1,70 +1,48 @@
 # Chat-Stat
-A twitch emote metric tracking app
+A Twitch emote metric tracking app
+
+## :construction: Project State :construction:
+
+:rotating_light: THE CURRENT STATUS OF THIS PROJECT IS SUSPENDED :rotating_light:  
+
+I ran into issues with Twitch's api that would not allow me to automate clip
+generation after a live stream ended. There is an unsupported GQL api but I was not able to reverse 
+engineer the [authentication method that Twitch is using](https://github.com/streamlink/streamlink/issues/5370). This was a major feature of the project and has caused me 
+to re-evaluate what I want to do with this project. Notably I also used this project to learn 
+kubernetes, and since the workflow of automating clips, downloading the clip, programatically 
+editing clips together, and then uploading those videos to Youtube is not possible at this time I have decided to 
+[decomission my kubernetes cluster](https://github.com/Fomiller/aws-infrastructure/tree/develop/infra/modules/aws/eks) 
+for the time being. The cost was just to high in the end for a hobby application, with monthly 
+costs > $150 a month. 
+
+I do have plans to reduce the scope of this project in the future to be more inline 
+with the MVP outlined below, and when I do, I plan to use a more serverless architecture 
+by refactoring key components that were running in EKS to Lambda, ECS, and API Gateway. For the time being 
+I will be working on smaller projects such as a personal blog built with [loco](https://loco.rs/) 
+or maybe even some AI projects who knows?! I need to explore other ideas until I am ready to come back to this project. 
+
+This project taught me a lot though. It built on my core DevOps skill set by learning Github Actions 
+and even developing a repository of [reusable actions](https://github.com/Fomiller/gh-actions),
+that I am acutally quite proud of, allowing me to quickly construct pipelines for any new project I start.
+I set up repos that would allow me to deploy shared resources at a 
+[AWS Organization level and Member level](https://github.com/Fomiller/aws-org).
+It Introduced me to EKS and everything that it is capable of, which is a lot! 
+I learned a ton about DNS. I gained experience with DynamoDB. Most importantly I think
+my key take away from this project that I will carry forward into the future is,
+how to manage costs on AWS. Due to my use of K8s I established billing alerts and 
+gained vital hands on knowledge of all the different costs associated with k8s
+and how to minimize them. One of my most proud accomplishments of this project was implementing 
+[Karpenter](https://karpenter.sh/) which immediately cut my clusters compute costs by ~30%.
+
+All around I will count this project as a success because we create these things to learn and I undeniably did just that.
 
 ## MVP
 - as a user I want to be able to navigate to a web page and filter by twitch 
-channel and emote, and see how often that emote was used in the channels chat, 
+channel and emote to see how often that emote was used in the channels chat via a graph 
 within a 1 sec, 5 sec, 30 sec, 1 min, 5min, 1 hour interval. 
 - requirements
     - all infra deployed to aws
     - connect to ~25 channels, possibly hard coded
+    
 ## Architecture
 ![aws-architecture](./assets/chat-stat-2024.png)
-
-## Todo
-[x] connect bot
-[] webserver endpoints
-[] redis locally
-[] connect multiple bots, one per channel of top 100 followed streams, or one for every 20
-[] find api of all emotes, bttv emotes, 7tv emotes?
-[] api endpoint of most followed channels
-[] allow for streamer to add their channel to bot list, some sort of auth needed here
-[] infrastructure
-[] docker setup
-[] write messages to redis if containing emote
-[] redis scaling
-[] server scaling
-[] cicd
-[] cache data points to form a graph that can be rendered by a front end
-[] standard deviation of points on graph
-[] create clip, A, B, versions. 15sec, 30 sec
-[] chat-stat cli
-
-## 7tv emote endpoints
-https://api.7tv.app/v2/emotes/global
-
-## bttv emote endpoints
-limit 100
-
-- top
-    https://api.betterttv.net/3/emotes/shared/top?offset=0&limit=100
-- trending
-    https://api.betterttv.net/3/emotes/shared/trending?offset=0&limit=100
-- global
-    https://api.betterttv.net/3/cached/emotes/global
-- shared
-    https://api.betterttv.net/3/cached/emotes/shared
-
-https://api.7tv.app/v2/emotes/global
-
-## Twitch emotes
-curl -X GET 'https://api.twitch.tv/helix/chat/emotes/global' \
--H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
--H 'Client-Id: uo6dggojyb8d6soh92zknwmi5ej1q2'
-
-## Webhooks
-webhooks for when a streamer goes on and offline, this could trigger a lambda?
-https://dev.twitch.tv/docs/eventsub/eventsub-reference
-- stream offline condition 
-- stream online condition
-
-## helix endpoint
-curl -X GET 'https://api.twitch.tv/v5/videos/1681900380/comments?content_offset_seconds=1' \
--A "Accept: application/vnd.twitchtv.v5+json; charset=UTF-8" \
--H 'Client-Id: kimne78kx3ncx6brgo4mv6wki5h1ko'\
-
-# Running locally
-- start redis service
-`brew service start redis`
-- test redis database is Running
-`redis-cli `
